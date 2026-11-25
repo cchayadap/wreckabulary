@@ -3,11 +3,6 @@ using UnityEngine.UI;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// Grows the mode step to fill the page under the category tabs, like a party game's mode screen,
-    /// then sizes the preview and the tile pictures to match. Runs after layout, so it never edits
-    /// the layout while Unity is rebuilding it.
-    /// </summary>
     public sealed class LobbyPlayStepFit : MonoBehaviour
     {
         public RectTransform Preview, Words, Tiles;
@@ -21,7 +16,6 @@ namespace Wreckabulary
             float viewport = scroll && scroll.viewport ? scroll.viewport.rect.height : 0f;
             if (viewport <= 0f || !Preview || !(Preview.parent is RectTransform detail)) return;
             float width = detail.rect.width;
-            // Whatever sits above the step in the same column (the category tabs) shares the viewport.
             float above = 0f;
             if (transform.parent is RectTransform column)
             {
@@ -40,7 +34,6 @@ namespace Wreckabulary
             element.minHeight = element.preferredHeight = height;
 
             float pictureWidth = Mathf.Max(0f, Mathf.Min((height - Pad * 2) * LobbyPlayModePreview.Aspect, width - Pad * 3 - WordsMinimum));
-            // Too narrow to read: drop the picture and give the words the whole panel.
             if (pictureWidth < PictureMinimum) pictureWidth = 0f;
             Preview.gameObject.SetActive(pictureWidth > 0f);
             float pictureHeight = pictureWidth / LobbyPlayModePreview.Aspect;

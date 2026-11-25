@@ -34,6 +34,7 @@ namespace Wreckabulary
         public abstract string Id { get; }
         public virtual bool CanLook => false;
         public virtual bool ReadsMouse => false;
+        public virtual bool HoldingAttackRaisesShield => true;
         public abstract void Read(ref PlayerCommands c);
         public abstract bool JoinPressed();
         public abstract bool StartPressed();
@@ -78,6 +79,7 @@ namespace Wreckabulary
         }
 
         public override string Id => id;
+        public override bool HoldingAttackRaisesShield => false;
 
         static float Axis(KeyControl positive, KeyControl negative) =>
             (positive.isPressed ? 1f : 0f) - (negative.isPressed ? 1f : 0f);
@@ -175,6 +177,7 @@ namespace Wreckabulary
             }
         }
         public override bool CanLook => true;
+        public override bool HoldingAttackRaisesShield => false;
         public bool BagHeld => !KeyBindings.GameplayBlocked && Pad != null && Pad.added && Pad.rightShoulder.isPressed;
 
         public override void Read(ref PlayerCommands c)

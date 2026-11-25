@@ -13,6 +13,7 @@ namespace Wreckabulary.Rules
         public int MinSeats = 1, MaxSeats = 4, BotSeats;
         public int Sides;
         public bool Teams, Coop, Rounds;
+        public string[] Maps = System.Array.Empty<string>();
 
         public bool BotsPlay => BotSeats > 0;
     }
@@ -23,8 +24,7 @@ namespace Wreckabulary.Rules
         public const string MovingOut = "MovingOut", MovingDay = "MovingDay", Escape = "Escape";
         public const string ShoppingList = "ShoppingList", RiddleRush = "RiddleRush", BossFight = "BossFight";
 
-        /// <summary>The one house a mode always plays in, or null when the player picks the house.</summary>
-        public static string FixedHouse(string mode) => mode == BossFight ? "pinwheel" : null;
+        public static string FixedHouse(string mode) => mode == BossFight ? BossFightTuning.Map : null;
 
         static readonly HouseMode[] Entries =
         {
@@ -90,7 +90,7 @@ namespace Wreckabulary.Rules
             },
             new HouseMode
             {
-                Id = BossFight, Name = "Boss Fight", Family = HouseModeFamily.Arcade, Tag = "SOLO BOSS", MaxSeats = 1,
+                Id = BossFight, Name = "Boss Fight", Family = HouseModeFamily.Arcade, Tag = "SOLO BOSS", MaxSeats = 1, Maps = new[] { BossFightTuning.Map },
                 Goal = "Crack the Calculator's shield, then knock it out",
                 Blurb = "Smash furniture into letters and spell CALC, ULA and TOR to crack the Calculator's three shields, then hit it before time runs out.",
             },

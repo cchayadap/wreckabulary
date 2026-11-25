@@ -18,7 +18,7 @@ namespace Wreckabulary.Tests
         const string LastKey = Wreckabulary.Rules.LastPlayChoice.StorageKey;
         static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, QuickPlayChoices.StorageKey, FriendRooms.StorageKey, LastKey };
         static readonly Vector2 Wide = new Vector2(1868, 968), Short = new Vector2(900, 580);
-        const float SmallestLabel = 15f, SmallestTarget = 44f, ModeRow = 52f;
+        const float SmallestLabel = 15f, SmallestTarget = 44f;
         const int HousesInARow = 5;
         string[] saved;
         float volume, delay;
@@ -79,7 +79,6 @@ namespace Wreckabulary.Tests
         static RectTransform Page => LobbyMenu.Instance.Page<PlayPage>().Root;
         static Button Find(string name) => Reach(name) ?? Page.GetComponentsInChildren<Button>().Single(button => button.name == name);
 
-        /// <summary>Press Next (house modes and courses both have one) when the page is on its mode step.</summary>
         static bool PressNext()
         {
             var next = Present("GO") ?? Present("Solo GO");
@@ -92,11 +91,6 @@ namespace Wreckabulary.Tests
 
         static Button Present(string name) => Page.GetComponentsInChildren<Button>().FirstOrDefault(button => button.name == name);
 
-        /// <summary>
-        /// The Play page picks a mode and then a house on separate steps, and lists one category's
-        /// modes at a time. Walk there the way a player would: back to the modes, open the mode's
-        /// category, or press Next to reach the houses.
-        /// </summary>
         static Button Reach(string name)
         {
             var found = Present(name);
@@ -116,11 +110,6 @@ namespace Wreckabulary.Tests
             }
             return PressNext() ? Present(name) : null;
         }
-        /// <summary>
-        /// Press a category the way a player would, then put back the choice that press made (it
-        /// selects the category's first open mode) so a test sees only its own picks. The page keeps
-        /// showing the category until its next refresh.
-        /// </summary>
         static void Browse(Button category)
         {
             var menu = LobbyMenu.Instance; var page = menu.Page<PlayPage>();
@@ -132,8 +121,6 @@ namespace Wreckabulary.Tests
             WordboundSoloEntry.Select(course); WordboundSoloEntry.SelectMap(courseMap);
             page.WordboundSolo = solo;
             if (had) PlayerPrefs.SetString(LastKey, remembered); else PlayerPrefs.DeleteKey(LastKey);
-            // The press does nothing when the current choice is already in that category; then the
-            // page only needs to show it again.
             string name = category ? category.name : null;
             var family = HouseModes.Families.FirstOrDefault(item => PlayPage.CategoryCard + HouseModes.FamilyName(item) == name);
             if (name != null && !HouseModes.ModesIn(family).Any(item => Present(PlayPage.ModeButton(item)))) page.Refresh();
@@ -146,7 +133,6 @@ namespace Wreckabulary.Tests
 
         static string Detail => Page.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Mode detail").text;
 
-        /// <summary>Every house mode the page offers, visiting each category in turn and coming back.</summary>
         static string[] Modes
         {
             get
@@ -172,7 +158,6 @@ namespace Wreckabulary.Tests
             }
         }
 
-        /// <summary>Every button on the house step (pressing Next to get there when the mode has one).</summary>
         static Button[] HouseStep
         {
             get
@@ -210,7 +195,6 @@ namespace Wreckabulary.Tests
 
         static string[] Sections => CategoryCards.Select(card => card.name.Substring(PlayPage.CategoryCard.Length)).ToArray();
 
-        /// <summary>The tiles of one category, opening it first when another category is showing.</summary>
         static Transform Section(HouseModeFamily family)
         {
             if (!HouseModes.ModesIn(family).Any(mode => Present(PlayPage.ModeButton(mode))))
@@ -236,7 +220,7 @@ namespace Wreckabulary.Tests
             {
                 Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = size;
                 Pick("TimeRun"); yield return null; yield return null;
-                PageScroll.verticalNormalizedPosition = 1f; // a course lists its maps under the step, so the page may scroll
+                PageScroll.verticalNormalizedPosition = 1f;
                 Canvas.ForceUpdateCanvases();
                 var frame = Page.GetComponentInChildren<LobbyPlayPageView>();
                 var row = CategoryRow;
@@ -434,11 +418,19 @@ namespace Wreckabulary.Tests
             Assert.AreSame(map.gameObject, EventSystem.current.currentSelectedGameObject, "Resize keeps the selected map.");
             Assert.GreaterOrEqual(focused.yMin, viewport.yMin - .1f, "Resize reveals the same selected map.");
             Assert.LessOrEqual(focused.yMax, viewport.yMax + .1f, "Resize reveals the same selected map.");
-            scroll.verticalNormalizedPosition = 1f;
+            float grid = Page.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Houses").cellSize.y;
             yield return null;
             yield return null;
-            Assert.That(scroll.verticalNormalizedPosition, Is.EqualTo(1f).Within(.01f),
-                "Manual scrolling must not jump back to an unchanged selection.");
+            Assert.That(Page.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Houses").cellSize.y, Is.EqualTo(grid).Within(.01f),
+                "An unchanged page keeps one card size from frame to frame.");
+            if (scroll.content.rect.height > scroll.viewport.rect.height + .1f)
+            {
+                scroll.verticalNormalizedPosition = 1f;
+                yield return null;
+                yield return null;
+                Assert.That(scroll.verticalNormalizedPosition, Is.EqualTo(1f).Within(.01f),
+                    "Manual scrolling must not jump back to an unchanged selection.");
+            }
             Assert.AreEqual("Duos", menu.Mode); Assert.AreEqual("flat", menu.Map);
         }
 
@@ -622,7 +614,6 @@ namespace Wreckabulary.Tests
             yield return null;
         }
 
-        /// <summary>The mode step (categories' tiles beside the detail panel), or the house step's header.</summary>
         static RectTransform Strip
         {
             get
@@ -1334,8 +1325,10 @@ namespace Wreckabulary.Tests
                 {
                     menu.Choose(LobbyMenu.Practice, "ShoppingList", "flat");
                     menu.Page<PlayPage>().WordboundSolo = false; menu.Open(LobbyMenu.Play);
+                    Present(PlayPage.BackToModes)?.onClick.Invoke();
                     Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = size;
                     yield return null; yield return null; Canvas.ForceUpdateCanvases();
+                    Assert.IsNull(Present("Map flat"), "each size starts on the mode step, so both visits reach the houses with Next");
                     Reach("Map flat"); yield return null; yield return null; Canvas.ForceUpdateCanvases();
                     var house = InPage((RectTransform)Find("Map flat").transform);
                     var footer = InPage((RectTransform)Find("GO").transform);
@@ -1468,9 +1461,17 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(GameConfig.Current.Houses.Count, cards.Length);
             Assert.AreEqual(HousesInARow, Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath).MapColumns,
                 "Resources/UI/LobbyPlayLayout.asset keeps MapColumns at five");
-            int across = grid.GetComponent<LobbyPlayCardGrid>().MaximumColumns;
-            Assert.AreEqual(3, across, "the house step has the page to itself, so its cards are bigger, three to a row");
-            Assert.AreEqual(across, grid.constraintCount, "A wide page fills the house row.");
+            Assert.IsTrue(grid.GetComponent<LobbyPlayCardGrid>().FillPage, "the house step sizes its cards to the page");
+            int across = grid.constraintCount;
+            float filled = Mathf.Min(Wreckabulary.Rules.PlaceGrid.CappedWidth(row.width, grid.spacing.x), (row.width - (across - 1) * grid.spacing.x) / across);
+            Assert.That(grid.cellSize.x, Is.EqualTo(filled).Within(.5f), "the houses fill the row, or stop at the three-column width");
+            var view = InPage(PageScroll.viewport);
+            foreach (var card in cards)
+            {
+                var at = InPage((RectTransform)card.transform);
+                Assert.GreaterOrEqual(at.yMin, view.yMin - .5f, card.name + " shows without scrolling");
+                Assert.LessOrEqual(at.yMax, view.yMax + .5f, card.name + " shows without scrolling");
+            }
             var first = InPage((RectTransform)cards[0].transform);
             Assert.That(first.xMin, Is.EqualTo(row.xMin).Within(.5f), "Cards start at the left edge.");
             Assert.LessOrEqual(cards.Max(card => InPage((RectTransform)card.transform).xMax), row.xMax + .5f, "The row of houses fits the page.");
@@ -1490,7 +1491,10 @@ namespace Wreckabulary.Tests
                 var title = card.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Map title");
                 var detail = card.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Map detail");
                 Assert.AreEqual(layout.Name, title.text);
-                Assert.AreEqual(Wreckabulary.Rules.MapCardText.HouseLine(layout), detail.text);
+                Assert.AreEqual(LobbyMapSnapshots.HouseCaption(id, layout), detail.text);
+                Assert.IsNotEmpty(LobbyMapSnapshots.Trait(id), id + " has a short trait line");
+                StringAssert.StartsWith(LobbyMapSnapshots.Trait(id), detail.text, id);
+                StringAssert.Contains(Wreckabulary.Rules.MapCardText.HouseLine(layout), card.GetComponent<LobbyHint>().Text, id + ": the full facts stay in the hint");
                 AssertNameOnPicture(card, shape, id);
                 Assert.AreEqual(LobbyMapSnapshots.For(id) != null, picture.name == "Map preview", id);
                 foreach (var text in new[] { title, detail }) { text.ForceMeshUpdate(); Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.text); }
@@ -1684,6 +1688,7 @@ namespace Wreckabulary.Tests
                 Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name == PlayPage.PlayOnline), mode + " plays on this screen only");
                 AssertNoScrollingNeeded();
                 Assert.AreSame(Find("Mode " + mode).gameObject, EventSystem.current.currentSelectedGameObject);
+                Assert.IsTrue(Underlined("Mode " + mode), mode + " is marked as the chosen tile");
             }
             Pick("TimeRun"); yield return null; yield return null;
             Canvas.ForceUpdateCanvases();
@@ -1861,12 +1866,16 @@ namespace Wreckabulary.Tests
             var wide = LobbyPlayCardGrid.Layout(1820, 12, 264, 3, 640);
             Assert.AreEqual(3, wide.columns);
             Assert.AreEqual(LobbyPlayCardGrid.PreferredWidth, wide.cell.x);
+            var few = LobbyPlayCardGrid.Layout(1820, 12, 264, 6, 640, 3, HousesInARow);
+            Assert.AreEqual(3, few.columns, "three courses sit on the first three house columns");
+            Assert.AreEqual(LobbyPlayCardGrid.Layout(1820, 12, 264, 6, 640, HousesInARow, HousesInARow).cell, few.cell, "with the house card footprint");
             Assert.That((wide.cell.x - LobbyPlayCardGrid.Inset * 2) / (wide.cell.y - LobbyPlayCardGrid.CaptionHeight - LobbyPlayCardGrid.Inset), Is.EqualTo(16f / 9f).Within(.001f));
             var narrow = LobbyPlayCardGrid.Layout(840, 12, 264, 3, 0);
             Assert.AreEqual(3, narrow.columns);
             Assert.That(narrow.cell.x, Is.EqualTo((840 - 24) / 3f).Within(.01f));
             var low = LobbyPlayCardGrid.Layout(1820, 12, 264, 3, 200);
             Assert.That(low.cell.y, Is.EqualTo(200 - LobbyPlayCardGrid.ViewportMargin).Within(.01f), "A short viewport still shows a whole card.");
+            Assert.That(low.cell.x, Is.EqualTo(LobbyPlayCardGrid.WidthFor(low.cell.y)).Within(.01f), "and narrows the card so the picture stays a full 16:9.");
             Assert.AreEqual(1, LobbyPlayCardGrid.Layout(200, 12, 264, 3, 0).columns);
             var five = LobbyPlayCardGrid.Layout(1838, 12, 264, HousesInARow, 782);
             Assert.AreEqual(HousesInARow, five.columns);
@@ -1944,18 +1953,46 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
-        public void ModeFamiliesBalanceIntoAsFewLinesAsFit()
+        public void ModeTilesShareOneSizeAndFillAsFewRowsAsFit()
         {
-            CollectionAssert.AreEqual(new[] { 5 }, LobbyPlayModeFamilies.Lines(new[] { 108f, 478f, 372f, 302f, 242f }, 28, 1800, .8f));
-            CollectionAssert.AreEqual(new[] { 2, 3 }, LobbyPlayModeFamilies.Lines(new[] { 108f, 478f, 372f, 302f, 242f }, 28, 840, .8f));
-            CollectionAssert.AreEqual(new[] { 1, 1 }, LobbyPlayModeFamilies.Lines(new[] { 900f, 900f }, 28, 600, .8f));
-            var columns = new[] { 248f, 245f, 257f, 263f };
-            CollectionAssert.AreEqual(new[] { 2, 2 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f), "without heights the narrower lines win");
-            CollectionAssert.AreEqual(new[] { 2, 2 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f, new[] { 74f, 74f, 74f, 74f }), "equal heights keep that balance");
-            CollectionAssert.AreEqual(new[] { 3, 1 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f, new[] { 230f, 178f, 178f, 126f }),
-                "stacked columns of four, three, three and two rows take the shorter block");
-            CollectionAssert.IsEmpty(LobbyPlayModeFamilies.Lines(new float[0], 28, 600, .8f));
+            var today = new[] { 4, 3, 3, 2 };
+            var wide = LobbyPlayModeFamilies.Layout(today, 1838);
+            Assert.AreEqual(1, wide.Rows, "every mode on one row of tiles on a 1280x720 page");
+            Assert.GreaterOrEqual(wide.Width, LobbyPlayModeFamilies.MinimumTile);
+            var more = LobbyPlayModeFamilies.Layout(new[] { 5, 3, 3, 2 }, 1838);
+            var fewer = LobbyPlayModeFamilies.Layout(new[] { 3, 3, 3, 2 }, 1838);
+            foreach (var (plan, counts) in new[] { (wide, today), (more, new[] { 5, 3, 3, 2 }), (fewer, new[] { 3, 3, 3, 2 }),
+                (LobbyPlayModeFamilies.Layout(today, 1382), today), (LobbyPlayModeFamilies.Layout(today, 860), today), (LobbyPlayModeFamilies.Layout(today, 400), today) })
+            {
+                float right = 0f;
+                for (int group = 0; group < counts.Length; group++)
+                {
+                    Assert.GreaterOrEqual(plan.Columns[group], 1);
+                    Assert.LessOrEqual(plan.Columns[group], counts[group], "never an empty column in a group");
+                    int rows = plan.RowsOf(group, counts[group]);
+                    int last = counts[group] - (rows - 1) * plan.Columns[group];
+                    Assert.Greater(last, 0);
+                    Assert.LessOrEqual(rows, plan.Rows, "a group never has more rows than the band");
+                    for (int entry = 0; entry < counts[group]; entry++)
+                    {
+                        var at = plan.Position(group, entry);
+                        Assert.GreaterOrEqual(at.x, plan.Left[group] - .01f);
+                        right = Mathf.Max(right, at.x + plan.Width);
+                    }
+                    if (group > 0 && plan.Line[group] == plan.Line[group - 1])
+                        Assert.That(plan.Left[group], Is.EqualTo(plan.Left[group - 1] + plan.GroupWidth(group - 1) + LobbyPlayModeFamilies.GroupGap).Within(.01f), "groups sit one group gap apart");
+                }
+                Assert.LessOrEqual(plan.Width, LobbyPlayModeFamilies.MaximumTile + .01f);
+                Assert.AreEqual(LobbyPlayModeFamilies.TileHeight, plan.Height, "one tile height everywhere");
+            }
+            Assert.LessOrEqual(Right(wide, today), 1838 + .5f);
+            Assert.AreEqual(2, LobbyPlayModeFamilies.Layout(today, 1382).Rows, "a 4:3 page takes two rows of tiles");
+            CollectionAssert.AreEqual(new[] { 2, 2, 2, 1 }, LobbyPlayModeFamilies.Layout(today, 1382).Columns);
+            Assert.IsEmpty(LobbyPlayModeFamilies.Layout(new int[0], 1838).Columns);
         }
+
+        static float Right(LobbyPlayTilePlan plan, int[] counts) =>
+            Enumerable.Range(0, counts.Length).Max(group => plan.Left[group] + plan.GroupWidth(group));
 
         [UnityTest]
         public IEnumerator MatchmakingTabStaysInTheLobbyWithPlaylistCardsAndFindMatch()

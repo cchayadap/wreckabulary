@@ -93,6 +93,15 @@ namespace Wreckabulary.Tests
             float expected = -Mathf.Atan2(player.Facing.x, player.Facing.z) * Mathf.Rad2Deg;
             Assert.Less(Mathf.Abs(Mathf.DeltaAngle(expected, marker.localEulerAngles.z)), 1f);
             Assert.AreSame(originalPlan, Plan, "Turning the player updates markers without rebuilding map geometry.");
+            foreach (var part in new[] { "Dot", "Outline" })
+            {
+                var square = marker.Find(part).GetComponent<Image>();
+                Assert.IsNull(square.sprite, part + " is a plain square, not a round disc.");
+                Assert.Less(Mathf.Abs(Mathf.DeltaAngle(0f, square.rectTransform.eulerAngles.z)), 1f, part + " stays upright while the facing pointer turns.");
+            }
+            var outline = (RectTransform)marker.Find("Outline");
+            Assert.Greater(outline.rect.width, ((RectTransform)marker.Find("Dot")).rect.width, "The local player keeps a wide cream frame.");
+            Assert.AreEqual(outline.rect.width, outline.rect.height, .5f, "The marker is square.");
         }
 
         [UnityTest]

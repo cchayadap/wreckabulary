@@ -382,6 +382,7 @@ namespace Wreckabulary.Qa
                     });
                     yield return Capture(context, "house_match_hit");
                     if (!number) throw new QaFailException("The hit on P2 showed no damage number.");
+                    Time.timeScale = 1f;
                     yield return context.WaitUntil(() => SeatHealth(defender) == Mathf.CeilToInt(defender.Health.Current).ToString(), 5, "P2's seat card to show P2's health");
                     bool block = HudRoot().Find("Safe HUD/Vitals").gameObject.activeSelf;
                     context.Note("house_match_seat_health", new Dictionary<string, object> { ["p2_card"] = SeatHealth(defender), ["p2_health"] = defender.Health.Current, ["vitals_block_shown"] = block });

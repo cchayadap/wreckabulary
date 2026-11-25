@@ -6,12 +6,6 @@ using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
-    /// <summary>
-    /// A picture beside the mode list on the Play page. It plays the how-to-play pictures of the
-    /// selected mode, or of the mode under the pointer, so a player can see what a mode looks like
-    /// before opening its guide. Modes without captured pictures show each step's item instead.
-    /// Clicking it opens the full guide.
-    /// </summary>
     public sealed class LobbyPlayModePreview : MonoBehaviour
     {
         public const string Name = "Play preview", PhotoName = "Preview photo", ArtName = "Preview art";
@@ -51,7 +45,6 @@ namespace Wreckabulary
             photo = LobbyKit.Rect(body, PhotoName).Fill().gameObject.AddComponent<Image>();
             photo.preserveAspect = false; photo.raycastTarget = false;
             art = LobbyKit.Rect(body, ArtName).Place(Vector2.zero, Vector2.one, new Vector2(0, ScrimHeight), Vector2.zero);
-            // Fixed pixel heights: the labels must fit even at the smallest preview size.
             scrim = LobbyKit.Rect(body, ScrimName).Place(Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, ScrimHeight));
             scrim.Paint(new Color(LobbyKit.ScrimNavy.r, LobbyKit.ScrimNavy.g, LobbyKit.ScrimNavy.b, .74f)).raycastTarget = false;
             modeLabel = LobbyKit.Text(scrim, "", 20, Color.white, TextAlignmentOptions.BottomLeft, FontStyles.Bold);
@@ -68,7 +61,6 @@ namespace Wreckabulary
             stepLabel.rectTransform.Place(Vector2.zero, new Vector2(1, 0), new Vector2(12, 4), new Vector2(-12, 28));
         }
 
-        /// <summary>Show a mode from its first step; the pictures then advance on their own.</summary>
         public void Show(string mode)
         {
             if (mode == shown && mode != null) return;
@@ -121,7 +113,6 @@ namespace Wreckabulary
             if (item == null) return;
             var image = LobbyKit.ItemImage(art, item, 160);
             if (!image) return;
-            // Scale with the frame: the frame has no size yet when the page is first built.
             float margin = (1f - ArtShare) * .5f;
             image.rectTransform.Place(new Vector2(0, margin), new Vector2(1, 1f - margin));
             var square = image.gameObject.AddComponent<AspectRatioFitter>();
@@ -129,7 +120,6 @@ namespace Wreckabulary
         }
     }
 
-    /// <summary>Hovering or selecting a mode button shows that mode in the preview.</summary>
     public sealed class LobbyPlayModeHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {
         public LobbyPlayModePreview Preview;

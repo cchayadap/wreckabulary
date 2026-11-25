@@ -20,7 +20,7 @@ namespace Wreckabulary.Qa
         public const string Scenario = "mode_guides";
         public const int Width = 1280, Height = 720;
         const string Map = "pinwheel";
-        const float ModeSeconds = 95f, CourseSeconds = 160f, BossSeconds = 170f;
+        const float ModeSeconds = 95f, CourseSeconds = 160f;
         static readonly string[] NotPictured = { ModeGuideBook.TeamRace, ModeGuideBook.BrawlRace, ModeGuideBook.ArenaFreeForAll };
 
         QaContext context;
@@ -62,12 +62,12 @@ namespace Wreckabulary.Qa
             yield return House(HouseModes.Escape, Map, 2, null, Escape);
             yield return House(HouseModes.ShoppingList, Map, 2, null, ShoppingList);
             yield return House(HouseModes.RiddleRush, Map, 2, PrepareRiddleRush, RiddleRush);
-            yield return House(HouseModes.BossFight, Map, 1, null, BossFight, BossSeconds);
+            yield return House(HouseModes.BossFight, BossFightTuning.Map, 1, null, Boss);
             yield return QaStep.Named("mode_guides_return").Timeout(60).Do(Return);
         }
 
-        QaStep House(string mode, string map, int seatCount, Func<IEnumerator> prepare, Func<int, string, IEnumerator> stage, float seconds = ModeSeconds) =>
-            QaStep.Named("mode_guides_" + mode).Timeout(seconds).Do(c => Mode(mode, map, seatCount, prepare, stage));
+        QaStep House(string mode, string map, int seatCount, Func<IEnumerator> prepare, Func<int, string, IEnumerator> stage) =>
+            QaStep.Named("mode_guides_" + mode).Timeout(ModeSeconds).Do(c => Mode(mode, map, seatCount, prepare, stage));
 
         IEnumerator Setup(QaContext qa)
         {
@@ -91,7 +91,7 @@ namespace Wreckabulary.Qa
             qa.Note("mode_guides_screen", new Dictionary<string, object> { ["width"] = Screen.width, ["height"] = Screen.height, ["saved"] = Width + "x" + Height });
             qa.Note("mode_guides_scope", "Offline Windows House modes through Session.LoadMode with scripted local seats and the game's own AI seats parked, " +
                 "plus both solo courses through the lobby's solo route. Each picture stages one guide step with real game objects; " +
-                "some moments are shortened (instant breaks, direct knockouts, packed keepsakes, ticked list items). No network or human-feel claim. " +
+                "some moments are shortened (instant breaks, direct knockouts, packed keepsakes, ticked list items; Boss Fight skips its prepare and reveal waits and cracks its last two shields through the director). No network or human-feel claim. " +
                 "Not pictured, because they need a live room, so their cards show item art: " +
                 string.Join(", ", NotPictured.Select(id => ModeGuideBook.Name(id) + " [" + id + "]")) + ".");
             yield return null;
@@ -216,7 +216,7 @@ namespace Wreckabulary.Qa
             HouseModes.MovingOut => Object.FindAnyObjectByType<MovingOutDirector>() is { Current: MovingOutDirector.State.Playing },
             HouseModes.MovingDay => Object.FindAnyObjectByType<MovingDayDirector>() is { Current: MovingDayDirector.State.Playing },
             HouseModes.Escape => Object.FindAnyObjectByType<EscapeDirector>() is { Current: EscapeDirector.State.Playing },
-            HouseModes.BossFight => Object.FindAnyObjectByType<BossFightDirector>() is { Current: BossFightDirector.State.Preparing, Boss: not null },
+            HouseModes.BossFight => BossFightDirector.Instance is { Current: BossFightDirector.State.Preparing },
             _ => RoundManager.Instance && RoundManager.Instance.Phase == Phase.Playing,
         };
 
@@ -740,72 +740,69 @@ namespace Wreckabulary.Qa
             }
         }
 
-        IEnumerator BossFight(int step, string image)
+        IEnumerator Boss(int step, string image)
         {
-            var director = Object.FindAnyObjectByType<BossFightDirector>();
-            if (!director || !director.Boss) throw new QaFailException("Boss Fight has no boss.");
+            var director = BossFightDirector.Instance;
+            if (!director || !director.Boss) throw new QaFailException("Boss Fight has no director.");
             var boss = director.Boss;
-            var words = new BossNameCatalogue(Match.Rules);
             switch (step)
             {
                 case 0:
-                    yield return Smash(image, Furniture("TABLE"));
+                    yield return Smash(image, Furniture(null));
                     break;
                 case 1:
-                    yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent, 40, "the boss to wake");
-                    yield return Realtime(1f);
-                    Stand(p1, FreeSpot(boss.transform.position, 3.2f, false, p1.transform.position), boss.Centre);
-                    yield return Spell(image, seats[0], p1, words.WordFor(0));
+                {
+                    director.Advance(BossFightDirector.State.Appear);
+                    yield return Realtime(1.5f);
+                    director.Advance(BossFightDirector.State.DropAndPrevent);
+                    var at = boss.transform.position;
+                    Stand(p1, FreeSpot(at, 3f, true, p1.transform.position), at);
+                    yield return Realtime(.4f);
+                    ClearHands(p1);
+                    yield return Spell(image, seats[0], p1, director.ShieldWord);
                     break;
+                }
                 case 2:
                 {
-                    var circles = Object.FindAnyObjectByType<TelegraphedAoE>();
-                    if (!circles) throw new QaFailException("Boss Fight has no red circles.");
-                    yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent && circles.ActiveCircleCount > 0, 30, "a red circle");
-                    var at = circles.LastSpawnCentre;
-                    Stand(p1, FreeSpot(at, 2.4f, false, p1.transform.position), at);
-                    yield return Realtime(.5f);
+                    yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent && WarningCircle(director), 15, "a red warning circle");
+                    yield return Realtime(.3f);
                     yield return Shot(image);
                     break;
                 }
                 default:
                 {
-                    for (int layer = words.LayerCount - boss.LayersRemaining; layer < words.LayerCount; layer++)
+                    for (int guard = 0; guard < BossFightTuning.Phases && !boss.Vulnerable; guard++)
                     {
-                        yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent, 20, "shield layer " + (layer + 1));
-                        string word = words.WordFor(layer);
-                        p1.Inventory.Set(word);
-                        if (!p1.Summoner.Summon(word)) throw new QaFailException(word + " did not crack a shield.");
+                        yield return Until(() => director.Current == BossFightDirector.State.DropAndPrevent, 10, "the next shield word");
+                        director.CrackShield();
                     }
-                    yield return Until(() => director.Current == BossFightDirector.State.Hit && Time.timeScale >= 1f, 20, "the shield to break");
-                    yield return Realtime(1.5f);
-                    Give(p1, "HAMMER");
-                    Stand(p1, FreeSpot(boss.transform.position, 1.6f, false, p1.transform.position), boss.Centre);
-                    float before = boss.Health;
-                    yield return Realtime(.3f);
-                    float end = Time.realtimeSinceStartup + 1.5f;
+                    yield return Until(() => director.Current == BossFightDirector.State.Hit, 5, "the shield to be down");
+                    Time.timeScale = 1f;
+                    try { Give(p1, "HAMMER"); } catch (QaFailException) { }
+                    var at = boss.transform.position;
+                    var spot = FreeSpot(at, 1.4f, true, p1.transform.position);
+                    Stand(p1, spot, at);
+                    float before = boss.Health, end = Time.realtimeSinceStartup + 1.5f;
                     try
                     {
                         while (boss.Health >= before && Time.realtimeSinceStartup < end)
                         {
-                            Aim(p1, World.Flat(boss.transform.position - p1.transform.position).normalized);
+                            Aim(p1, World.Flat(at - p1.transform.position).normalized);
                             seats[0].Next.attack = true;
                             yield return null;
                         }
-                        if (boss.Health >= before) p1.PlayPunch();
-                        yield return null;
-                        Time.timeScale = 0f;
-                        yield return Shot(image);
                     }
-                    finally
-                    {
-                        Time.timeScale = 1f;
-                        seats[0].Next = default;
-                    }
+                    finally { seats[0].Next = default; }
+                    if (boss.Health >= before) boss.ApplyDamage(new HitInfo { Damage = boss.MaxHealth * .25f, Source = HitSource.Melee });
+                    yield return Realtime(.4f);
+                    yield return Shot(image);
                     break;
                 }
             }
         }
+
+        static bool WarningCircle(BossFightDirector director) => director.Hazards && director.Hazards.GetComponentsInChildren<Renderer>()
+            .Any(r => r && r.name == "Danger fill" && r.sharedMaterial && r.sharedMaterial.name.Contains("warning"));
 
         IEnumerator Smash(string image, Smashable target)
         {

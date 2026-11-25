@@ -1,91 +1,111 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using Wreckabulary.Rules;
+using Random = UnityEngine.Random;
 
 namespace Wreckabulary.BossFight
 {
-    /// <summary>
-    /// Owns the whole Boss Fight run: Preparing -> Appear -> Drop&amp;Prevent -> Hit -> Result.
-    /// Mirrors EscapeDirector's lifecycle (RoundManager disables itself after Configure).
-    /// </summary>
-    // @trace MECH-001, MECH-004, MECH-010, PLAT-001, LEV-001
-    public sealed class BossFightDirector : MonoBehaviour
+    public sealed class BossFightDirector : MonoBehaviour, IHouseWordGoal
     {
-        public enum State { Preparing, Appear, DropAndPrevent, Stagger, Hit, Result }
+        public enum State { Waiting, Preparing, Appear, DropAndPrevent, Stagger, Hit, Result }
 
-        const float StaggerSeconds = 4f;
-        const float SlowMotionScale = .35f;
-        const float SlowMotionSeconds = .8f;
-        const float HudInterval = .2f;
+        const float SlowMotionScale = .35f, SlowMotionSeconds = .8f, GoHoldSeconds = .8f;
+        const float MiniReach = 4.5f, PropLift = .35f, PropInset = 1.1f, FloorLift = .2f, RoomProbe = .1f, BossClearance = 2.2f;
+        const float StarterYaw = 37f, CacheYaw = 53f;
+        const int MiniSpotTries = 12;
 
         PlayerJoinManager joins;
         RoomBuilder room;
         DeliverySpawner deliveries;
         GameHud hud;
-        GameRules rules;
+        BossFightTuning tuning;
         BossNameCatalogue names;
         BossController boss;
         TelegraphedAoE aoe;
-        BossFightHud overlay;
+        BossFightHud panel;
 
         readonly HashSet<int> hooked = new();
         readonly List<Smashable> props = new();
-        readonly HashSet<string> visited = new(StringComparer.Ordinal);
-        readonly StringBuilder hudBuffer = new(256);
+        readonly List<MiniCalculator> minis = new();
+        readonly List<PlayerController> alive = new();
 
         static int runSerial;
-        float began, phaseEnd, hudNext, slowUntil, roomCheck, nextSupply, nextMini, cueGoUntil;
-        int layer, nextLayer;
+        float runStarted, phaseEnd, slowUntil, nextSupply, nextMini, cueGoUntil;
+        int layer, nextLayer, clockSeconds = -1, keyVersion = -1, joinVersion = -1;
         bool won, deliveryPicked, miniSpotPicked;
         Vector3 pendingDelivery, pendingMiniSpot;
-        string deliveryRoom = "", miniRoom = "", clue = "";
-        readonly List<MiniCalculator> minis = new();
+        string deliveryRoom = "", miniRoom = "", clockText = "", keyLine, joinLine;
+        InputBinding keyFor;
 
-        public State Current { get; private set; }
+        public static BossFightDirector Instance { get; private set; }
+        public State Current { get; private set; } = State.Waiting;
         public BossController Boss => boss;
-        public float TimeLeft => Mathf.Max(0f, rules.RoundTimeLimitSeconds - (Time.time - began));
+        public TelegraphedAoE Hazards => aoe;
+        public BossFightHud Panel => panel;
+        public BossFightTuning Tuning => tuning;
+        public int Layer => layer;
+        public string Clue { get; private set; } = "";
+        public string ShieldWord => names != null ? names.WordFor(layer) : BossFightTuning.WordFor(layer);
+        public bool Revealed => Current is State.Appear or State.DropAndPrevent or State.Stagger or State.Hit;
+        public bool Spelling => Current == State.DropAndPrevent;
+        public bool Won => won;
+        public int MiniCount => minis.Count;
+        public IReadOnlyList<Smashable> Props => props;
+        public float Elapsed => Current == State.Waiting ? 0f : Time.time - runStarted;
+        public float TimeLeft => Mathf.Max(0f, Match.Rules.RoundTimeLimitSeconds - Elapsed);
 
-        public void Configure(PlayerJoinManager players, RoomBuilder builder,
-            DeliverySpawner boxes, GameHud display)
+        public void Configure(HouseModeContext context)
         {
-            joins = players; room = builder; deliveries = boxes; hud = display;
+            joins = context.Joins; room = context.Room; deliveries = context.Deliveries; hud = context.Hud;
+            context.WordGoal = this;
+            context.Restart = Restart;
         }
+
+        public string WantedWord(PlayerController player) => Spelling ? ShieldWord : null;
+
+        void Awake() => Instance = this;
 
         void Start()
         {
-            rules = Match.Rules;
-            names = new BossNameCatalogue(rules);
+            tuning = BossFightTuning.From(Match.Rules);
+            names = new BossNameCatalogue();
             deliveries.Running = false;
-            deliveries.Layout = room.Layout; // BossFight skips RoundManager's usual wiring
-            // @trace AMD-007
+            deliveries.Layout = room.Layout;
+            deliveries.RoomOpen = null;
 
             boss = gameObject.AddComponent<BossController>();
-            boss.Configure(rules, names, ArenaCentre());
+            boss.Configure(tuning, names, ArenaCentre());
+            boss.SetVisible(false);
             aoe = gameObject.AddComponent<TelegraphedAoE>();
-            aoe.Configure(rules, boss); // smash circles drive the boss's real leap
+            aoe.Configure(tuning, boss);
+            aoe.PickTarget = PickTarget;
+            aoe.Reachable = SameRoom;
             aoe.SmashTelegraphed += OnSmashTelegraphed;
-            // @trace AMD-012, AMD-013
-            overlay = gameObject.AddComponent<BossFightHud>();
-            overlay.Build(transform, rules, names);
+            panel = BossFightHud.Attach(hud, this);
 
             joins.Joined += OnJoined;
-            joins.AllowJoining = false;
             joins.RespawnKnockedOut = true;
             foreach (var p in joins.Players) HookSummoner(p);
-
-            Debug.Log("[BossFight] build v1 boss=" + names.Name +
-                      " words=" + string.Join("/", rules.BossWords ?? Array.Empty<string>()) +
-                      " humans=" + joins.HumanCount);
+            hud.SetChecklist("");
+            Debug.Log("[BossFight] start boss=" + names.Name + " words=" + string.Join("/", BossFightTuning.Words) + " humans=" + joins.HumanCount);
             if (joins.HumanCount > 0) Restart();
+            else Wait();
         }
 
         void OnDestroy()
         {
             Time.timeScale = 1f;
+            if (Instance == this) Instance = null;
             if (aoe) aoe.SmashTelegraphed -= OnSmashTelegraphed;
             if (joins) joins.Joined -= OnJoined;
+            if (panel) Destroy(panel);
+        }
+
+        void Wait()
+        {
+            Current = State.Waiting;
+            joins.AllowJoining = true;
         }
 
         void OnJoined(PlayerController p)
@@ -93,55 +113,41 @@ namespace Wreckabulary.BossFight
             HookSummoner(p);
             SetWords(p);
             joins.AssignTeams();
-            if (Current != State.Preparing && Current != State.Result) p.Frozen = true;
+            if (Current != State.Waiting && Current != State.Preparing && Current != State.Result) p.Frozen = true;
         }
 
         void HookSummoner(PlayerController p)
         {
             if (!p || !p.Summoner || !hooked.Add(p.Index)) return;
-            p.Summoner.Summoned += word => OnSummoned(p, word);
+            p.Summoner.Summoned += word => OnSummoned(word);
         }
 
-        /// <summary>Keep every player's recipe list intact and add the shield words as signals.</summary>
-        // @trace MECH-002, MECH-003
         void SetWords(PlayerController p)
         {
             if (!p || !p.Summoner) return;
             p.Summoner.WordsOverride = names.SpellWords();
             p.Summoner.SignalWords = names.SignalWords();
+            p.Summoner.ChecklistPlacementWords = Array.Empty<string>();
         }
 
-        /// <summary>Spelling the current shield word cracks one layer. Chaos items still summon normally.</summary>
-        // @trace MECH-003, MECH-005
-        void OnSummoned(PlayerController p, string word)
+        void OnSummoned(string word)
         {
             if (Current != State.DropAndPrevent || string.IsNullOrEmpty(word)) return;
-            if (!string.Equals(word, names.WordFor(layer), StringComparison.OrdinalIgnoreCase))
-            {
-                Debug.Log("[BossFight] spelled '" + word + "' but layer " + (layer + 1) +
-                          " needs '" + names.WordFor(layer) + "'");
-                return;
-            }
+            if (!string.Equals(word, ShieldWord, StringComparison.OrdinalIgnoreCase)) return;
             CrackShield();
         }
 
-        void CrackShield()
+        public void CrackShield()
         {
-            boss.CrackLayer();
+            if (Current != State.DropAndPrevent || !boss.CrackLayer()) return;
             aoe.CancelAll();
             slowUntil = Time.unscaledTime + SlowMotionSeconds;
             Time.timeScale = SlowMotionScale;
             CameraRig.Shake(.35f);
             GameFeedback.Play(GameCue.Protect);
-            if (boss.Vulnerable)
-            {
-                overlay.Flash("SHIELD BROKEN!", new Color(1f, .68f, .16f), 2.2f);
-                Go("SHIELD DOWN - HIT NOW");
-            }
-            else overlay.Flash("LAYER " + boss.LayersRemaining + " DOWN!",
-                new Color(1f, .84f, .42f), 1.1f);
-            clue = boss.Vulnerable ? "SHIELD BROKEN - hit it now!" : "Nice! It is staggering.";
-            // @trace AMD-009
+            if (boss.Vulnerable) hud.ShowBanner(BossText.ShieldBroken, BossText.HitNow);
+            else hud.ShowBanner(BossText.LayerDown(boss.LayersRemaining), BossText.Staggering);
+            Clue = boss.Vulnerable ? BossText.HitNow : BossText.Staggering;
             Debug.Log("[BossFight] layer cracked, remaining=" + boss.LayersRemaining);
             nextLayer = layer + 1;
             Advance(boss.Vulnerable ? State.Hit : State.Stagger);
@@ -151,348 +157,318 @@ namespace Wreckabulary.BossFight
         {
             if (Time.timeScale <= 0f) Time.timeScale = 1f;
             slowUntil = 0f;
-            if (joins.HumanCount == 0) return;
-            // Fresh stream per run so delivery rooms and smoke spots are never the same game to game.
-            long seed = DateTime.UtcNow.Ticks + (runSerial++) * 7919L;
-            UnityEngine.Random.InitState(unchecked((int)(seed ^ (seed >> 32))));
-            // @trace AMD-015
-            // Boss Fight deliberately starts with a bare house. The authored level ships 35
-            // smashables; keeping them plus the starter props made loot trivial to find.
-            // Only the five props spawned below exist when the prepare phase begins.
-            // @trace AMD-011
+            if (joins.HumanCount == 0) { Wait(); return; }
+            long seed = DateTime.UtcNow.Ticks + runSerial++ * 7919L;
+            Random.InitState(unchecked((int)(seed ^ (seed >> 32))));
             room.ResetRoom(furnish: false);
             ClearProps();
             ClearMinis();
             boss.ResetBoss();
             boss.SetVisible(false);
-            overlay.SetRevealed(false);
             aoe.CancelAll();
-            visited.Clear();
-            layer = 0;
-            nextLayer = 0;
-            won = false;
-            nextSupply = 0f;
-            nextMini = 0f;
-            deliveryPicked = false;
-            miniSpotPicked = false;
-            deliveryRoom = miniRoom = "";
-            clue = "Smash furniture to collect letters.";
             hud.HideResult();
-            hud.SetTitle("BOSS FIGHT", "???");
-            // @trace AMD-006
+            hud.HideCountdown();
+            MatchTally.BeginMatch();
+            layer = nextLayer = 0;
+            won = false;
+            nextSupply = nextMini = 0f;
+            deliveryPicked = miniSpotPicked = false;
+            deliveryRoom = miniRoom = "";
+            clockSeconds = -1;
+            Clue = BossText.Prepare;
+            joins.AllowJoining = false;
+            joins.RespawnKnockedOut = true;
+            joins.AssignTeams();
             foreach (var p in joins.Players)
             {
                 joins.Place(p);
-                p.Respawn(ArenaCentre());
                 p.Frozen = false;
                 SetWords(p);
             }
-            joins.AssignTeams();
             SpawnStarterProps();
+            runStarted = Time.time;
             Advance(State.Preparing);
-            Debug.Log("[BossFight] restart: preparing " + rules.PrepSeconds + "s");
+            hud.SetInstruction(BossText.PrepareLine, KeyLine());
+            Debug.Log("[BossFight] restart: preparing " + tuning.PrepSeconds + "s");
         }
 
-        void Advance(State next)
+        public void Advance(State next)
         {
             Current = next;
-            began = Time.time;
             float duration = next switch
             {
-                State.Preparing => rules.PrepSeconds,
-                State.Appear => rules.AppearSeconds,
-                State.DropAndPrevent => rules.LayerSeconds,
-                State.Stagger => StaggerSeconds,
-                State.Hit => rules.HitSeconds,
+                State.Preparing => tuning.PrepSeconds,
+                State.Appear => tuning.AppearSeconds,
+                State.Stagger => tuning.StaggerSeconds,
                 _ => 0f,
             };
-            phaseEnd = began + duration;
-
-            if (next == State.Appear)
-            {
-                // Countdown is over: reveal the boss, its name and the shield HUD together.
-                // @trace AMD-006
-                hud.HideCountdown();
-                Go("THE CALCULATOR WAKES");
-                hud.SetTitle("BOSS FIGHT", names.Name);
-                boss.SetVisible(true);
-                overlay.SetRevealed(true);
-                overlay.Flash(names.Name + "!", new Color(1f, .68f, .16f), 1.6f);
-                CameraRig.Shake(.4f);
-                GameFeedback.Play(GameCue.Blast);
-                clue = "The Calculator wakes up. Read its name!";
-            }
+            phaseEnd = Time.time + duration;
+            if (next != State.Preparing) hud.SetInstruction("", "");
+            if (next == State.Appear) Appear();
             else if (next == State.DropAndPrevent)
             {
-                nextSupply = Time.time + rules.SupplyDropSeconds;
-                nextMini = Time.time + rules.MiniFirstSeconds;
+                nextSupply = Time.time + tuning.SupplyDropSeconds;
+                if (nextMini <= 0f) nextMini = Time.time + tuning.MiniFirstSeconds;
                 SpawnWordCaches(layer);
-                // @trace AMD-007, AMD-008
             }
-            else if (next == State.Hit)
-            {
-                clue = "Shield down! Hit it, dodge circles and jump smashes.";
-                overlay.Flash("HIT THE CALCULATOR!", new Color(1f, .82f, .3f), 1.4f);
-            }
+            else if (next == State.Hit) Clue = BossText.HitClue;
+        }
+
+        void Appear()
+        {
+            hud.HideCountdown();
+            Go(BossText.Wakes);
+            boss.MoveHome(BossHome());
+            boss.SetVisible(true);
+            hud.ShowBanner(names.Name + "!", BossText.ThreeShields);
+            CameraRig.Shake(.4f);
+            GameFeedback.Play(GameCue.Blast);
+            Clue = BossText.ThreeShields;
         }
 
         void Update()
         {
-            if (Time.timeScale <= 0f) return;
+            if (Time.timeScale <= 0f || tuning == null) return;
             if (slowUntil > 0f && Time.unscaledTime >= slowUntil)
             {
                 Time.timeScale = 1f;
                 slowUntil = 0f;
             }
-
-            Vector3 target = PlayerPosition();
             switch (Current)
             {
+                case State.Waiting:
+                    hud.SetInstruction(JoinLine(), "");
+                    if (joins.HumanCount > 0) Restart();
+                    return;
                 case State.Preparing:
-                    int left = Mathf.Max(1, Mathf.CeilToInt(phaseEnd - Time.time));
-                    hud.ShowCountdown(left, "PREPARE - SMASH & CRAFT");
-                    hud.SetInstruction("PREPARE  " + left + "s  -  smash props, craft a weapon",
-                        "Q spells  /  E smashes  /  Space dodges");
-                    if (Time.time >= roomCheck)
-                    {
-                        roomCheck = Time.time + .4f;
-                        TrackRooms(target);
-                    }
+                    hud.ShowCountdown(Mathf.Max(1, Mathf.CeilToInt(phaseEnd - Time.time)), BossText.PrepareChip);
                     if (Time.time >= phaseEnd) Advance(State.Appear);
                     break;
-                // @trace AMD-006
-
                 case State.Appear:
-                    hud.SetInstruction("THE CALCULATOR APPEARS", "Three words. Three shields.");
                     if (Time.time >= phaseEnd) Advance(State.DropAndPrevent);
                     break;
-
                 case State.DropAndPrevent:
-                    hud.SetInstruction("FIND AND SPELL  " + names.WordFor(layer), clue);
-                    TickHazards(target, layer, true, false);
-                    if (Time.time >= began + rules.RoundTimeLimitSeconds) Finish(false);
+                    TickHazards(layer, true, false);
+                    if (TimeLeft <= 0f) Finish(false);
                     break;
-
                 case State.Stagger:
-                    hud.SetInstruction("STAGGERED", clue);
-                    TickHazards(target, layer, false, false);
-                    if (Time.time >= phaseEnd)
+                    TickHazards(layer, false, false);
+                    if (TimeLeft <= 0f) Finish(false);
+                    else if (Time.time >= phaseEnd)
                     {
                         layer = nextLayer;
                         Advance(State.DropAndPrevent);
                     }
                     break;
-
                 case State.Hit:
-                    hud.SetInstruction("HIT THE CALCULATOR", clue);
-                    TickHazards(target, 3, true, true);
+                    TickHazards(BossFightTuning.Phases - 1, true, true);
                     if (boss.Health <= 0f) Finish(true);
-                    else if (Time.time >= began + rules.RoundTimeLimitSeconds) Finish(false);
+                    else if (TimeLeft <= 0f) Finish(false);
                     break;
-                // @trace AMD-007, AMD-008, AMD-010
-
                 case State.Result:
-                    hud.SetInstruction(won ? "BOSS DEFEATED" : "THE CALCULATOR WINS",
-                        "Press START to fight again");
-                    if (joins.AnyStartPressed()) Restart();
-                    break;
+                    return;
             }
-
             TickEventCues();
-            // @trace AMD-013
-
-            if (Time.time >= hudNext)
-            {
-                hudNext = Time.time + HudInterval;
-                RefreshHud();
-            }
-            hud.SetChecklist(Checklist());
-            hud.SetTimer(RoundManager.FormatTime(TimeLeft));
+            SetClock();
         }
 
-        void RefreshHud()
+        void SetClock()
         {
-            hudBuffer.Clear();
-            int total = names.LayerCount;
-            for (int i = 0; i < boss.LayersRemaining; i++) hudBuffer.Append('\u25cf');
-            for (int i = boss.LayersRemaining; i < total; i++) hudBuffer.Append('\u25cb');
-
-            string shieldText = "SHIELD  " + hudBuffer;
-            hudBuffer.Clear();
-            for (int i = 0; i < total; i++)
-            {
-                if (i > 0) hudBuffer.Append("   ");
-                if (i == layer && Current == State.DropAndPrevent) hudBuffer.Append('<').Append(names.WordFor(i)).Append('>');
-                else hudBuffer.Append(names.WordFor(i));
-            }
-            string resultText = Current == State.Result
-                ? (won ? "YOU WIN!\n" + names.Name + " is smashed.\nPress START to retry"
-                      : "YOU LOSE\nThe Calculator is still shielded.\nPress START to retry")
-                : "";
-            overlay.Refresh(shieldText, hudBuffer.ToString(), clue,
-                RoundManager.FormatTime(TimeLeft), boss.MaxHealth > 0f ? boss.Health / boss.MaxHealth : 0f,
-                boss.Vulnerable, resultText);
-        }
-
-        string Checklist()
-        {
-            hudBuffer.Clear();
-            hudBuffer.Append(visited.Count).Append("/3 rooms scouted   ");
-            hudBuffer.Append(boss.LayersRemaining).Append(" shield layer");
-            if (boss.LayersRemaining != 1) hudBuffer.Append('s');
-            return hudBuffer.ToString();
+            int shown = Mathf.CeilToInt(TimeLeft);
+            if (shown == clockSeconds) return;
+            clockSeconds = shown;
+            clockText = RoundManager.FormatTime(shown);
+            hud.SetTimer(clockText);
         }
 
         void Finish(bool victory)
         {
+            if (Current == State.Result) return;
             won = victory;
             aoe.CancelAll();
             ClearMinis();
             hud.HideCountdown();
+            hud.SetInstruction("", "");
+            hud.SetTimer("");
             Time.timeScale = 1f;
             slowUntil = 0f;
+            Current = State.Result;
+            foreach (var p in joins.Players) p.Frozen = true;
             GameFeedback.Play(victory ? GameCue.Protect : GameCue.Out);
             Debug.Log("[BossFight] finish win=" + victory + " hp=" + boss.Health);
-            Advance(State.Result);
+            var result = HudResult.Of(1, true, victory, BossText.Result(victory), MatchTally.Finish(victory));
+            hud.ShowResult(result, Restart);
         }
 
         Vector3 ArenaCentre()
         {
             var box = room && room.Layout != null && room.Layout.Rooms.Count > 0 ? room.Layout.Rooms[0] : null;
-            if (box == null) return Vector3.up * .2f;
-            return new Vector3((box.MinX + box.MaxX) * .5f, box.FloorY + .2f, (box.MinZ + box.MaxZ) * .5f);
+            if (box == null) return Vector3.up * FloorLift;
+            return new Vector3((box.MinX + box.MaxX) * .5f, box.FloorY + FloorLift, (box.MinZ + box.MaxZ) * .5f);
         }
 
-        PlayerController Human()
+        Vector3 BossHome()
+        {
+            var home = ArenaCentre();
+            foreach (var p in AliveHumans())
+            {
+                var away = home - p.transform.position;
+                away.y = 0f;
+                if (away.sqrMagnitude >= BossClearance * BossClearance) continue;
+                if (away.sqrMagnitude < .0001f) away = Vector3.forward;
+                var moved = p.transform.position + away.normalized * BossClearance;
+                moved.y = home.y;
+                if (SameRoom(home, moved)) home = moved;
+            }
+            return home;
+        }
+
+        List<PlayerController> AliveHumans()
+        {
+            alive.Clear();
+            foreach (var p in joins.Players)
+                if (p && p.Binding is not BotBinding && !p.IsKnockedOut) alive.Add(p);
+            return alive;
+        }
+
+        PlayerController FirstHuman()
         {
             foreach (var p in joins.Players)
-                if (p && p.Binding is not BotBinding && !p.IsKnockedOut) return p;
+                if (p && p.Binding is not BotBinding) return p;
             return null;
         }
 
-        Vector3 PlayerPosition()
+        Vector3 PickTarget()
         {
-            var p = Human();
-            return p ? p.transform.position : ArenaCentre();
+            var humans = AliveHumans();
+            return humans.Count == 0 ? ArenaCentre() : humans[Random.Range(0, humans.Count)].transform.position;
         }
 
-        /// <summary>One place for all phase hazards: circles, supply drops, minis and jump smash.</summary>
-        // @trace AMD-007, AMD-008, AMD-010
-        void TickHazards(Vector3 target, int layer, bool circles, bool smash)
+        PlayerController NearestHuman(Vector3 from)
         {
-            aoe.Tick(circles, layer, target, Time.deltaTime);
+            PlayerController best = null;
+            float bestSq = float.MaxValue;
+            foreach (var p in AliveHumans())
+            {
+                float sq = (p.transform.position - from).sqrMagnitude;
+                if (sq < bestSq) { bestSq = sq; best = p; }
+            }
+            return best;
+        }
+
+        string RoomOf(Vector3 at) => room && room.Layout != null ? room.Layout.RoomAt(at.x, at.y + RoomProbe, at.z) : null;
+
+        bool SameRoom(Vector3 from, Vector3 to)
+        {
+            string here = RoomOf(to);
+            return here != null && here == RoomOf(from);
+        }
+
+        bool InHouse(Vector3 at) => RoomOf(at) != null;
+
+        void TickHazards(int phase, bool circles, bool smash)
+        {
+            var target = PickTarget();
+            aoe.Tick(circles, phase, target, Time.deltaTime);
             aoe.TickSmash(smash, target, Time.deltaTime);
             TickSupplies();
-            TickMinis(target);
+            TickMinis();
         }
 
-        /// <summary>
-        /// The landing spot is picked during the 3-2-1 cue and its room is announced before the
-        /// box falls. A fresh random stream each restart keeps deliveries different every game.
-        /// </summary>
-        // @trace AMD-007, AMD-013, AMD-015
         void TickSupplies()
         {
             if (nextSupply <= 0f) return;
             float left = nextSupply - Time.time;
-            if (left <= rules.EventWarnSeconds && !deliveryPicked)
+            if (left <= tuning.EventWarnSeconds && !deliveryPicked)
             {
-                pendingDelivery = deliveries.PickDropPoint();
-                deliveryRoom = RoomNameAt(pendingDelivery);
+                pendingDelivery = deliveries.DropPoint();
+                deliveryRoom = RoomName(pendingDelivery);
                 deliveryPicked = true;
-                clue = "Supply drop incoming in " + deliveryRoom + " - get there!";
-                overlay.Flash("SUPPLY INCOMING - " + deliveryRoom.ToUpperInvariant(),
-                    new Color(.55f, .9f, .45f), .9f);
+                Clue = BossText.SupplyComing(deliveryRoom);
+                hud.Toast(BossText.SupplyComing(deliveryRoom));
             }
             if (left > 0f) return;
-
-            nextSupply = Time.time + rules.SupplyDropSeconds;
+            nextSupply = Time.time + tuning.SupplyDropSeconds;
+            if (!deliveryPicked) pendingDelivery = deliveries.DropPoint();
             var box = deliveries.DropAt(false, pendingDelivery);
             deliveryPicked = false;
             if (!box) return;
             props.Add(box);
-            Go("SUPPLY DROP - " + deliveryRoom);
-            overlay.Flash("SUPPLY DROP!", new Color(.55f, .9f, .45f), .9f);
-            Popup.Show("SUPPLY DROP - " + deliveryRoom, box.transform.position + Vector3.up,
-                new Color(.55f, .9f, .45f), 1.2f);
+            Go(BossText.SupplyChip(deliveryRoom));
         }
 
-        /// <summary>Mini calculators appear on a timer, chase the human, and can be smashed for letters.</summary>
-        // @trace AMD-008, AMD-013
-        void TickMinis(Vector3 at)
+        void TickMinis()
         {
-            var human = Human();
             for (int i = minis.Count - 1; i >= 0; i--)
             {
                 var mini = minis[i];
                 if (!mini || mini.Broken) { minis.RemoveAt(i); continue; }
-                mini.Tick(human, Time.deltaTime);
+                mini.Tick(NearestHuman(mini.Position), Time.deltaTime);
             }
-
-            if (nextMini <= 0f || !human) return;
+            if (nextMini <= 0f) return;
+            var near = PickTarget();
             float left = nextMini - Time.time;
-            if (left <= rules.EventWarnSeconds && !miniSpotPicked)
+            if (left <= tuning.EventWarnSeconds && !miniSpotPicked)
             {
-                pendingMiniSpot = MiniSpot(at);
-                miniRoom = RoomNameAt(pendingMiniSpot);
+                pendingMiniSpot = MiniSpot(near);
+                miniRoom = RoomName(pendingMiniSpot);
                 miniSpotPicked = true;
-                clue = "Mini calculators inbound near " + miniRoom + "!";
+                Clue = BossText.MinisComing(miniRoom);
             }
             if (left > 0f) return;
-
-            nextMini = Time.time + rules.MiniIntervalSeconds;
-            if (minis.Count >= rules.MiniMaxAlive) { miniSpotPicked = false; return; }
-            var spot = miniSpotPicked ? pendingMiniSpot : MiniSpot(at);
+            nextMini = Time.time + tuning.MiniIntervalSeconds;
+            var spot = miniSpotPicked ? pendingMiniSpot : MiniSpot(near);
             miniSpotPicked = false;
-
+            if (minis.Count >= tuning.MiniMaxAlive) return;
             var go = new GameObject("Mini calculator");
-            var miniCalc = go.AddComponent<MiniCalculator>();
-            miniCalc.Configure(rules, spot);
-            minis.Add(miniCalc);
-            Go("MINIS - " + miniRoom);
-            overlay.Flash("MINI CALCULATORS!", new Color(1f, .55f, .2f), .9f);
+            go.transform.SetParent(transform, false);
+            var spawned = go.AddComponent<MiniCalculator>();
+            spawned.Configure(tuning, spot);
+            spawned.Inside = InHouse;
+            minis.Add(spawned);
+            Go(BossText.MinisChip(miniRoom));
         }
 
         Vector3 MiniSpot(Vector3 at)
         {
-            Vector2 dir = UnityEngine.Random.insideUnitCircle;
-            if (dir.sqrMagnitude < .0001f) dir = Vector2.up;
-            dir.Normalize();
-            return new Vector3(at.x + dir.x * 4.5f, ArenaCentre().y, at.z + dir.y * 4.5f);
+            float y = at.y;
+            for (int i = 0; i < MiniSpotTries; i++)
+            {
+                Vector2 dir = Random.insideUnitCircle;
+                if (dir.sqrMagnitude < .0001f) dir = Vector2.up;
+                dir.Normalize();
+                float reach = MiniReach * (1f - i / (float)MiniSpotTries);
+                var spot = new Vector3(at.x + dir.x * reach, y, at.z + dir.y * reach);
+                if (SameRoom(at, spot)) return spot;
+            }
+            var box = room && room.Layout != null ? room.Layout.Room(RoomOf(at)) : null;
+            return box != null ? new Vector3((box.MinX + box.MaxX) * .5f, box.FloorY, (box.MinZ + box.MaxZ) * .5f) : at;
         }
 
-        string RoomNameAt(Vector3 at)
+        string RoomName(Vector3 at)
         {
-            string name = room && room.Layout != null ? room.Layout.RoomAt(at.x, at.z) : null;
-            return string.IsNullOrEmpty(name) ? "the house" : name;
+            string name = RoomOf(at) ?? (room && room.Layout != null ? room.Layout.RoomAt(at.x, at.z) : null);
+            return string.IsNullOrEmpty(name) ? BossText.TheHouse : GameHud.Spaced(name);
         }
 
-        /// <summary>The smash marker itself is the boss's landing spot; announce it as soon as it appears.</summary>
-        // @trace AMD-012, AMD-013
         void OnSmashTelegraphed(Vector3 at)
         {
-            Go("JUMP SMASH - DODGE!");
-            overlay.Flash("JUMP SMASH - " + RoomNameAt(at).ToUpperInvariant(),
-                new Color(1f, .55f, .12f), .9f);
-            clue = "Jump smash! Get out of the circle.";
+            Go(BossText.SmashChip);
+            Clue = BossText.SmashClue;
         }
 
-        /// <summary>One top-chip 3-2-1 countdown for whichever timed event is closest.</summary>
-        // @trace AMD-013
         void TickEventCues()
         {
             if (Current != State.DropAndPrevent && Current != State.Hit) return;
             if (Time.unscaledTime < cueGoUntil) return;
-            float warn = rules != null ? rules.EventWarnSeconds : 3f;
             float soonest = float.MaxValue;
             string label = null;
-            Offer("SUPPLY DROP IN", nextSupply, ref soonest, ref label);
-            Offer("MINIS INCOMING", nextMini, ref soonest, ref label);
-            if (Current == State.Hit && aoe)
-                Offer("JUMP SMASH IN", Time.time + aoe.SmashIn, ref soonest, ref label);
+            Offer(BossText.SupplyIn, nextSupply, ref soonest, ref label);
+            Offer(BossText.MinisIn, nextMini, ref soonest, ref label);
+            if (Current == State.Hit) Offer(BossText.SmashIn, Time.time + aoe.SmashIn, ref soonest, ref label);
             if (label == null) return;
             float left = soonest - Time.time;
-            if (left < 0f || left > warn) return;
+            if (left < 0f || left > tuning.EventWarnSeconds) { hud.HideCountdown(); return; }
             hud.ShowCountdown(Mathf.Max(1, Mathf.CeilToInt(left)), label);
         }
 
@@ -503,12 +479,30 @@ namespace Wreckabulary.BossFight
             chosen = label;
         }
 
-        /// <summary>A GO line owns the chip briefly so a following countdown cannot stomp it.</summary>
-        // @trace AMD-013
         void Go(string line)
         {
             hud.ShowGo(line);
-            cueGoUntil = Time.unscaledTime + .8f;
+            cueGoUntil = Time.unscaledTime + GoHoldSeconds;
+        }
+
+        string KeyLine()
+        {
+            var p = FirstHuman();
+            var binding = p ? p.Binding : null;
+            if (keyLine != null && keyVersion == KeyBindings.Version && ReferenceEquals(keyFor, binding)) return keyLine;
+            keyVersion = KeyBindings.Version;
+            keyFor = binding;
+            keyLine = binding == null ? "" : BossText.Keys(
+                ControlHints.For(binding, PlayerControl.Spell),
+                ControlHints.For(binding, PlayerControl.Attack),
+                ControlHints.For(binding, PlayerControl.Dodge));
+            return keyLine;
+        }
+
+        string JoinLine()
+        {
+            if (joinLine == null || joinVersion != KeyBindings.Version) { joinLine = ControlHints.Join("join"); joinVersion = KeyBindings.Version; }
+            return joinLine;
         }
 
         void ClearMinis()
@@ -519,30 +513,16 @@ namespace Wreckabulary.BossFight
             nextMini = 0f;
         }
 
-        bool HasWeapon()
-        {
-            foreach (var p in joins.Players)
-                if (p && p.Combat && p.Combat.Weapon) return true;
-            return false;
-        }
-
-        void TrackRooms(Vector3 at)
-        {
-            string name = room.Layout.RoomAt(at.x, at.y, at.z);
-            if (!string.IsNullOrEmpty(name)) visited.Add(name);
-        }
-
-        /// <summary>Spreads props across a room instead of stacking them in one obvious pile.</summary>
         Vector3 SpotInRoom(RoomBox box, int slot, int count)
         {
             if (box == null) return ArenaCentre();
-            float insetX = Mathf.Min(1.1f, (box.MaxX - box.MinX) * .25f);
-            float insetZ = Mathf.Min(1.1f, (box.MaxZ - box.MinZ) * .25f);
+            float insetX = Mathf.Min(PropInset, (box.MaxX - box.MinX) * .25f);
+            float insetZ = Mathf.Min(PropInset, (box.MaxZ - box.MinZ) * .25f);
             float t = count <= 1 ? .5f : (slot + 1f) / (count + 1f);
             float along = slot % 2 == 0 ? t : 1f - t;
             return new Vector3(
                 Mathf.Lerp(box.MinX + insetX, box.MaxX - insetX, along),
-                box.FloorY + .35f,
+                box.FloorY + PropLift,
                 Mathf.Lerp(box.MinZ + insetZ, box.MaxZ - insetZ, t));
         }
 
@@ -554,110 +534,27 @@ namespace Wreckabulary.BossFight
 
         void SpawnStarterProps()
         {
-            // Exactly five ordinary props in the WHOLE house at the start; authored furniture
-            // was cleared in Restart, so this is the complete starting loot. Every prop drops
-            // its own letters - no fake one-letter or cross-word loot.
-            // @trace AMD-004, AMD-005, AMD-006, AMD-011
-            string[] starter = { "BAT", "LAMP", "BALL", "ZAP", "TABLE" };
-            int count = Mathf.Clamp(rules.StarterProps, 1, starter.Length);
-            for (int i = 0; i < count; i++)
+            var starters = BossFightCaches.StartersFor(tuning.StarterProps);
+            for (int i = 0; i < starters.Count; i++)
             {
-                var prop = FurnitureCatalog.Spawn(starter[i], SpotInRoom(RoomFor(i), i, count), i * 37f, transform);
+                var prop = FurnitureCatalog.Spawn(starters[i], SpotInRoom(RoomFor(i), i, starters.Count), i * StarterYaw, transform);
                 if (prop) props.Add(prop);
             }
         }
 
-        // Ordinary furniture/items whose own letters can supply CALC / ULA / TOR.
-        // Short words are preferred so the full drops fit the 16-letter bag.
-        static readonly string[] CacheProps =
-        {
-            "CLOCK", "CAKE", "BAT", "BALL", "TABLE", "LAMP", "BED", "SOFA",
-            "BOOK", "APPLE", "MUG", "SPEAR", "SOAP", "SODA", "PIE", "BOMB", "BROOM", "PLATE",
-        };
-        static readonly string[] DecoyProps = { "BOOK", "BED", "SOFA", "BAT" };
-
-        /// <summary>
-        /// Greedy set cover: picks a few ordinary props whose natural letters contain
-        /// every letter of the shield word, including duplicates (CALC needs two C's).
-        /// </summary>
-        // @trace AMD-005
-        public static List<string> CachePropsFor(string word)
-        {
-            var need = new Dictionary<char, int>();
-            foreach (char c in (word ?? "").ToUpperInvariant())
-            {
-                if (c < 'A' || c > 'Z') continue;
-                need.TryGetValue(c, out int count);
-                need[c] = count + 1;
-            }
-
-            var chosen = new List<string>();
-            var used = new HashSet<string>(StringComparer.Ordinal);
-            while (need.Count > 0)
-            {
-                string best = null;
-                int bestScore = int.MinValue;
-                foreach (string prop in CacheProps)
-                {
-                    if (used.Contains(prop)) continue;
-                    var left = new Dictionary<char, int>(need);
-                    int covered = 0;
-                    foreach (char c in prop)
-                    {
-                        if (!left.TryGetValue(c, out int count) || count <= 0) continue;
-                        covered++;
-                        if (count == 1) left.Remove(c); else left[c] = count - 1;
-                    }
-                    if (covered == 0) continue;
-                    int score = covered * 100 - prop.Length;
-                    if (score > bestScore) { bestScore = score; best = prop; }
-                }
-                if (best == null) break; // curated pool always covers CALC/ULA/TOR
-                chosen.Add(best);
-                used.Add(best);
-                foreach (char c in best)
-                {
-                    if (!need.TryGetValue(c, out int count)) continue;
-                    if (count == 1) need.Remove(c); else need[c] = count - 1;
-                }
-            }
-            return chosen;
-        }
-
-        /// <summary>
-        /// Shield letters hide inside ordinary items (CLOCK, CAKE, BAT, ...). A prop
-        /// keeps its look and releases ALL of its own letters - never a single fake letter.
-        /// </summary>
-        // @trace MECH-002, MECH-004, AMD-003, AMD-004, AMD-005
         void SpawnWordCaches(int index)
         {
             string word = names.WordFor(index);
             var box = RoomFor(index);
-            var caches = CachePropsFor(word);
-            var used = new HashSet<string>(caches, StringComparer.Ordinal);
-
-            for (int d = 0; d < 2; d++)
-            {
-                for (int t = 0; t < DecoyProps.Length; t++)
-                {
-                    string candidate = DecoyProps[(index * 2 + d + t) % DecoyProps.Length];
-                    if (!used.Add(candidate)) continue;
-                    caches.Add(candidate);
-                    break;
-                }
-            }
-
+            var caches = BossFightCaches.For(word, index);
             for (int i = 0; i < caches.Count; i++)
             {
-                string propWord = caches[i];
-                var prop = FurnitureCatalog.Spawn(propWord, SpotInRoom(box, i, caches.Count), i * 53f, transform);
-                if (!prop) continue;
-                prop.Drops = null; // no override: smashing releases every letter in the prop's own word
-                props.Add(prop);
+                var prop = FurnitureCatalog.Spawn(caches[i], SpotInRoom(box, i, caches.Count), i * CacheYaw, transform);
+                if (prop) props.Add(prop);
             }
-            clue = word + " is hidden in the furniture in " + (box != null ? box.Name : "the house") + " - smash them!";
-            Debug.Log("[BossFight] caches for '" + word + "' in " + (box != null ? box.Name : "house") +
-                      ": " + string.Join(", ", caches));
+            string where = box != null ? GameHud.Spaced(box.Name) : BossText.TheHouse;
+            Clue = BossText.Hidden(word, where);
+            Debug.Log("[BossFight] caches for '" + word + "' in " + where + ": " + string.Join(", ", caches));
         }
 
         void ClearProps()
@@ -665,6 +562,40 @@ namespace Wreckabulary.BossFight
             for (int i = 0; i < props.Count; i++)
                 if (props[i]) Destroy(props[i].gameObject);
             props.Clear();
+        }
+    }
+
+    public static class BossText
+    {
+        public const string Prepare = "Smash furniture to collect letters.";
+        public const string PrepareLine = "Get ready: smash furniture and spell a weapon";
+        public const string PrepareChip = "GET READY · SMASH & SPELL";
+        public const string Wakes = "THE CALCULATOR WAKES";
+        public const string ThreeShields = "Three words, three shields.";
+        public const string ShieldBroken = "SHIELD BROKEN!";
+        public const string HitNow = "The shield is down. Hit it now!";
+        public const string Staggering = "Nice! It is staggering.";
+        public const string HitClue = "Hit it, and dodge the circles and jump smashes.";
+        public const string SmashChip = "JUMP SMASH · DODGE!";
+        public const string SmashClue = "Jump smash! Get out of the circle.";
+        public const string SupplyIn = "SUPPLY DROP IN", MinisIn = "MINIS INCOMING", SmashIn = "JUMP SMASH IN";
+        public const string TheHouse = "house";
+
+        public static string LayerDown(int left) => "LAYER " + left + " DOWN!";
+        public static string Hidden(string word, string room) => word + " hides in the furniture in the " + room + ". Smash it!";
+        public static string SupplyComing(string room) => "Supply drop coming in the " + room + ".";
+        public static string SupplyChip(string room) => "SUPPLY DROP · " + room.ToUpperInvariant();
+        public static string MinisComing(string room) => "Mini calculators coming near the " + room + "!";
+        public static string MinisChip(string room) => "MINIS · " + room.ToUpperInvariant();
+        public static string Result(bool won) => won ? "The Calculator is smashed!" : "The Calculator wins this time";
+
+        public static string Keys(string spell, string attack, string dodge)
+        {
+            var parts = new List<string>(3);
+            if (!string.IsNullOrEmpty(spell)) parts.Add(spell + " spells");
+            if (!string.IsNullOrEmpty(attack)) parts.Add(attack + " smashes");
+            if (!string.IsNullOrEmpty(dodge)) parts.Add(dodge + " dodges");
+            return string.Join(" · ", parts);
         }
     }
 }

@@ -362,10 +362,10 @@ namespace Wreckabulary
             Rules.HouseModes.FreeForAll => "BOMB",
             Rules.HouseModes.War => "SHIELD",
             Rules.HouseModes.MovingDay => "SOFA",
-            Rules.HouseModes.Escape => "MAT", // a doormat: out the door
+            Rules.HouseModes.Escape => "MAT",
             Rules.HouseModes.ShoppingList => "APPLE",
             Rules.HouseModes.RiddleRush => "LAMP",
-            Rules.HouseModes.BossFight => "BLADE", // a fight, and not Pack the Van's box
+            Rules.HouseModes.BossFight => "BLADE",
             Rules.HouseModes.Tutorial => "BOOK",
             LobbyMenu.WorkshopMode => "HAMMER",
             LobbyMenu.RoomMode => "CAKE",

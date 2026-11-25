@@ -451,12 +451,16 @@ namespace Wreckabulary.Tests
 
                 foreach (Transform card in cards)
                 {
-                    Assert.GreaterOrEqual(((RectTransform)card.Find("Picture")).rect.width, 112f);
+                    var picture = (RectTransform)card.Find("Picture");
+                    Assert.GreaterOrEqual(picture.rect.width, 112f, card.name + " keeps its full-size picture");
+                    AssertRectInside((RectTransform)card, picture);
                     foreach (var text in card.GetComponentsInChildren<TMPro.TMP_Text>())
                     {
-                        Assert.GreaterOrEqual(text.fontSize, 23f, card.name);
+                        bool letter = text.name == "Letter";
+                        Assert.GreaterOrEqual(text.fontSize, letter ? 23f : 15f, card.name + " " + text.transform.parent.name);
                         AssertRectInside((RectTransform)card, (RectTransform)text.transform.parent);
                     }
+                    AssertCardRowsApart(card, picture);
                 }
                 scroll.verticalNormalizedPosition = 0f;
                 Canvas.ForceUpdateCanvases();
@@ -465,6 +469,25 @@ namespace Wreckabulary.Tests
             }
             Object.Destroy(hud.gameObject);
             Object.Destroy(player.gameObject);
+        }
+
+        static Rect WorldRect(Transform part)
+        {
+            var corners = new Vector3[4];
+            ((RectTransform)part).GetWorldCorners(corners);
+            return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+        }
+
+        static void AssertCardRowsApart(Transform card, RectTransform picture)
+        {
+            var rows = new[] { "Fact ", "Tile ", "Bar " }
+                .Select(prefix => card.Cast<Transform>().Where(c => c.name.StartsWith(prefix)).Select(WorldRect).ToList())
+                .Prepend(new System.Collections.Generic.List<Rect> { WorldRect(picture) }).ToList();
+            for (int a = 0; a < rows.Count; a++)
+                for (int b = a + 1; b < rows.Count; b++)
+                    foreach (var upper in rows[a])
+                        foreach (var lower in rows[b])
+                            Assert.IsFalse(upper.Overlaps(lower), $"{card.name}: picture, effects, letters and stat bars sit in separate rows");
         }
 
         static void AssertRectInside(RectTransform outer, RectTransform inner)
@@ -781,6 +804,165 @@ namespace Wreckabulary.Tests
             Object.Destroy(player.gameObject);
             yield return null;
             Assert.IsFalse(DesktopBinding.Typing);
+        }
+
+        [UnityTest]
+        public IEnumerator PadSpellBoxShowsOnlyTheLettersAndOneLine()
+        {
+            var route = InputSystem.settings.editorInputBehaviorInPlayMode;
+            var focus = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            var pad = InputSystem.AddDevice<Gamepad>();
+            try
+            {
+                var player = Spawn(new GamepadBinding(pad));
+                var hud = new GameObject("Pad HUD", typeof(Canvas)).AddComponent<GameHud>();
+                yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the pad player's HUD");
+                hud.ShowTouchControls(false);
+                player.Inventory.Set("BAT");
+                InputSystem.QueueStateEvent(pad, new GamepadState().WithButton(GamepadButton.North));
+                yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "holding the spell button opens the spell box");
+                yield return new WaitForSecondsRealtime(.15f);
+                Canvas.ForceUpdateCanvases();
+                var safe = (RectTransform)hud.transform.Find("Safe HUD");
+                var box = (RectTransform)safe.Find("Craft drawer");
+                Assert.IsNotNull(player.Summoner.SelectedWord, "BAT is ready to spell.");
+                string word = player.Summoner.SelectedWord.word;
+                Assert.AreEqual($"{word} is ready. Let go to spell it.", hud.ComposerStatus, "The status line keeps its words.");
+                Assert.IsFalse(hud.ComposerLettersOnly, "The wheel keeps its one status line.");
+                Assert.AreEqual("", hud.ComposerHint);
+                AssertSpellBoxIsClean(box, false, "pad");
+                AssertSpellBoxHugs(box, false, "pad");
+                Assert.AreEqual(player.Summoner.Ready.Count > 1, box.Find("Field/Next").gameObject.activeSelf, "Arrows only when more than one word is ready.");
+                AssertApart(box, (RectTransform)safe.Find("Letter bag"), "The spell box keeps clear of the tray.");
+                foreach (var (name, units) in PhoneWindows)
+                {
+                    safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
+                    safe.anchoredPosition = Vector2.zero;
+                    safe.sizeDelta = units;
+                    yield return new WaitForSecondsRealtime(.2f);
+                    Canvas.ForceUpdateCanvases();
+                    Assert.IsTrue(hud.ComposerOpen, name);
+                    AssertRectInside(safe, box);
+                    AssertApart(box, (RectTransform)safe.Find("Letter bag"), $"{name}: the spell box keeps clear of the tray.");
+                    AssertSpellBoxHugs(box, false, name);
+                }
+
+                InputSystem.QueueStateEvent(pad, new GamepadState());
+                yield return TestScenes.WaitUntil(() => player.Summoner.IsCrafting || player.Combat.Weapon, 5f, "letting go spells the word");
+                yield return null;
+                Assert.IsFalse(hud.ComposerOpen, "Letting go closes the spell box.");
+                player.Summoner.CancelCraft();
+                yield return null;
+
+                player.Inventory.Set("BAT");
+                InputSystem.QueueStateEvent(pad, new GamepadState().WithButton(GamepadButton.North));
+                yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "the spell box opens again");
+                InputSystem.QueueStateEvent(pad, new GamepadState { rightTrigger = 1f }.WithButton(GamepadButton.North));
+                yield return TestScenes.WaitUntil(() => !hud.ComposerOpen, 5f, "grab closes the spell box");
+                Assert.IsFalse(player.Summoner.IsCrafting, "Closing never spells.");
+                InputSystem.QueueStateEvent(pad, new GamepadState());
+                yield return null;
+                Object.Destroy(hud.gameObject);
+                Object.Destroy(player.gameObject);
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(pad);
+                InputSystem.settings.editorInputBehaviorInPlayMode = route;
+                InputSystem.settings.backgroundBehavior = focus;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TouchSpellBoxKeepsQuietTapTargets()
+        {
+            var touch = TouchBinding.Shared;
+            touch.Enabled = true;
+            var player = Spawn(touch);
+            var hud = new GameObject("Touch HUD", typeof(Canvas)).AddComponent<GameHud>();
+            yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the touch player's HUD");
+            hud.ShowTouchControls(true);
+            yield return null;
+            player.Inventory.Set("BAT");
+            touch.SetCraftOpen(true);
+            yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "SPELL opens the spell box");
+            yield return new WaitForSecondsRealtime(.15f);
+            Canvas.ForceUpdateCanvases();
+            var box = (RectTransform)hud.transform.Find("Safe HUD/Craft drawer");
+            Assert.IsNotNull(player.Summoner.SelectedWord, "BAT is ready to spell.");
+            string word = player.Summoner.SelectedWord.word;
+            Assert.AreEqual($"{word} is ready. Tap SPELL.", hud.ComposerStatus);
+            AssertSpellBoxIsClean(box, true, "touch");
+            AssertSpellBoxHugs(box, true, "touch");
+            var build = box.Find("Chrome/Build").GetComponent<Button>();
+            var close = box.Find("Chrome/Cancel").GetComponent<Button>();
+            Assert.IsTrue(build.gameObject.activeInHierarchy && build.interactable, "Touch keeps a SPELL tap target.");
+            Assert.IsTrue(close.gameObject.activeInHierarchy, "Touch keeps a close tap target.");
+            Assert.AreEqual(0f, box.InverseTransformPoint(close.transform.position).x - box.rect.xMax, .5f, "The close target sits on the corner, not in a header row.");
+
+            close.onClick.Invoke();
+            yield return TestScenes.WaitUntil(() => !hud.ComposerOpen, 5f, "the close target closes the spell box");
+            Assert.IsFalse(player.Summoner.IsCrafting, "Closing never spells.");
+
+            touch.SetCraftOpen(true);
+            yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "the spell box opens again");
+            yield return null;
+            box.Find("Chrome/Build").GetComponent<Button>().onClick.Invoke();
+            Assert.IsTrue(player.Summoner.IsCrafting, "Tapping SPELL spells the word.");
+            yield return TestScenes.WaitUntil(() => !hud.ComposerOpen, 5f, "spelling closes the spell box");
+            player.Summoner.CancelCraft();
+            hud.ShowTouchControls(false);
+            Object.Destroy(hud.gameObject);
+            Object.Destroy(player.gameObject);
+        }
+
+        static void AssertSpellBoxIsClean(RectTransform box, bool tap, string message)
+        {
+            Assert.IsNull(box.Find("Chrome/Eyebrow"), message + ": no SPELL A WORD caption");
+            Assert.IsNull(box.Find("Chrome/Recipe book"), message + ": no Recipe book link; the tray's book key opens it");
+            Assert.AreEqual(tap, box.Find("Chrome/Cancel").gameObject.activeInHierarchy, message + ": close target only for touch");
+            Assert.AreEqual(tap, box.Find("Chrome/Build").gameObject.activeInHierarchy, message + ": SPELL target only for touch");
+            foreach (var text in box.GetComponentsInChildren<TMPro.TMP_Text>())
+            {
+                if (string.IsNullOrEmpty(text.text) || text.name == "Letter" || text.name == "Craft status") continue;
+                Assert.IsTrue(tap && text.name == "Label" && text.transform.parent.parent.name == "Build", $"{message}: only letters and one line show, not '{text.text}'");
+            }
+            foreach (var button in box.GetComponentsInChildren<Button>())
+                Assert.IsTrue(button.name is "Previous" or "Next" || (tap && button.name is "Build" or "Cancel"), $"{message}: no {button.name} button");
+        }
+
+        static Rect InBox(RectTransform box, RectTransform part)
+        {
+            var corners = new Vector3[4];
+            part.GetWorldCorners(corners);
+            Vector3 low = box.InverseTransformPoint(corners[0]), high = box.InverseTransformPoint(corners[2]);
+            return Rect.MinMaxRect(low.x, low.y, high.x, high.y);
+        }
+
+        static void AssertSpellBoxHugs(RectTransform box, bool tap, string message)
+        {
+            var frame = box.rect;
+            var field = (RectTransform)box.Find("Field");
+            var status = (RectTransform)box.Find("Chrome/Craft status");
+            var text = status.GetComponent<TMPro.TMP_Text>();
+            Rect well = InBox(box, field), line = InBox(box, status);
+            Rect row = tap ? Rect.MinMaxRect(well.xMin, well.yMin, InBox(box, (RectTransform)box.Find("Chrome/Build")).xMax, well.yMax) : well;
+            float top = frame.yMax - well.yMax, bottom = line.yMin - frame.yMin, left = line.xMin - frame.xMin, right = frame.xMax - line.xMax;
+            Assert.AreEqual(top, bottom, .5f, message + ": even padding above and below");
+            Assert.AreEqual(left, right, .5f, message + ": even padding left and right");
+            Assert.AreEqual(top, left, .5f, message + ": the same padding all round");
+            Assert.LessOrEqual(line.yMax, well.yMin + .5f, message + ": the line sits under the letters");
+            Assert.AreEqual(frame.center.x, row.center.x, .5f, message + ": the letters are centred");
+            Assert.GreaterOrEqual(row.xMin - frame.xMin, left - .5f, message + ": the letters keep the padding");
+            float said = Mathf.Min(text.GetPreferredValues(text.text).x, line.width);
+            Assert.AreEqual(line.width, Mathf.Max(row.width, said), .5f, message + ": the panel hugs the letters and the line");
+            Assert.Less(frame.height, 189f - .5f, message + ": shorter than the old box with its header row");
+            var tiles = field.Find("Tiles").Cast<Transform>().Where(t => t.name.StartsWith("Tile") && t.gameObject.activeSelf).Select(t => (RectTransform)t).ToList();
+            Assert.Greater(tiles.Count, 0, message + ": the word's letters show");
+            float middle = (tiles[0].anchoredPosition.x + tiles[tiles.Count - 1].anchoredPosition.x) * .5f;
+            Assert.AreEqual(field.rect.width * .5f, middle, .5f, message + ": the tiles sit in the middle of the well");
         }
 
         [UnityTest]

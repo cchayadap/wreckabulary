@@ -11,6 +11,7 @@ namespace Wreckabulary.Tests
 {
     public sealed class LoadoutLayoutRuntimeTests
     {
+        const float WideAspect = 16f / 9f - .01f, ShrinkFloor = .85f;
         string[] saved;
         static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey };
 
@@ -51,7 +52,11 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(1, pages.Length);
                 var page = pages[0];
                 Assert.AreEqual(layout.Page.Panel.offsetMin, page.Panel.offsetMin);
-                Assert.AreEqual(layout.Page.RecipeGrid.cellSize, page.RecipeGrid.cellSize);
+                var authored = layout.Page.RecipeGrid.cellSize;
+                var cell = page.RecipeGrid.cellSize;
+                Assert.AreEqual(authored.x, cell.x, "recipe columns keep the authored width");
+                if (!recipes || (float)Screen.width / Screen.height >= WideAspect) Assert.AreEqual(authored.y, cell.y, "16:9 keeps the authored recipe cell");
+                else Assert.That(cell.y, Is.InRange(authored.y * ShrinkFloor - .5f, authored.y), "narrow windows shrink rows a little to show whole rows");
                 Assert.AreEqual(layout.Page.RecipeGrid.spacing, page.RecipeGrid.spacing);
                 Assert.AreEqual(layout.Page.RecipeDetail.offsetMin, page.RecipeDetail.offsetMin);
                 Assert.AreEqual(recipes ? "RECIPES" : "LOCKER", EventSystem.current.currentSelectedGameObject.name);
@@ -64,7 +69,8 @@ namespace Wreckabulary.Tests
                 foreach (var tile in tiles)
                 {
                     Assert.AreEqual(layout.Recipe.Icon.rectTransform.anchoredPosition, tile.Icon.rectTransform.anchoredPosition);
-                    Assert.AreEqual(layout.Recipe.Icon.rectTransform.sizeDelta, tile.Icon.rectTransform.sizeDelta);
+                    Assert.AreEqual(layout.Recipe.Icon.rectTransform.sizeDelta - Vector2.one * (authored.y - cell.y), tile.Icon.rectTransform.sizeDelta,
+                        "the art shrinks by exactly what the row gave up");
                     Assert.AreEqual(layout.Recipe.MaximumLetterSize, tile.MaximumLetterSize);
                     Assert.AreEqual(layout.Recipe.LetterWidthBudget, tile.LetterWidthBudget);
                 }

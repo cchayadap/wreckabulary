@@ -936,9 +936,8 @@ namespace Wreckabulary
 
         public string Blocked => Queue == Matchmaking
             ? "House modes are played on this screen. For online matches, choose Online."
-            : null;
+            : PlayPage.Refusal(this);
 
-        /// <summary>Boss Fight and the Tutorial seat one player: a second seat moves the choice to a mode that fits.</summary>
         void FitModeToParty()
         {
             if (Queue != Practice || !PracticeModes.Contains(Mode) || Fits(Mode)) return;
@@ -955,7 +954,7 @@ namespace Wreckabulary
         {
             if (Starting) return;
             if (Blocked != null) { Post(Blocked); return; }
-            if (Queue == Practice && PracticeModes.Contains(Mode) && !Fits(Mode)) { Post(PlayPage.SoloOnly(Mode)); return; }
+            if (Queue == Practice && PracticeModes.Contains(Mode) && !Fits(Mode)) { Post(PlayPage.TooMany(Mode)); return; }
             launchHome = null;
             if (SavedHome != null && !HomeStorage.ForGame().TryLoad(SavedHome, out launchHome, out string error))
             {

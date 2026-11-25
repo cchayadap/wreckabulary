@@ -12,7 +12,7 @@ namespace Wreckabulary
     {
         public const string RoomModeCard = "Room mode ", TeamSizeChoice = "Room team size", LayoutChoice = "Room layout";
         public const string LayoutRow = "Room layout row", LayoutPicture = "Room layout picture", LayoutCourse = "Room layout course";
-        public const string CreateRoom = "Create room GO";
+        public const string CreateRoom = "Create room GO", RoomModes = "Room modes", RoomModesFamily = "Room mode tiles";
         public const string BackToPlaylists = "Back to playlists", CustomMap = "Host a custom map", FriendsSummary = "Friends summary";
         public const string CustomMatchNote = "Custom match note", AmongYourselves = "Play among yourselves. Only people with the code can join.";
         const float LayoutHeight = 56f, LayoutThumb = 96f, VersionWidth = 72f, VersionHeight = 52f, LayoutGap = 16f, CourseText = 22f;
@@ -49,10 +49,9 @@ namespace Wreckabulary
             var note = LobbyKit.Text(top, AmongYourselves, 17, LobbyKit.Muted, TextAlignmentOptions.BottomRight);
             note.name = CustomMatchNote;
             note.Size(-1, 28, 1);
-            var cards = MapCards(column, "Room modes");
-            var grid = cards.GetComponent<LobbyPlayCardGrid>();
-            grid.MaximumColumns = Mathf.Max(grid.MaximumColumns, FriendRooms.All.Count);
-            foreach (var room in FriendRooms.All) RoomModeCardFor(cards, choice, room);
+            var tiles = TileBoard(column, RoomModes, RoomModesFamily);
+            foreach (var room in FriendRooms.All) RoomModeCardFor(tiles, choice, room);
+            SizeTiles(tiles.GetComponentInParent<LobbyPlayModeFamilies>());
             LobbyKit.SectionLabel(column, "Map");
             LayoutRowFor(column, choice);
             var custom = LobbyKit.TextAction(column, CustomMap, "Host a custom map from the Map editor", 17, Menu.HostCustomMap,
@@ -98,8 +97,9 @@ namespace Wreckabulary
         void RoomModeCardFor(Transform cards, FriendRoomChoice choice, FriendRoomMode room)
         {
             string name = RoomModeCard + room.Id;
-            var card = MapCard(cards, name, choice.Mode == room.Id, () => SaveRoomChoice(next => next.Choose(room.Id), name));
-            MapWords(card, ModePicture(card, room.Mode), room.Label, room.Detail);
+            var card = ModeTile(cards, name, room.Label, LobbyPlayModeLabels.Emblem(room.Mode), false, choice.Mode == room.Id,
+                () => SaveRoomChoice(next => next.Choose(room.Id), name));
+            card.gameObject.AddComponent<LobbyHint>().Text = room.Detail;
         }
 
         void LayoutRowFor(RectTransform column, FriendRoomChoice choice)

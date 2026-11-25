@@ -84,6 +84,22 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
+        public void BossFightIsOneHumanWithoutBotsRoundsOrTeams()
+        {
+            var boss = HouseModes.Find(HouseModes.BossFight);
+            Assert.AreEqual(1, boss.MaxSeats);
+            Assert.AreEqual(1, boss.MinSeats);
+            CollectionAssert.AreEqual(new[] { "pinwheel" }, boss.Maps, "Boss Fight is locked to Pinwheel House");
+            Assert.AreEqual(BossFightTuning.Map, boss.Maps[0]);
+            foreach (var mode in HouseModes.All)
+                if (mode.Id != HouseModes.BossFight) CollectionAssert.IsEmpty(mode.Maps, mode.Id);
+            Assert.AreEqual(0, HouseModes.BotSeats(HouseModes.BossFight));
+            Assert.IsFalse(boss.Coop || boss.Rounds || boss.Teams);
+            Assert.AreEqual(HouseModeFamily.Arcade, boss.Family);
+            Assert.IsFalse(HomeDesigner.Playable(HouseModes.BossFight), "Boss Fight clears the furniture, so a built home has nothing to offer");
+        }
+
+        [Test]
         public void BlurbsFillTheirNumbersFromTheRules()
         {
             var rules = new GameRules { RoundsToWin = 3, KnockoutsToWin = 10, TeamLives = 12, RespawnSeconds = 3f };

@@ -18,9 +18,6 @@ namespace Wreckabulary
         [SerializeField] float spawnGrace = 1.5f;
 
         public string Word => word;
-        /// <summary>Letters released on break. Defaults to the prop's own word; modes can override it.</summary>
-        // @trace AMD-004
-        public string Drops { get; set; }
         public float Health => health;
         public bool IsBroken { get; private set; }
         public float Remaining => IsBroken ? 0f : Mathf.Clamp01(health / Mathf.Max(1f, initialHealth));
@@ -45,7 +42,6 @@ namespace Wreckabulary
         public void Init(string newWord, float newHealth = -1f)
         {
             word = newWord.ToUpperInvariant();
-            Drops = word;
             if (newHealth > 0f) health = newHealth;
             initialHealth = health;
         }
@@ -94,11 +90,10 @@ namespace Wreckabulary
             if (pool)
             {
                 var centre = TryGetComponent(out Rigidbody rb) ? rb.worldCenterOfMass : transform.position;
-                string loot = string.IsNullOrEmpty(Drops) ? word : Drops;
-                if (loot == word && TryGetComponent(out LetterBuilt built) && built.Blocks.Count == word.Length)
+                if (TryGetComponent(out LetterBuilt built) && built.Blocks.Count == word.Length)
                     pool.BurstFrom(built.Blocks, word, centre);
                 else
-                    pool.Burst(loot, centre + Vector3.up * 0.3f);
+                    pool.Burst(word, centre + Vector3.up * 0.3f);
             }
             CameraRig.Shake(0.08f);
             if (!Audio.ImpactAudioBridge.VoicesBreak(this)) GameFeedback.Play(GameCue.Break);

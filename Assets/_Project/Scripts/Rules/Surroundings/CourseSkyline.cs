@@ -9,7 +9,9 @@ namespace Wreckabulary.Rules.Surroundings
 {
     public static class CourseSkyline
     {
-        public const int HighRenderers = 8, HighTriangles = 120000, LowRenderers = 3, LowTriangles = 24000;
+        public const int HighRenderers = 10, HighTriangles = 160000, LowRenderers = 3, LowTriangles = 30000;
+        public const int HighStreetRenderers = 4, HighStreetTriangles = 40000, LowStreetRenderers = 2, LowStreetTriangles = 12000;
+        public const string StreetPrefix = "street_";
         public const float FarClip = 1800f, ViewMargin = 100f, EyeLift = 10f;
         public const string SkylineSlot = "bk_skyline", FallbackSlot = SurroundingsSlots.Plaster;
         public const float WallSmoothness = .06f, GlassSmoothness = .45f, StreetShade = .84f, TopShade = 1.04f, PlinthShade = .78f, TrimShade = 1.07f;
@@ -31,14 +33,19 @@ namespace Wreckabulary.Rules.Surroundings
             return Channel(16) << 16 | Channel(8) << 8 | Channel(0);
         }
 
-        public static double Gradient(SkylineBox b, double y) => StreetShade + (TopShade - StreetShade) * Math.Max(0, Math.Min(1, (y - b.Floor) / Math.Max(12, b.Rise)));
+        public static double Gradient(SkylineBox b, double y) => b.Rise <= 0 ? 1 : StreetShade + (TopShade - StreetShade) * Math.Max(0, Math.Min(1, (y - b.Floor) / Math.Max(12, b.Rise)));
 
         public static uint VertexColour(SkylineBox b, double y, uint haze) => Blend(Shade(b.Tint, Gradient(b, y)), haze, b.Haze);
 
         public static uint GlassColour(SkylineBox b, uint haze) => b.Windows == null ? 0 : Blend(b.Windows.Glass, haze, b.Haze);
 
         public static IReadOnlyList<SkylineMeshPart> Parts(CourseSkylineResult skyline) =>
-            CourseSkylineGeometry.Parts(skyline ?? throw new ArgumentNullException(nameof(skyline)));
+            CourseSkylineGeometry.Parts((skyline ?? throw new ArgumentNullException(nameof(skyline))).Boxes, skyline.HazeTint, false);
+
+        public static IReadOnlyList<SkylineMeshPart> StreetParts(CourseSkylineResult skyline) =>
+            CourseSkylineGeometry.Parts((skyline ?? throw new ArgumentNullException(nameof(skyline))).Streets, skyline.HazeTint, true);
+
+        public static double HazeAt(double distance, float most, float from, float to) => most * Math.Max(0, Math.Min(1, (distance - from) / (to - from)));
 
         public static double FarthestView(CourseFootprint footprint, IEnumerable<SkylineBox> boxes)
         {
@@ -58,27 +65,41 @@ namespace Wreckabulary.Rules.Surroundings
     sealed class CourseSkylineLot
     {
         public long Key;
+        public int I, J;
         public Footprint Lot;
         public Rect Bounds;
         public Flat At;
         public double Yaw, Width, Depth, Height, Distance, Heading, Weight, Core;
         public int Cluster;
-        public bool Downtown, Dropped, Crane;
+        public bool Downtown, Dropped, Crane, Merged;
         public string Type, Landmark;
         public CourseFacadeSpec Facade;
         public uint Wall, Pane, Accent, Roof, Awning, Sign;
         public double Roll, CraneRoll, Haze;
     }
 
+    sealed class CourseOpenCell
+    {
+        public const string Park = "park", Yard = "yard";
+
+        public long Key;
+        public int I, J;
+        public Footprint Shape;
+        public double Distance;
+        public bool Downtown;
+        public string Kind;
+    }
+
     sealed class CourseSkylinePlanner
     {
-        const double Slack = 1e-6, RingLift = .3, CoreFloor = .75, DowntownSkew = .75, NeedleTurn = 80, NeedleReach = 150, ClockStep = 25;
-        const double TopAllowance = 70, CraneHeight = 70, ReachStep = .3;
+        const double Slack = 1e-6, RingLift = .3, CoreFloor = .75, DowntownSkew = .55, NeedleTurn = 80, NeedleReach = 150, ClockStep = 25;
+        const double TopAllowance = 70, CraneHeight = 70, ReachStep = .3, SupertallSpan = 13, SupertallWidth = 42;
         const int ReachSteps = 4;
 
         static readonly string[] CraneTypes = { CourseSkylineTypes.Block, CourseSkylineTypes.Curtain, CourseSkylineTypes.Deco, CourseSkylineTypes.Slab };
 
         readonly CourseSkylineSpec spec;
+        readonly CourseDistrictSpec district;
         readonly ulong seed;
         readonly Rect box;
         readonly Flat centre;
@@ -87,11 +108,16 @@ namespace Wreckabulary.Rules.Surroundings
         readonly List<double> headings = new List<double>();
         readonly List<CourseSkylineLot> lots = new List<CourseSkylineLot>();
         readonly List<string> thinned = new List<string>();
+        readonly List<CourseOpenCell> opens = new List<CourseOpenCell>();
+        readonly List<Footprint> keptCards = new List<Footprint>();
+        Func<Footprint, Rect, bool> blockedBy = (shape, bounds) => false;
+        HashSet<(int, int)> cityCells;
 
-        public CourseSkylinePlanner(CourseSkylineSpec spec, ulong seed, CourseFootprint footprint, float groundY, float clear)
+        public CourseSkylinePlanner(CourseSkylineSpec spec, ulong seed, CourseFootprint footprint, float groundY, float clear, string courseId = "")
         {
             this.spec = spec;
             this.seed = seed;
+            district = spec.District(courseId, Pcg32.ForStream(seed, "skyline:district").NextDouble());
             this.footprint = footprint;
             this.groundY = groundY;
             this.clear = clear;
@@ -117,8 +143,11 @@ namespace Wreckabulary.Rules.Surroundings
             return d > 180 ? 360 - d : d;
         }
 
+        public string District => district.Id;
+
         public void Plan(Func<Footprint, Rect, bool> blocked)
         {
+            blockedBy = blocked ?? blockedBy;
             PickHeadings();
             double reach = Math.Max(spec.Downtown.Band.To, spec.Ring.To) + spec.Cell;
             double half = Math.Max(box.MaxX - box.MinX, box.MaxZ - box.MinZ) * .5 + reach;
@@ -130,6 +159,28 @@ namespace Wreckabulary.Rules.Surroundings
             foreach (var lot in Live.ToList())
                 if (FarthestView(lot) > CourseSkyline.ViewReach) lot.Dropped = true;
             Paint();
+            ChooseOpens();
+        }
+
+        Footprint CellShape(int i, int j)
+        {
+            var at = centre + new Flat(i * spec.Cell, j * spec.Cell);
+            double side = spec.Cell - spec.Gap;
+            return new Footprint(Q(at.X, .001), Q(at.Z, .001), Q(side, .001), Q(side, .001), 0);
+        }
+
+        void ChooseOpens()
+        {
+            var taken = new HashSet<long>(Live.Select(l => l.Key));
+            foreach (var cell in opens.ToList())
+            {
+                var rng = Random("open", cell.Key);
+                double roll = rng.NextDouble();
+                cell.Kind = roll < district.Parks ? CourseOpenCell.Park : !cell.Downtown && roll < district.Parks + district.Yards ? CourseOpenCell.Yard : null;
+                var shape = cell.Shape;
+                if (cell.Kind == null || taken.Contains(cell.Key) || cell.Distance > spec.Streets.Reach || Live.Any(l => l.Bounds.Overlaps(shape.Bounds()) && l.Lot.Overlaps(shape)))
+                    opens.Remove(cell);
+            }
         }
 
         void Paint()
@@ -211,10 +262,14 @@ namespace Wreckabulary.Rules.Surroundings
             bool inRing = distance >= ring.From && distance <= ring.To;
             if (!inDown && !inRing) return;
             double chance = inDown ? Lerp(ring.Chance, down.Chance, weight) : ring.Chance;
-            if (roll >= chance) return;
+            if (roll >= chance)
+            {
+                Open(i, j, key, inDown, blocked);
+                return;
+            }
             var type = PickType(inDown ? weight : 0, typePick);
-            double height = HeightFor(type, inDown, weight, distance, tallness, outlier);
             var (width, depth) = SizeFor(type.Id, inDown, wide, deep);
+            double height = Math.Min(HeightFor(type, inDown, weight, distance, tallness, outlier), spec.Proportion * Math.Min(width, depth));
             double yaw = 90 * Math.Min(3, (int)(turn * 4));
             double lotW = width + 2 * spec.Plaza, lotD = depth + 2 * spec.Plaza;
             bool square = Math.Abs(yaw % 180) < 1;
@@ -225,28 +280,40 @@ namespace Wreckabulary.Rules.Surroundings
             var shape = new Footprint(at.X, at.Z, Q(lotW, .001), Q(lotD, .001), yaw);
             var bounds = shape.Bounds();
             double gap = shape.Distance(box);
-            if (gap < clear - Slack || blocked(shape, bounds)) return;
-            var facade = spec.Facade(type.Facades, look, inDown ? weight : 0);
+            if (gap < clear - Slack || blocked(shape, bounds))
+            {
+                Open(i, j, key, inDown, blocked);
+                return;
+            }
+            var facade = spec.Facade(type.Facades, look, inDown ? weight : 0, district);
             lots.Add(new CourseSkylineLot
             {
-                Key = key, Lot = shape, Bounds = bounds, At = at, Yaw = yaw, Width = Q(width, .001), Depth = Q(depth, .001), Height = Q(height, .01),
+                Key = key, I = i, J = j, Lot = shape, Bounds = bounds, At = at, Yaw = yaw, Width = Q(width, .001), Depth = Q(depth, .001), Height = Q(height, .01),
                 Distance = gap, Heading = (at - centre).Yaw, Weight = weight, Core = weight * CoreAt(distance), Cluster = cluster, Downtown = inDown,
                 Type = type.Id, Facade = facade, Roll = lowRoll, CraneRoll = craneRoll,
             });
         }
 
+        void Open(int i, int j, long key, bool inDown, Func<Footprint, Rect, bool> blocked)
+        {
+            var shape = CellShape(i, j);
+            double gap = shape.Distance(box);
+            if (gap < clear - Slack || blocked(shape, shape.Bounds())) return;
+            opens.Add(new CourseOpenCell { Key = key, I = i, J = j, Shape = shape, Distance = gap, Downtown = inDown });
+        }
+
         CourseTypeSpec PickType(double downtown, double pick)
         {
-            double total = spec.Types.Sum(t => t.WeightAt(downtown));
+            double total = spec.Types.Sum(t => district.WeightOf(t, downtown));
             double at = pick * total;
             foreach (var type in spec.Types)
             {
-                double w = type.WeightAt(downtown);
+                double w = district.WeightOf(type, downtown);
                 if (w <= 0) continue;
                 at -= w;
                 if (at < 0) return type;
             }
-            return spec.Types.Last(t => t.WeightAt(downtown) > 0);
+            return spec.Types.Last(t => district.WeightOf(t, downtown) > 0);
         }
 
         double CoreAt(double distance)
@@ -260,12 +327,13 @@ namespace Wreckabulary.Rules.Surroundings
         {
             if (type.Height.HasValue) return Lerp(type.Height.Value, tallness);
             var ring = spec.Ring;
-            if (!inDown && outlier < ring.TallChance) return Lerp(ring.Tall, tallness);
+            if (!inDown && outlier < ring.TallChance) return district.RingHeight * Lerp(ring.Tall, tallness);
             var band = spec.Downtown.Band;
             double rise = ring.RowRise * Clamp01((distance - ring.From) / Math.Max(1, ring.To - ring.From));
             double lift = inDown ? weight * (CoreFloor + (1 - CoreFloor) * CoreAt(distance)) : weight * RingLift;
             double low = Lerp(ring.Height.min + rise, band.Height.min, lift), high = Lerp(ring.Height.max + rise, band.Height.max, lift);
-            return Lerp(low, high, inDown ? Math.Pow(tallness, DowntownSkew) : tallness);
+            double scale = inDown ? Lerp(district.RingHeight, district.DowntownHeight, weight) : district.RingHeight;
+            return Math.Max(CourseSkylineSpec.MinHeight, scale * Lerp(low, high, inDown ? Math.Pow(tallness, DowntownSkew) : tallness));
         }
 
         (double width, double depth) SizeFor(string type, bool inDown, double wide, double deep)
@@ -278,6 +346,7 @@ namespace Wreckabulary.Rules.Surroundings
                     return (limit * Lerp(.82, 1, wide), limit * Lerp(.82, 1, deep));
                 case CourseSkylineTypes.Slab: return (limit * Lerp(.85, 1, wide), Lerp(8, 10.5, deep));
                 case CourseSkylineTypes.Twin: return (limit * Lerp(.88, 1, wide), limit * Lerp(.4, .5, deep));
+                case CourseSkylineTypes.Shed: return (limit * Lerp(.86, 1, wide), limit * Lerp(.72, 1, deep));
                 case CourseSkylineTypes.Round: case CourseSkylineTypes.Deco:
                     double side = Math.Min(Lerp(widths, wide), limit);
                     return (side, side);
@@ -290,8 +359,18 @@ namespace Wreckabulary.Rules.Surroundings
             var band = spec.Downtown.Band;
             for (int k = 0; k < headings.Count; k++)
             {
-                var best = Live.Where(l => l.Downtown && l.Cluster == k && l.Landmark == null).OrderByDescending(l => l.Core).ThenBy(l => l.Key).FirstOrDefault();
-                if (best != null) Make(best, CourseSkylineTypes.Supertall, spec.Supertall.Height, spec.SupertallFacades, Random("landmark:supertall", k));
+                var chosen = new List<CourseSkylineLot>();
+                foreach (var lot in Live.Where(l => l.Downtown && l.Cluster == k && l.Landmark == null).OrderByDescending(l => l.Core).ThenBy(l => l.Key).ToList())
+                {
+                    if (chosen.Count >= spec.SupertallCount) break;
+                    if (lot.Dropped || lot.Landmark != null || chosen.Any(c => (c.At - lot.At).Length < spec.SupertallApart)) continue;
+                    Merge(lot);
+                    var pick = Random("landmark:supertall", k * 10 + chosen.Count);
+                    Make(lot, CourseSkylineTypes.Supertall, spec.Supertall.Height, spec.SupertallFacades, pick);
+                    lot.Width = lot.Depth = Q(Math.Min(lot.Width, SupertallWidth), .001);
+                    lot.Height = Q(Math.Min(lot.Height, SupertallSpan * lot.Width), .01);
+                    chosen.Add(lot);
+                }
             }
             var rng = Random("landmark:needle");
             if (rng.NextDouble() < spec.NeedleChance)
@@ -303,8 +382,32 @@ namespace Wreckabulary.Rules.Surroundings
             var clockRng = Random("landmark:clock");
             var clock = Nearest(clockRng.NextDouble() * 360, spec.Ring.From + ClockStep, 0);
             if (clock != null) Make(clock, CourseSkylineTypes.Clock, spec.Clock.Height, spec.ClockFacades, clockRng);
+            double cranes = Math.Min(1, spec.CraneChance * district.Cranes);
             foreach (var lot in Live)
-                lot.Crane = lot.Downtown && lot.Landmark == null && lot.Height >= CraneHeight && lot.CraneRoll < spec.CraneChance && CraneTypes.Contains(lot.Type);
+                lot.Crane = lot.Downtown && lot.Landmark == null && lot.Height >= CraneHeight && lot.CraneRoll < cranes && CraneTypes.Contains(lot.Type);
+        }
+
+        void Merge(CourseSkylineLot lot)
+        {
+            foreach (var (di, dj) in new[] { (1, 1), (-1, 1), (1, -1), (-1, -1) })
+            {
+                int i0 = Math.Min(lot.I, lot.I + di), j0 = Math.Min(lot.J, lot.J + dj);
+                var mid = centre + new Flat((i0 + .5) * spec.Cell, (j0 + .5) * spec.Cell);
+                double side = 2 * spec.Cell - spec.Gap;
+                var shape = new Footprint(Q(mid.X, .001), Q(mid.Z, .001), Q(side, .001), Q(side, .001), 0);
+                var bounds = shape.Bounds();
+                if (shape.Distance(box) < clear - Slack || blockedBy(shape, bounds)) continue;
+                var others = Live.Where(l => l != lot && l.Bounds.Overlaps(bounds) && l.Lot.Overlaps(shape)).ToList();
+                if (others.Any(o => o.Landmark != null)) continue;
+                foreach (var other in others) other.Dropped = true;
+                lot.Lot = shape;
+                lot.Bounds = bounds;
+                lot.At = mid;
+                lot.Yaw = 0;
+                lot.Merged = true;
+                lot.Distance = shape.Distance(box);
+                return;
+            }
         }
 
         CourseSkylineLot Nearest(double heading, double distance, double least)
@@ -352,8 +455,10 @@ namespace Wreckabulary.Rules.Surroundings
             for (int c = 0; c < cards.Count; c++)
             {
                 if (dropped.Contains(c)) continue;
+                keptCards.Add(cards[c]);
                 foreach (var lot in Live.ToList())
                     if (lot.Lot.Overlaps(cards[c], spec.CardGap)) lot.Dropped = true;
+                opens.RemoveAll(o => o.Shape.Overlaps(cards[c], spec.CardGap));
             }
             return dropped;
         }
@@ -362,6 +467,31 @@ namespace Wreckabulary.Rules.Surroundings
         {
             foreach (var lot in lots)
                 if (!lot.Dropped && lot.Bounds.Overlaps(bounds) && lot.Lot.Overlaps(shape)) return true;
+            foreach (var open in opens)
+                if (open.Shape.Overlaps(shape)) return true;
+            return OnStreet(shape, bounds);
+        }
+
+        bool OnStreet(Footprint shape, Rect bounds)
+        {
+            var city = cityCells ??= CourseStreetBuilder.CityCells(spec, centre, Live.Select(l => l.Lot), opens);
+            double half = spec.Gap * .5, cell = spec.Cell;
+            int i0 = (int)Math.Floor((bounds.MinX - centre.X) / cell) - 1, i1 = (int)Math.Ceiling((bounds.MaxX - centre.X) / cell) + 1;
+            int j0 = (int)Math.Floor((bounds.MinZ - centre.Z) / cell) - 1, j1 = (int)Math.Ceiling((bounds.MaxZ - centre.Z) / cell) + 1;
+            for (int i = i0; i <= i1; i++)
+                for (int j = j0; j <= j1; j++)
+                {
+                    if (city.Contains((i, j)) || city.Contains((i + 1, j)))
+                    {
+                        var run = new Footprint(centre.X + (i + .5) * cell, centre.Z + j * cell, 2 * half, cell, 0);
+                        if (run.Overlaps(shape)) return true;
+                    }
+                    if (city.Contains((i, j)) || city.Contains((i, j + 1)))
+                    {
+                        var run = new Footprint(centre.X + i * cell, centre.Z + (j + .5) * cell, cell, 2 * half, 0);
+                        if (run.Overlaps(shape)) return true;
+                    }
+                }
             return false;
         }
 
@@ -383,6 +513,12 @@ namespace Wreckabulary.Rules.Surroundings
             result.Trimmed = trimmed;
             result.DetailReach = reach;
             result.HazeTint = spec.HazeTint;
+            result.District = district.Id;
+            var streets = new CourseStreetBuilder(spec, district, seed, footprint, groundY, clear, Live.Select(l => l.Lot).ToList(), opens, keptCards, blockedBy)
+                .Build(tier == CourseSurroundingsTier.High, out float streetReach);
+            result.Streets = streets;
+            result.StreetGroups = CourseSkylineGeometry.Groups(streets);
+            result.StreetReach = streetReach;
             Check(result, problems);
             result.Canonical = Canonical(result);
             result.Hash = Hash64.ToHex(Hash64.Of(result.Canonical));
@@ -427,10 +563,10 @@ namespace Wreckabulary.Rules.Surroundings
                 X = (float)lot.At.X, Z = (float)lot.At.Z, Yaw = (float)lot.Yaw, Width = (float)lot.Width, Depth = (float)lot.Depth,
                 LotWidth = (float)lot.Lot.HalfWidth * 2, LotDepth = (float)lot.Lot.HalfDepth * 2, Ground = Q(groundY, .001), Height = (float)lot.Height,
                 Distance = Q(lot.Distance, .01), Heading = Q(lot.Heading, .01), Weight = Q(lot.Weight, .001), Downtown = lot.Downtown, Detailed = detailed,
-                Crane = lot.Crane, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Kind = lot.Facade.Kind, Wall = lot.Wall, Pane = lot.Pane,
+                Crane = lot.Crane, Merged = lot.Merged, Type = lot.Type, Landmark = lot.Landmark, Facade = lot.Facade.Id, Kind = lot.Facade.Kind, Wall = lot.Wall, Pane = lot.Pane,
                 Accent = lot.Accent, Base = CourseSkyline.Shade(lot.Wall, CourseSkyline.PlinthShade), Haze = Q(lot.Haze, .001),
                 Source = lot.Landmark ?? (lot.Downtown ? "downtown " + lot.Cluster : "ring"),
-                Boxes = new CourseTowerShape(spec, lot, groundY, full, detailed).Build(Random("tower", lot.Key)),
+                Boxes = new CourseTowerShape(spec, district, lot, groundY, full, detailed).Build(Random("tower", lot.Key)),
             };
         }
 
@@ -439,6 +575,13 @@ namespace Wreckabulary.Rules.Surroundings
             void Problem(string line) { if (!problems.Contains(line)) problems.Add(line); }
             if (result.Renderers > result.RendererLimit) Problem($"skyline budget: {result.Tier}: {result.Renderers} renderers, at most {result.RendererLimit}");
             if (result.Triangles > result.TriangleLimit) Problem($"skyline budget: {result.Tier}: {result.Triangles} triangles, at most {result.TriangleLimit}");
+            if (result.StreetRenderers > result.StreetRendererLimit) Problem($"street budget: {result.Tier}: {result.StreetRenderers} renderers, at most {result.StreetRendererLimit}");
+            if (result.StreetTriangles > result.StreetTriangleLimit) Problem($"street budget: {result.Tier}: {result.StreetTriangles} triangles, at most {result.StreetTriangleLimit}");
+            foreach (var b in result.Streets)
+            {
+                var shape = new Footprint(b.X, b.Z, b.Width * b.Reach, b.Depth * b.Reach, b.Yaw);
+                if (shape.Distance(box) < clear - Slack) Problem($"street clear: the {b.Part} at ({b.X}, {b.Z}) is inside the {clear} m margin");
+            }
             foreach (var tower in result.Towers)
                 foreach (var b in tower.Boxes)
                 {
@@ -446,14 +589,14 @@ namespace Wreckabulary.Rules.Surroundings
                     if (shape.Distance(box) < clear - Slack) Problem($"skyline clear: the {b.Part} of the {tower.Source} {tower.Type} at ({tower.X}, {tower.Z}) is inside the {clear} m margin");
                     if (b.Y < groundY - Slack) Problem($"skyline ground: the {b.Part} of the {tower.Source} {tower.Type} at ({tower.X}, {tower.Z}) sinks below the street");
                 }
-            double farthest = CourseSkyline.FarthestView(footprint, result.Boxes);
+            double farthest = CourseSkyline.FarthestView(footprint, result.Boxes.Concat(result.Streets));
             if (farthest > CourseSkyline.FarClip) Problem($"skyline far clip: a tower point is {farthest:0} m from a course corner, beyond the {CourseSkyline.FarClip} m camera far clip");
         }
 
         static string Canonical(CourseSkylineResult r)
         {
             var text = new StringBuilder();
-            text.Append("skyline ").Append(r.Tier).Append(' ').Append(string.Join(",", r.Headings.Select(h => F(h)))).Append(" reach ").Append(F(r.DetailReach)).Append('\n');
+            text.Append("skyline ").Append(r.Tier).Append(' ').Append(r.District).Append(' ').Append(string.Join(",", r.Headings.Select(h => F(h)))).Append(" reach ").Append(F(r.DetailReach)).Append('\n');
             foreach (string card in r.ThinnedCards) text.Append("thin ").Append(card).Append('\n');
             foreach (var t in r.Towers)
             {
@@ -463,6 +606,11 @@ namespace Wreckabulary.Rules.Surroundings
                     .Append(t.Boxes.Count).Append(' ').Append(t.Triangles).Append('\n');
             }
             foreach (var g in r.Groups) text.Append("group ").Append(g.Slot).Append(' ').Append(g.Boxes).Append(' ').Append(g.Triangles).Append(' ').Append(g.Renderers).Append('\n');
+            var streets = new StringBuilder();
+            foreach (var b in r.Streets)
+                streets.Append(b.Part).Append(' ').Append(string.Join(" ", new[] { b.X, b.Y, b.Z, b.Width, b.Depth, b.Height, b.Yaw, b.Taper }.Select(F))).Append(' ').Append(b.Sides).Append(' ').Append(Hex(b.Tint)).Append('\n');
+            text.Append("streets ").Append(F(r.StreetReach)).Append(' ').Append(r.Streets.Count).Append(' ').Append(r.StreetTriangles).Append(' ').Append(Hash64.ToHex(Hash64.Of(streets.ToString()))).Append('\n');
+            foreach (var g in r.StreetGroups) text.Append("street group ").Append(g.Boxes).Append(' ').Append(g.Triangles).Append(' ').Append(g.Renderers).Append('\n');
             return text.ToString();
         }
 
@@ -473,15 +621,17 @@ namespace Wreckabulary.Rules.Surroundings
 
     static class CourseSkylineGeometry
     {
-        public static List<SkylineGroup> Groups(IEnumerable<CourseTower> towers)
+        public static List<SkylineGroup> Groups(IEnumerable<CourseTower> towers) => Groups(towers.SelectMany(t => t.Boxes));
+
+        public static List<SkylineGroup> Groups(IEnumerable<SkylineBox> boxes)
         {
-            var list = towers.ToList();
+            var list = boxes.ToList();
             var groups = new List<SkylineGroup>();
             foreach (string slot in CourseSkyline.Slots)
             {
                 var group = new SkylineGroup { Slot = slot };
                 int part = 0;
-                foreach (var b in list.SelectMany(t => t.Boxes).Where(b => b.Slot == slot))
+                foreach (var b in list.Where(b => b.Slot == slot))
                 {
                     if (part > 0 && part + b.Vertices > SurroundingsLayout.MergeVertexLimit) { group.Renderers++; part = 0; }
                     part += b.Vertices;
@@ -534,30 +684,31 @@ namespace Wreckabulary.Rules.Surroundings
             }
         }
 
-        public static List<SkylineMeshPart> Parts(CourseSkylineResult skyline)
+        public static List<SkylineMeshPart> Parts(IEnumerable<SkylineBox> boxes, uint haze, bool street)
         {
             var parts = new List<SkylineMeshPart>();
+            var list = boxes.ToList();
             foreach (string slot in CourseSkyline.Slots)
             {
                 var builder = new Builder();
                 int index = 0;
-                foreach (var b in skyline.Boxes.Where(b => b.Slot == slot))
+                foreach (var b in list.Where(b => b.Slot == slot))
                 {
                     if (builder.Vertices > 0 && builder.Vertices + b.Vertices > SurroundingsLayout.MergeVertexLimit)
                     {
-                        parts.Add(Part(slot, index++, builder));
+                        parts.Add(Part(slot, index++, builder, street));
                         builder = new Builder();
                     }
-                    Append(builder, b, skyline.HazeTint);
+                    Append(builder, b, haze);
                 }
-                if (builder.Vertices > 0) parts.Add(Part(slot, index, builder));
+                if (builder.Vertices > 0) parts.Add(Part(slot, index, builder, street));
             }
             return parts;
         }
 
-        static SkylineMeshPart Part(string slot, int index, Builder builder) => new SkylineMeshPart
+        static SkylineMeshPart Part(string slot, int index, Builder builder, bool street) => new SkylineMeshPart
         {
-            Slot = slot, Index = index, Positions = builder.Positions.ToArray(), Normals = builder.Normals.ToArray(),
+            Slot = slot, Index = index, Street = street, Positions = builder.Positions.ToArray(), Normals = builder.Normals.ToArray(),
             Colours = builder.Colours.ToArray(), Facade = builder.Facade.ToArray(), Grid = builder.Grid.ToArray(), Glass = builder.Glass.ToArray(),
             Extra = builder.Extra.ToArray(), Indices = builder.Indices.ToArray(),
         };
@@ -582,7 +733,7 @@ namespace Wreckabulary.Rules.Surroundings
             var top = b.Apex ? null : Ring(b, b.TopY, b.Taper);
             var apex = new V(b.X, b.TopY, b.Z);
             var windows = b.Straight ? b.Windows : null;
-            for (int k = 0; k < b.Sides; k++)
+            for (int k = 0; !b.Decal && k < b.Sides; k++)
             {
                 var b0 = bottom[k];
                 var b1 = bottom[(k + 1) % b.Sides];

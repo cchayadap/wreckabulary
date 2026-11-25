@@ -49,12 +49,6 @@ namespace Wreckabulary
 
         public Smashable Drop(bool hazard) => DropAt(hazard, DropPoint());
 
-        /// <summary>Choose the landing spot before the delivery so a mode can announce it.</summary>
-        // @trace AMD-015
-        public Vector3 PickDropPoint() => DropPoint();
-
-        /// <summary>Drop at a pre-chosen (announced) spot instead of immediately picking one.</summary>
-        // @trace AMD-015
         public Smashable DropAt(bool hazard, Vector3 position)
         {
             var word = words[Random.Range(0, words.Length)];

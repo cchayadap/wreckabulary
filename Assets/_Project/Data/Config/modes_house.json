@@ -56,6 +56,59 @@
         "botKnowsMin": 8,
         "botKnowsMax": 15
       }
+    },
+    "BossFight": {
+      "notes": "Boss Fight. Solo on Pinwheel House. Spell the three parts of the boss's name to break its shield while dodging circles, minis and supply drops, then knock it out. Knockouts come back after 'respawn' seconds. The Movers are off.",
+      "base": "Escape",
+      "teamSize": 4,
+      "downed": false,
+      "respawn": 3,
+      "maxLetters": 16,
+      "roundsToWin": 1,
+      "roundTimeLimit": 300,
+      "clearOut": {
+        "enabled": false
+      },
+      "settings": {
+        "bossMaxHealth": 240,
+        "bossVulnerability": 1.5,
+        "prepSeconds": 20,
+        "appearSeconds": 12,
+        "staggerSeconds": 4,
+        "starterProps": 5,
+        "supplyDropSeconds": 30,
+        "aoeWarnSeconds": 1.6,
+        "aoeActiveSeconds": 0.45,
+        "aoeRadius1": 1.6,
+        "aoeRadius2": 1.8,
+        "aoeRadius3": 2.0,
+        "aoeRadius4": 2.2,
+        "aoeDamage1": 10,
+        "aoeDamage2": 12,
+        "aoeDamage3": 14,
+        "aoeDamage4": 14,
+        "aoeCooldown1": 5.5,
+        "aoeCooldown2": 5.0,
+        "aoeCooldown3": 4.4,
+        "aoeCooldown4": 4.0,
+        "aoeBurstMin": 1,
+        "aoeBurstMax": 3,
+        "maxAoe": 3,
+        "lettersLostOnHit": 1,
+        "miniFirstSeconds": 25,
+        "miniIntervalSeconds": 30,
+        "miniMaxAlive": 2,
+        "miniSpeed": 2.2,
+        "miniStunSeconds": 0.18,
+        "miniKnockback": 3.5,
+        "miniHitCooldownSeconds": 3,
+        "miniHealth": 42,
+        "eventWarnSeconds": 3,
+        "smashEverySeconds": 6,
+        "smashWarnSeconds": 1,
+        "smashRadius": 2.4,
+        "smashDamage": 18
+      }
     }
   }
 }

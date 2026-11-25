@@ -108,14 +108,6 @@ namespace Wreckabulary
                 directed = context;
                 return;
             }
-            // Boss Fight owns its own phase flow, like Escape.
-            // @trace MECH-001
-            if (Match.Mode == "BossFight")
-            {
-                gameObject.AddComponent<BossFight.BossFightDirector>().Configure(joins, room, deliveries, hud);
-                enabled = false;
-                return;
-            }
             clearOut = gameObject.AddComponent<ClearOutController>();
             clearOut.Configure(room.Layout, Match.Mode);
             clearOut.ClosureStarted += () => CollapseStarted?.Invoke();

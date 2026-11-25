@@ -17,6 +17,7 @@ namespace Wreckabulary.Tests
         static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LobbyThemes.PreferenceKey,
             LobbyLooksStore.LooksKey, LobbyLooksStore.SeenKey, LastPlayChoice.StorageKey };
         static readonly Vector2[] Windows = { new Vector2(1920, 1080), new Vector2(1280, 720), new Vector2(1248, 576) };
+        static readonly Vector2[] NarrowWindows = { new Vector2(1280, 800), new Vector2(1024, 768) };
         const float Wait = 5f, Slack = .5f, TiltSlack = 2f, OldCaption = 17f;
         const int StartCoins = 1000;
         const string NewerLooks = "99/Later,later";
@@ -867,7 +868,7 @@ namespace Wreckabulary.Tests
         public IEnumerator EquipmentShowsThreeWholeRecipeRowsUnderAOneLineCard()
         {
             using var window = new Window(menu);
-            foreach (var size in Windows)
+            foreach (var size in Windows.Concat(NarrowWindows))
             {
                 window.Set(size.x, size.y);
                 yield return Reopen();
@@ -895,11 +896,29 @@ namespace Wreckabulary.Tests
                     return bounds.min.y >= view.rect.yMin - Slack && bounds.max.y <= view.rect.yMax + Slack;
                 });
                 Assert.GreaterOrEqual(whole, 3 * columns, "three whole rows of recipes show under the finishes" + where + " in a view " + view.rect.height + " high");
+                float cell = tiles[0].rect.height;
+                Assert.IsTrue(tiles.All(tile => Mathf.Abs(tile.rect.height - cell) < Slack), "every recipe row is the same height" + where);
+                Assert.GreaterOrEqual(cell, 164f * .85f - Slack, "recipe tiles shrink at most a little" + where);
+                foreach (var tile in tiles.Take(columns))
+                {
+                    var recipe = tile.GetComponent<LobbyRecipeTileView>();
+                    Assert.LessOrEqual(OwnBounds(tile, recipe.Letters).max.y, OwnBounds(tile, recipe.Icon.rectTransform).min.y + Slack,
+                        "the recipe art stays clear of its letters" + where);
+                }
                 float recipesRight = tiles.Take(columns).Max(tile => OwnBounds(view, tile).max.x);
                 float finishesRight = page.Root.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith(LoadoutPage.FinishPrefix))
                     .Max(button => OwnBounds(view, (RectTransform)button.transform).max.x);
                 Assert.AreEqual(recipesRight, finishesRight, 1f, "the finishes end where the recipe columns end" + where);
             }
+        }
+
+        [Test]
+        public void RecipeRowsShrinkALittleOnlyToShowOneMoreWholeRow()
+        {
+            Assert.AreEqual(164f, LoadoutPage.FittedRecipeCell(696f, 172f, 164f, 12f), "16:9 keeps the authored cell; the fourth row only peeks.");
+            Assert.AreEqual(145f, LoadoutPage.FittedRecipeCell(632f, 172f, 164f, 12f), "16:10 and 4:3 fit three whole rows.");
+            Assert.AreEqual(164f, LoadoutPage.FittedRecipeCell(700f, 172f, 164f, 12f), "a small spare keeps the authored cell.");
+            Assert.AreEqual(164f, LoadoutPage.FittedRecipeCell(100f, 172f, 164f, 12f));
         }
 
         [UnityTest]

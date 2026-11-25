@@ -1,3 +1,4 @@
+using System;
 using Wreckabulary.Rules;
 using Wreckabulary.Rules.Wordbound;
 
@@ -19,7 +20,7 @@ namespace Wreckabulary
             "BrawlRace" => "BAT",
             "FreeForAll" => "SPEAR",
             "TimeRun" => "CLOCK",
-            "Freestyle" => "BENCH", // a town bench: wander the course; the sofa is Furnish the House
+            "Freestyle" => "BENCH",
             _ => LobbyKit.ModeArt(id)
         };
 
@@ -37,5 +38,7 @@ namespace Wreckabulary
             string goal = Goal(id);
             return string.IsNullOrEmpty(goal) ? "" : Name(id) + MapCardText.Separator + goal;
         }
+
+        public static int Seats(string id) => HouseModes.Has(id) ? Math.Max(1, ModeAccess.For(id).MaxSeats) : 1;
     }
 }

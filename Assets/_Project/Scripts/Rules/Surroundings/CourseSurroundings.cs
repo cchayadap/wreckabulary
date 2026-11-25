@@ -496,7 +496,7 @@ namespace Wreckabulary.Rules.Surroundings
         {
             if (style.Skyline == null) return;
             cards = CardAsks();
-            skyline = new CourseSkylinePlanner(style.Skyline, seed, footprint, groundY, style.Clear);
+            skyline = new CourseSkylinePlanner(style.Skyline, seed, footprint, groundY, style.Clear, courseId);
             skyline.Plan(TownBlocks);
             var sources = cards.Select((c, k) => $"{c.Source} #{k}").ToList();
             thinnedCards = skyline.Thin(cards.Select(c => c.Piece).ToList(), sources, cards.Select(CardShape).ToList());

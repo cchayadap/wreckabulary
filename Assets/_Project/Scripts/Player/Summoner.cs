@@ -27,42 +27,7 @@ namespace Wreckabulary
         public WordEntry SelectedWord => Selected >= 0 && Selected < Ready.Count ? Ready[Selected] : null;
         public event Action<string> Summoned;
         public IReadOnlyList<WordEntry> WordsOverride { get; set; }
-        /// <summary>
-        /// Signal-only words: crafting one fires Summoned without requiring an items.json recipe.
-        /// Used by Boss Fight so CALC / ULA / TOR can crack shields. Null in every other mode.
-        /// </summary>
-        // @trace MECH-002, MECH-003
         public IReadOnlyCollection<string> SignalWords { get; set; }
-        bool IsSignal(WordEntry entry)
-        {
-            if (SignalWords == null || entry == null) return false;
-            string id = entry.word.ToUpperInvariant();
-            foreach (var word in SignalWords)
-                if (word == id) return true;
-            return false;
-        }
-        /// <summary>True for words that craft as mode signals (e.g. boss shield words) with no items.json recipe.</summary>
-        // @trace MECH-003
-        public bool IsSignalWord(string word)
-        {
-            if (SignalWords == null || string.IsNullOrEmpty(word)) return false;
-            string id = word.ToUpperInvariant();
-            foreach (var w in SignalWords) if (w == id) return true;
-            return false;
-        }
-
-        /// <summary>
-        /// Single craft gate used by the typed composer and the word wheel. Signal words skip
-        /// the items.json / gear-slot checks but still respect health, dodge and channel state.
-        /// </summary>
-        // @trace MECH-003
-        public bool CanCraft(WordEntry entry)
-        {
-            entry = ResolveRecipe(entry);
-            if (entry == null || IsCrafting || !controller.CanAct || controller.IsDodging || controller.Combat.IsChanneling) return false;
-            return IsSignal(entry) || SummonEffects.CanApply(controller, entry);
-        }
-
         public IReadOnlyCollection<string> ChecklistPlacementWords { get; set; }
         public bool Typed { get; set; }
         public string WantedWord => HouseModeDirectors.WantedWord(controller);
@@ -154,9 +119,7 @@ namespace Wreckabulary
                     craftFree = false;
                     inventory.ReservedCount = 0;
                     controller.MoveScale = 1f;
-                    // @trace MECH-003
-                    if (IsSignal(entry)) Summoned?.Invoke(entry.word);
-                    else if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
+                    if (IsSignalWord(entry.word) || SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
                     else Refund(entry.word, free);
                 }
                 return;
@@ -227,11 +190,27 @@ namespace Wreckabulary
             return false;
         }
 
+        public bool IsSignalWord(string word)
+        {
+            if (SignalWords == null || string.IsNullOrEmpty(word)) return false;
+            string id = word.ToUpperInvariant();
+            foreach (var signal in SignalWords) if (signal == id) return true;
+            return false;
+        }
+
+        bool Applies(WordEntry entry) => IsSignalWord(entry.word) || SummonEffects.CanApply(controller, entry);
+
+        public bool CanCraft(WordEntry entry)
+        {
+            entry = ResolveRecipe(entry);
+            if (entry == null || IsCrafting || !controller.CanAct || controller.IsDodging || controller.Combat.IsChanneling) return false;
+            return Applies(entry);
+        }
+
         public bool BeginCraft(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            // @trace MECH-003
-            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry))) return false;
+            if (IsCrafting || entry == null || !Applies(entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
             Close();
@@ -271,11 +250,10 @@ namespace Wreckabulary
         public bool Summon(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            // @trace MECH-003, MECH-005
-            if (IsCrafting || entry == null || (!IsSignal(entry) && !SummonEffects.CanApply(controller, entry))) return false;
+            if (IsCrafting || entry == null || !Applies(entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
-            if (!IsSignal(entry) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
+            if (!IsSignalWord(entry.word) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
             Summoned?.Invoke(entry.word);
             return true;
         }

@@ -41,14 +41,15 @@ namespace Wreckabulary.Rules.Surroundings
         public float Floor { get; internal set; }
         public float Rise { get; internal set; } = 1f;
         public float Haze { get; internal set; }
+        public bool Decal { get; internal set; }
 
         public float TopY => Y + Height;
-        public bool Apex => Taper <= 0f;
-        public bool Capped => Top && !Apex;
-        public bool Straight => !Apex && Math.Abs(Taper - 1f) < 1e-4f;
+        public bool Apex => !Decal && Taper <= 0f;
+        public bool Capped => Decal || (Top && !Apex);
+        public bool Straight => !Decal && !Apex && Math.Abs(Taper - 1f) < 1e-4f;
         public int SideVertices => Apex ? 3 : 4;
-        public int Triangles => Sides * (Apex ? 1 : 2) + (Capped ? Sides - 2 : 0);
-        public int Vertices => Sides * SideVertices + (Capped ? Sides : 0);
+        public int Triangles => (Decal ? 0 : Sides * (Apex ? 1 : 2)) + (Capped ? Sides - 2 : 0);
+        public int Vertices => (Decal ? 0 : Sides * SideVertices) + (Capped ? Sides : 0);
         public float Reach => Math.Max(1f, Taper);
 
         public (double x, double z)[] Corners()
@@ -90,6 +91,7 @@ namespace Wreckabulary.Rules.Surroundings
         public string Landmark { get; internal set; }
         public string Facade { get; internal set; }
         public string Kind { get; internal set; }
+        public bool Merged { get; internal set; }
         public uint Wall { get; internal set; }
         public uint Pane { get; internal set; }
         public uint Accent { get; internal set; }
@@ -115,6 +117,7 @@ namespace Wreckabulary.Rules.Surroundings
     {
         public string Slot { get; internal set; }
         public int Index { get; internal set; }
+        public bool Street { get; internal set; }
         public float[] Positions { get; internal set; }
         public float[] Normals { get; internal set; }
         public uint[] Colours { get; internal set; }
@@ -126,7 +129,7 @@ namespace Wreckabulary.Rules.Surroundings
 
         public int Vertices => Positions.Length / 3;
         public int Triangles => Indices.Length / 3;
-        public string Label => Slot + (Index == 0 ? "" : "_" + (Index + 1));
+        public string Label => (Street ? CourseSkyline.StreetPrefix : "") + Slot + (Index == 0 ? "" : "_" + (Index + 1));
     }
 
     public sealed class CourseSkylineResult
@@ -139,8 +142,14 @@ namespace Wreckabulary.Rules.Surroundings
         public int Trimmed { get; internal set; }
         public float DetailReach { get; internal set; }
         public uint HazeTint { get; internal set; } = SurroundingsSlots.NoTint;
+        public string District { get; internal set; } = "";
+        public IReadOnlyList<SkylineBox> Streets { get; internal set; } = Array.Empty<SkylineBox>();
+        public IReadOnlyList<SkylineGroup> StreetGroups { get; internal set; } = Array.Empty<SkylineGroup>();
+        public float StreetReach { get; internal set; }
         public int RendererLimit { get; internal set; }
         public int TriangleLimit { get; internal set; }
+        public int StreetRendererLimit { get; internal set; }
+        public int StreetTriangleLimit { get; internal set; }
         public string Canonical { get; internal set; } = "";
         public string Hash { get; internal set; } = "";
 
@@ -148,7 +157,12 @@ namespace Wreckabulary.Rules.Surroundings
         public int Renderers => Groups.Sum(g => g.Renderers);
         public int Triangles => Groups.Sum(g => g.Triangles);
         public int Vertices => Groups.Sum(g => g.Vertices);
+        public int StreetRenderers => StreetGroups.Sum(g => g.Renderers);
+        public int StreetTriangles => StreetGroups.Sum(g => g.Triangles);
+        public int StreetVertices => StreetGroups.Sum(g => g.Vertices);
         public bool Empty => Towers.Count == 0;
+
+        public int CountStreet(string part) => Streets.Count(b => b.Part == part);
 
         public int Count(string type) => Towers.Count(t => t.Type == type);
 
@@ -157,6 +171,8 @@ namespace Wreckabulary.Rules.Surroundings
             Tier = tier,
             RendererLimit = tier == CourseSurroundingsTier.High ? CourseSkyline.HighRenderers : CourseSkyline.LowRenderers,
             TriangleLimit = tier == CourseSurroundingsTier.High ? CourseSkyline.HighTriangles : CourseSkyline.LowTriangles,
+            StreetRendererLimit = tier == CourseSurroundingsTier.High ? CourseSkyline.HighStreetRenderers : CourseSkyline.LowStreetRenderers,
+            StreetTriangleLimit = tier == CourseSurroundingsTier.High ? CourseSkyline.HighStreetTriangles : CourseSkyline.LowStreetTriangles,
         };
     }
 }

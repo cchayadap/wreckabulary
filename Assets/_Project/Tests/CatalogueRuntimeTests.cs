@@ -43,7 +43,7 @@ namespace Wreckabulary.Tests
         {
             CollectionAssert.AreEquivalent(GameConfig.Current.Items.Enabled.Select(i => i.Id).ToArray(),
                 GameAssets.I.words.Words.Select(w => w.word).ToArray());
-            Assert.AreEqual(41, GameAssets.I.words.Words.Count, "24 shared recipes plus 17 from items_house.json");
+            Assert.AreEqual(47, GameAssets.I.words.Words.Count, "24 shared recipes plus 23 from items_house.json");
             Assert.IsNull(GameAssets.I.words.Find("ARMOR"));
             Assert.IsNull(GameAssets.I.words.Find("AXE"));
         }
@@ -53,11 +53,12 @@ namespace Wreckabulary.Tests
         {
             var player = Spawn();
             yield return null;
-            player.Inventory.Set("AXEBOOK");
+            player.Inventory.Set("AXEROPE");
             string before = Sorted(player.Inventory.Letters);
             Assert.IsFalse(player.Summoner.Summon("AXE"));
-            player.Summoner.WordsOverride = new[] { new WordEntry { word = "BOOK", category = WordCategory.Furniture } };
-            Assert.IsFalse(player.Summoner.Summon("BOOK"));
+            player.Summoner.WordsOverride = new[] { new WordEntry { word = "ROPE", category = WordCategory.Furniture } };
+            Assert.IsFalse(GameConfig.Current.Items.Get("ROPE").Enabled, "ROPE stays switched off in every catalogue");
+            Assert.IsFalse(player.Summoner.Summon("ROPE"));
             Assert.AreEqual(before, Sorted(player.Inventory.Letters));
             Assert.IsFalse(player.Combat.Weapon);
         }

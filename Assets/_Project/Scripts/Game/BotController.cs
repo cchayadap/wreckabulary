@@ -12,6 +12,7 @@ namespace Wreckabulary
         readonly string id = $"bot-{nextId++}";
         public PlayerCommands Commands;
         public override string Id => id;
+        public override bool HoldingAttackRaisesShield => false;
         public override void Read(ref PlayerCommands commands) => commands = Commands;
         public override bool JoinPressed() => false;
         public override bool StartPressed() => false;

@@ -16,8 +16,10 @@ namespace Wreckabulary
         const float FinishText = 18f, FinishPriceText = 16f, FinishTop = 8f, FinishNameGap = 4f, FinishPriceBottom = 6f;
         public const float DetailCard = 72f;
         const float DetailCardGap = 12f, DetailArt = 56f, DetailPad = 14f, DetailEdge = 6f, DetailLetter = 32f, DetailWord = 268f;
-        const float DetailLetterGap = 4f, BlurbText = 20f, FinishActionTop = 56f;
+        const float DetailLetterGap = 4f, BlurbText = 20f, FinishActionTop = 56f, FinishRowGap = 8f, FinishBlockBottom = 14f;
+        const float RecipeShrinkFloor = .85f;
         const int DetailRadius = 18;
+        float recipeShrink;
 
         ItemDefinition ShownRecipe()
         {
@@ -34,6 +36,7 @@ namespace Wreckabulary
                 detail = authoredPage.RecipeDetail;
                 ShortenDetail(detail, (RectTransform)authoredPage.RecipeScroll.transform);
                 FinishRow(authoredPage.RecipeScroll.content);
+                FitRecipeRows(authoredPage.RecipeScroll, authoredPage.RecipeGrid);
                 foreach (var item in GameConfig.Current.Items.Enabled) RecipeCard(authoredPage.RecipeGrid.transform, item, item == shown);
                 Detail(shown);
                 if (tryOn != null)
@@ -73,9 +76,9 @@ namespace Wreckabulary
 
         void FinishRow(RectTransform content)
         {
-            var styles = LobbyKit.Column(content, StylesRow, 8);
+            var styles = LobbyKit.Column(content, StylesRow, FinishRowGap);
             styles.SetAsFirstSibling();
-            styles.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 14);
+            styles.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, Mathf.RoundToInt(FinishBlockBottom));
             string wornSkin = SkinOf(Menu.Outfit);
             var state = LobbyKit.Text(styles, wornSkin == null ? MixedFinishes : AllRecipes + FinishName(wornSkin), CaptionText, LobbyKit.Muted,
                 TextAlignmentOptions.MidlineLeft);
@@ -102,6 +105,27 @@ namespace Wreckabulary
             int columns = Mathf.FloorToInt((width + gap) / (cell + gap));
             float spare = width - (columns * cell + (columns - 1) * gap);
             return spare > 0f && spare < cell ? spare : 0f;
+        }
+
+        public static float FittedRecipeCell(float view, float above, float cell, float gap)
+        {
+            float room = view - above + gap, pitch = cell + gap;
+            if (room <= 0f || pitch <= 0f) return cell;
+            int whole = Mathf.FloorToInt(room / pitch);
+            if (whole * pitch >= room - .5f) return cell;
+            float fitted = Mathf.Floor(room / (whole + 1) - gap);
+            return fitted >= cell * RecipeShrinkFloor ? fitted : cell;
+        }
+
+        void FitRecipeRows(ScrollRect scroll, GridLayoutGroup grid)
+        {
+            var view = scroll.viewport ? scroll.viewport : (RectTransform)scroll.transform;
+            if (view.rect.height <= 0f) return;
+            float above = FinishStateHeight + FinishRowGap + FinishTileHeight + FinishBlockBottom + grid.padding.top;
+            if (scroll.content.TryGetComponent(out VerticalLayoutGroup column)) above += column.padding.top + column.spacing;
+            float cell = FittedRecipeCell(view.rect.height, above, grid.cellSize.y, grid.spacing.y);
+            recipeShrink = grid.cellSize.y - cell;
+            grid.cellSize = new Vector2(grid.cellSize.x, cell);
         }
 
         void FinishTile(Transform parent, Finish finish, bool worn, bool tried)
@@ -208,6 +232,7 @@ namespace Wreckabulary
             {
                 var savedTile = LobbyRuntimeTypography.Instantiate(layout.Recipe, parent, false);
                 savedTile.Bind(item.Id, on, () => PinRecipe(item.Id), hot => PreviewRecipe(item, hot));
+                if (recipeShrink > 0f) savedTile.Icon.rectTransform.sizeDelta -= Vector2.one * recipeShrink;
                 if (on) First = savedTile.Button;
                 return;
             }

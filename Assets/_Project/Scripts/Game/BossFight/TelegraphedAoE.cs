@@ -1,61 +1,62 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Wreckabulary.Rules;
+using Random = UnityEngine.Random;
 
 namespace Wreckabulary.BossFight
 {
-    /// <summary>
-    /// Red stomp circles: a growing warning ring, a short active window, then a fade.
-    /// A hit costs health AND letters, so dodging protects the player's spelling progress.
-    /// </summary>
-    // @trace MECH-006, NUM-003, ART-004
     public sealed class TelegraphedAoE : MonoBehaviour
     {
+        const int RingPoints = 48, SpotTries = 8;
+        const float StartRadius = .35f, FadeSeconds = .25f, RetrySeconds = .2f, LeapRetrySeconds = .25f;
+        const float SmashNearMin = .7f, SmashNearMax = 1.15f, DiscHeight = .012f, DiscLift = .04f, RingLift = .06f;
+
         sealed class Circle
         {
-            public GameObject Root;
-            public GameObject Disc;
+            public GameObject Root, Disc;
             public LineRenderer Ring;
             public Vector3 Centre;
-            public float Radius;
-            public float Warning;
-            public float WarnSeconds;
-            public float Damage;
-            public float Active;
-            public float Fade;
-            public bool IsActive;
-            public bool IsSmash;
-            public float NextBeep;
+            public float Radius, Warning, WarnSeconds, Damage, Active, Fade, NextBeep;
+            public bool IsActive, IsSmash;
             public readonly HashSet<int> HitPlayers = new();
         }
 
-        GameRules rules;
+        static Material warningFill, activeFill;
+
+        BossFightTuning tuning;
         BossController boss;
-        float nextSpawn;
-        float nextSmash;
+        float nextSpawn, nextSmash;
         readonly List<Circle> circles = new();
         readonly Collider[] overlaps = new Collider[16];
 
-        /// <summary>Fires when the jump-smash marker appears, so the HUD can announce the landing.</summary>
-        // @trace AMD-013
-        public event System.Action<Vector3> SmashTelegraphed;
+        public event Action<Vector3> SmashTelegraphed;
 
-        static Material warningFill, activeFill;
+        public Func<Vector3> PickTarget { get; set; }
+        public Func<Vector3, Vector3, bool> Reachable { get; set; }
+        public Vector3 LastSpawnCentre { get; private set; }
+        public int ActiveCircleCount => circles.Count;
+        public float SmashIn => Mathf.Max(0f, nextSmash);
 
-        /// <summary>Translucent floor disc: the thin outline alone was too easy to miss on a busy floor.</summary>
-        // @trace MECH-006, ART-004, AMD-002
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ForgetMaterials()
+        {
+            warningFill = null;
+            activeFill = null;
+        }
+
         static Material Fill(bool striking)
         {
             if (striking && activeFill) return activeFill;
             if (!striking && warningFill) return warningFill;
-            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
-            var mat = new Material(shader);
             Color color = striking ? new Color(1f, .08f, .16f, .55f) : new Color(1f, .28f, .22f, .3f);
-            mat.color = color;
+            var shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Sprites/Default");
+            if (!shader) return GameAssets.I.Tinted(color);
+            var mat = new Material(shader) { name = striking ? "Boss strike fill" : "Boss warning fill", color = color };
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             mat.SetFloat("_Surface", 1f);
-            mat.SetFloat("_SrcBlend", 5f);   // SrcAlpha
-            mat.SetFloat("_DstBlend", 10f);  // OneMinusSrcAlpha
+            mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
             mat.SetFloat("_ZWrite", 0f);
             mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
             mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
@@ -63,121 +64,110 @@ namespace Wreckabulary.BossFight
             return mat;
         }
 
-        /// <summary>Last telegraph centre; exposed so playtests can verify circles land outside the feet.</summary>
-        // @trace MECH-006
-        public Vector3 LastSpawnCentre { get; private set; }
+        public void Configure(BossFightTuning bossTuning) => Configure(bossTuning, null);
 
-        /// <summary>Live telegraphs; exposed so tests can verify the 1-3 burst rule.</summary>
-        // @trace AMD-007
-        public int ActiveCircleCount => circles.Count;
-
-        /// <summary>Seconds until the next jump smash; the director mirrors this into the 3-2-1 cue.</summary>
-        // @trace AMD-013
-        public float SmashIn => Mathf.Max(0f, nextSmash);
-
-        public void Configure(GameRules gameRules) => Configure(gameRules, null);
-
-        public void Configure(GameRules gameRules, BossController owner)
+        public void Configure(BossFightTuning bossTuning, BossController owner)
         {
-            rules = gameRules;
+            tuning = bossTuning ?? new BossFightTuning();
             boss = owner;
-            nextSpawn = rules.AoeCooldownFor(0);
-            nextSmash = rules.SmashEverySeconds;
+            nextSpawn = tuning.AoeCooldownFor(0);
+            nextSmash = tuning.SmashEverySeconds;
         }
 
-        /// <summary>Post-shield "jump smash": one large circle close to the player every 5 s.</summary>
-        // @trace AMD-007, AMD-010
+        Vector3 Target(Vector3 fallback) => PickTarget != null ? PickTarget() : fallback;
+
         public void TickSmash(bool running, Vector3 target, float delta)
         {
-            if (!running) { nextSmash = rules != null ? rules.SmashEverySeconds : 5f; return; }
+            if (!running) { nextSmash = tuning.SmashEverySeconds; return; }
             if (delta <= 0f) return;
             nextSmash -= delta;
             if (nextSmash > 0f) return;
-            if (boss && boss.IsLeaping) { nextSmash = .25f; return; } // never queue a second leap mid-air
-            Spawn(target, 3, true);
-            nextSmash = rules.SmashEverySeconds;
+            if (boss && boss.IsLeaping) { nextSmash = LeapRetrySeconds; return; }
+            Spawn(Target(target), BossFightTuning.Phases - 1, true);
+            nextSmash = tuning.SmashEverySeconds;
         }
 
-        public void Tick(bool running, int layer, Vector3 target, float delta)
+        public void Tick(bool running, int phase, Vector3 target, float delta)
         {
             if (!running) { CancelAll(); return; }
             if (delta <= 0f) return;
-
             nextSpawn -= delta;
-            if (nextSpawn <= 0f)
-            {
-                // @trace AMD-007
-                int low = Mathf.Max(1, rules.AoeBurstMin);
-                int high = Mathf.Max(low, rules.AoeBurstMax);
-                int room = Mathf.Max(0, rules.MaxAoe - circles.Count);
-                int burst = Mathf.Clamp(Random.Range(low, high + 1), 1, Mathf.Max(1, room));
-                if (room > 0)
-                {
-                    for (int i = 0; i < burst; i++) Spawn(target, layer);
-                    nextSpawn = rules.AoeCooldownFor(layer);
-                }
-                else nextSpawn = .2f; // all circles are still animating; retry shortly
-            }
-
+            if (nextSpawn <= 0f) Burst(phase, target);
             for (int i = circles.Count - 1; i >= 0; i--)
-            {
-                Circle c = circles[i];
-                if (!c.IsActive)
-                {
-                    c.Warning -= delta;
-                    float t = 1f - Mathf.Clamp01(c.Warning / Mathf.Max(0.01f, c.WarnSeconds));
-                    float radius = Mathf.Lerp(.35f, c.Radius, t);
-                    DrawRing(c, radius, .13f + .07f * Mathf.Sin(t * Mathf.PI * 10f));
-                    if (c.Disc) c.Disc.transform.localScale = new Vector3(radius * 2f, .012f, radius * 2f);
-                    if (Time.time >= c.NextBeep)
-                    {
-                        c.NextBeep = Time.time + Mathf.Lerp(.5f, .18f, t);
-                        GameFeedback.Burst("Bomb_Warning", c.Centre + Vector3.up * .3f, .6f,
-                            new Color(1f, .35f, .28f), .22f);
-                    }
-                    if (c.Warning <= 0f)
-                    {
-                        c.IsActive = true;
-                        c.Active = rules.AoeActiveSeconds;
-                        DrawRing(c, c.Radius, .24f);
-                        if (c.Disc)
-                        {
-                            c.Disc.transform.localScale = new Vector3(c.Radius * 2.05f, .012f, c.Radius * 2.05f);
-                            c.Disc.GetComponent<Renderer>().sharedMaterial = Fill(true);
-                        }
-                        Strike(c);
-                    }
-                }
-                else if (c.Active > 0f)
-                {
-                    c.Active -= delta;
-                    if (c.Active <= 0f) c.Fade = .25f;
-                }
-                else
-                {
-                    c.Fade -= delta;
-                    DrawRing(c, c.Radius, .24f * Mathf.Clamp01(c.Fade / .25f));
-                    if (c.Fade <= 0f) { Destroy(c.Root); circles.RemoveAt(i); }
-                }
-            }
+                if (Step(circles[i], delta)) { Destroy(circles[i].Root); circles.RemoveAt(i); }
         }
 
-        void Spawn(Vector3 target, int layer, bool smash = false)
+        void Burst(int phase, Vector3 target)
         {
-            float radius = smash ? rules.SmashRadius : rules.AoeRadiusFor(layer);
-            Vector2 dir = Random.insideUnitCircle;
-            if (dir.sqrMagnitude < .0001f) dir = Vector2.up;
-            dir.Normalize();
+            int room = Mathf.Max(0, tuning.MaxAoe - circles.Count);
+            if (room == 0) { nextSpawn = RetrySeconds; return; }
+            int low = Mathf.Max(1, tuning.AoeBurstMin);
+            int high = Mathf.Max(low, tuning.AoeBurstMax);
+            int burst = Mathf.Clamp(Random.Range(low, high + 1), 1, room);
+            for (int i = 0; i < burst; i++) Spawn(Target(target), phase);
+            nextSpawn = tuning.AoeCooldownFor(phase);
+        }
 
-            // Normal circles land outside the feet so standing still to spell stays safe.
-            // Jump smash lands next to the player AND the boss physically leaps there during
-            // the warning, so the marker is the boss's landing spot, not a floating decal.
-            // @trace MECH-006, AMD-010, AMD-012
-            float distance = smash ? Random.Range(.7f, 1.15f) : radius + .55f;
+        bool Step(Circle c, float delta)
+        {
+            if (!c.IsActive)
+            {
+                c.Warning -= delta;
+                float t = 1f - Mathf.Clamp01(c.Warning / Mathf.Max(.01f, c.WarnSeconds));
+                float radius = Mathf.Lerp(StartRadius, c.Radius, t);
+                DrawRing(c, radius, .13f + .07f * Mathf.Sin(t * Mathf.PI * 10f));
+                if (c.Disc) c.Disc.transform.localScale = new Vector3(radius * 2f, DiscHeight, radius * 2f);
+                if (Time.time >= c.NextBeep)
+                {
+                    c.NextBeep = Time.time + Mathf.Lerp(.5f, .18f, t);
+                    GameFeedback.Burst("Bomb_Warning", c.Centre + Vector3.up * .3f, .6f, new Color(1f, .35f, .28f), .22f);
+                }
+                if (c.Warning > 0f) return false;
+                c.IsActive = true;
+                c.Active = tuning.AoeActiveSeconds;
+                DrawRing(c, c.Radius, .24f);
+                if (c.Disc)
+                {
+                    c.Disc.transform.localScale = new Vector3(c.Radius * 2.05f, DiscHeight, c.Radius * 2.05f);
+                    c.Disc.GetComponent<Renderer>().sharedMaterial = Fill(true);
+                }
+                Strike(c);
+                return false;
+            }
+            if (c.Active > 0f)
+            {
+                c.Active -= delta;
+                if (c.Active <= 0f) c.Fade = FadeSeconds;
+                return false;
+            }
+            c.Fade -= delta;
+            DrawRing(c, c.Radius, .24f * Mathf.Clamp01(c.Fade / FadeSeconds));
+            return c.Fade <= 0f;
+        }
+
+        Vector3 Spot(Vector3 target, float distance, float groundY)
+        {
+            Vector3 first = Vector3.zero;
+            for (int i = 0; i < SpotTries; i++)
+            {
+                Vector2 dir = Random.insideUnitCircle;
+                if (dir.sqrMagnitude < .0001f) dir = Vector2.up;
+                dir.Normalize();
+                var centre = new Vector3(target.x + dir.x * distance, groundY, target.z + dir.y * distance);
+                if (i == 0) first = centre;
+                if (Reachable == null || Reachable(target, centre)) return centre;
+            }
+            return first;
+        }
+
+        void Spawn(Vector3 target, int phase, bool smash = false)
+        {
+            float radius = smash ? tuning.SmashRadius : tuning.AoeRadiusFor(phase);
+            float distance = smash ? Random.Range(SmashNearMin, SmashNearMax) : radius + BossFightTuning.FeetGap;
             float groundY = smash && boss ? boss.transform.position.y : target.y;
-            var centre = new Vector3(target.x + dir.x * distance, groundY, target.z + dir.y * distance);
+            var centre = Spot(target, distance, groundY);
             LastSpawnCentre = centre;
-            if (smash && boss) boss.LeapTo(centre, rules.SmashWarnSeconds);
+            if (smash && boss) boss.LeapTo(centre, tuning.SmashWarnSeconds);
 
             var root = new GameObject(smash ? "Boss jump smash" : "Boss AoE warning");
             root.transform.SetParent(transform, false);
@@ -185,38 +175,34 @@ namespace Wreckabulary.BossFight
             var disc = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             disc.name = "Danger fill";
             disc.transform.SetParent(root.transform, false);
-            disc.transform.position = new Vector3(centre.x, centre.y + .04f, centre.z);
-            disc.transform.localScale = new Vector3(.7f, .012f, .7f);
+            disc.transform.position = new Vector3(centre.x, centre.y + DiscLift, centre.z);
+            disc.transform.localScale = new Vector3(StartRadius * 2f, DiscHeight, StartRadius * 2f);
             var discCollider = disc.GetComponent<Collider>();
-            if (discCollider) Destroy(discCollider);
+            if (discCollider) { discCollider.enabled = false; Destroy(discCollider); }
             disc.GetComponent<Renderer>().sharedMaterial = Fill(false);
 
             var ring = root.AddComponent<LineRenderer>();
             ring.useWorldSpace = true;
             ring.loop = true;
-            ring.positionCount = 48;
+            ring.positionCount = RingPoints;
             ring.numCornerVertices = 2;
             ring.numCapVertices = 2;
             ring.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             ring.receiveShadows = false;
-            ring.sharedMaterial = GameAssets.I.Tinted(smash
-                ? new Color(1f, .55f, .12f)
-                : new Color(1f, .35f, .25f));
+            ring.sharedMaterial = GameAssets.I.Tinted(smash ? new Color(1f, .55f, .12f) : new Color(1f, .35f, .25f));
 
-            float warn = smash ? rules.SmashWarnSeconds : rules.AoeWarnSeconds;
+            float warn = smash ? tuning.SmashWarnSeconds : tuning.AoeWarnSeconds;
             var c = new Circle
             {
                 Root = root, Disc = disc, Ring = ring, Centre = centre, Radius = radius,
                 Warning = warn, WarnSeconds = warn, IsSmash = smash,
-                Damage = smash ? rules.SmashDamage : rules.AoeDamageFor(layer),
+                Damage = smash ? tuning.SmashDamage : tuning.AoeDamageFor(phase),
                 NextBeep = Time.time + .1f,
             };
-            DrawRing(c, .35f, smash ? .2f : .13f);
+            DrawRing(c, StartRadius, smash ? .2f : .13f);
             if (smash)
             {
-                Popup.Show("JUMP SMASH!", centre + Vector3.up * 1.4f, new Color(1f, .62f, .16f), 1.6f);
-                GameFeedback.Burst("Jump_Arrow", centre + Vector3.up * .4f, .9f,
-                    new Color(1f, .55f, .12f), .4f);
+                GameFeedback.Burst("Jump_Arrow", centre + Vector3.up * .4f, .9f, new Color(1f, .55f, .12f), .4f);
                 SmashTelegraphed?.Invoke(centre);
             }
             circles.Add(c);
@@ -225,10 +211,10 @@ namespace Wreckabulary.BossFight
         void DrawRing(Circle c, float radius, float width)
         {
             c.Ring.startWidth = c.Ring.endWidth = width;
-            for (int i = 0; i < 48; i++)
+            for (int i = 0; i < RingPoints; i++)
             {
-                float a = i * Mathf.PI * 2f / 48f;
-                c.Ring.SetPosition(i, c.Centre + new Vector3(Mathf.Cos(a) * radius, .06f, Mathf.Sin(a) * radius));
+                float a = i * Mathf.PI * 2f / RingPoints;
+                c.Ring.SetPosition(i, c.Centre + new Vector3(Mathf.Cos(a) * radius, RingLift, Mathf.Sin(a) * radius));
             }
         }
 
@@ -236,19 +222,16 @@ namespace Wreckabulary.BossFight
         {
             int mask = World.PlayerLayer >= 0 ? 1 << World.PlayerLayer : ~0;
             int n = Physics.OverlapSphereNonAlloc(c.Centre, c.Radius, overlaps, mask, QueryTriggerInteraction.Ignore);
-            float damage = c.Damage;
             for (int i = 0; i < n; i++)
             {
                 var p = overlaps[i].GetComponentInParent<PlayerController>();
                 if (!p || p.IsKnockedOut || !c.HitPlayers.Add(p.Index)) continue;
-                Vector3 away = (p.transform.position - c.Centre);
+                Vector3 away = p.transform.position - c.Centre;
                 away.y = 0f;
                 if (away.sqrMagnitude < .001f) away = Vector3.forward;
-                p.Health.ApplyDamage(Hits.Hazard(away.normalized, damage, 1f));
-                // A hit while actively spelling costs health, not the word the player is building.
-                // @trace MECH-006
+                p.Health.ApplyDamage(Hits.Hazard(away.normalized, c.Damage, 1f));
                 if (!p.Summoner.IsSpelling && !p.Summoner.IsCrafting)
-                    p.Inventory.DropRandom(rules.LettersLostOnHit, p.transform.position, away.normalized);
+                    p.Inventory.DropRandom(tuning.LettersLostOnHit, p.transform.position, away.normalized);
                 GameFeedback.Burst("Impact_Star", c.Centre + Vector3.up * .5f, .8f, new Color(1f, .32f, .28f), .3f);
                 GameFeedback.Play(GameCue.Blast);
             }
@@ -261,8 +244,9 @@ namespace Wreckabulary.BossFight
                 if (circles[i].Root) Destroy(circles[i].Root);
             circles.Clear();
             if (boss) boss.CancelLeap();
-            nextSpawn = rules != null ? rules.AoeCooldownFor(0) : 4.5f;
-            nextSmash = rules != null ? rules.SmashEverySeconds : 5f;
+            if (tuning == null) return;
+            nextSpawn = tuning.AoeCooldownFor(0);
+            nextSmash = tuning.SmashEverySeconds;
         }
     }
 }

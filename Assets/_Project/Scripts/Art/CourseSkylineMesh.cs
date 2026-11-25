@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Wreckabulary.Rules.Surroundings;
@@ -38,7 +39,7 @@ namespace Wreckabulary.Art
             if (!material) throw new InvalidOperationException($"The course backdrop kit has no material for {CourseSkyline.SkylineSlot} or {CourseSkyline.FallbackSlot}.");
             var block = fallback ? Fallback() : null;
             var root = new GameObject(RootName);
-            foreach (var part in CourseSkyline.Parts(skyline))
+            foreach (var part in CourseSkyline.Parts(skyline).Concat(CourseSkyline.StreetParts(skyline)))
             {
                 var mesh = new Mesh { name = $"{name} {RootName} {part.Label}" };
                 owned.Add(mesh);

@@ -67,6 +67,8 @@ namespace Wreckabulary
         public bool CanAct => !Frozen && !IsKnockedOut && !IsHeld && !IsStaggered;
         public bool IsDodging => Time.time < dodgeUntil;
         public Vector3 OverheadPosition => transform.position + Vector3.up * 2.1f;
+        public static readonly Vector3 HeldOffset = Vector3.down * 0.3f;
+        public static readonly Quaternion HeldTurn = Quaternion.Euler(0f, 0f, 90f);
 
         public event System.Action<PlayerController> Jumped, Dodged;
 
@@ -383,8 +385,8 @@ namespace Wreckabulary
             {
                 homeParent = transform.parent;
                 transform.SetParent(at, false);
-                transform.localPosition = Vector3.down * 0.3f;
-                transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                transform.localPosition = HeldOffset;
+                transform.localRotation = HeldTurn;
             }
             else
             {

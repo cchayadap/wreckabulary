@@ -16,6 +16,7 @@ namespace Wreckabulary
         Vector2 move, look;
 
         public override string Id => "touch-local";
+        public override bool HoldingAttackRaisesShield => false;
         public bool Enabled { get; set; }
         public bool OverlayDesktop { get; set; }
         public string OverlayBindingId { get; set; }

@@ -48,7 +48,10 @@ namespace Wreckabulary.Tests
         static IEnumerable<string> ThrownItems => Ids(HandlingFamily.Thrown);
         static IEnumerable<string> ShieldItems => Ids(HandlingFamily.Shield);
         static IEnumerable<string> DeployItems => Ids(HandlingFamily.DeployCover, HandlingFamily.DeployPad, HandlingFamily.DeploySpeed, HandlingFamily.DeployZone);
-        static IEnumerable<string> PosedItems => ItemHolds.All.Select(h => h.Id).ToArray();
+        static IEnumerable<string> UseItems => Ids(HandlingFamily.Heal, HandlingFamily.Buff);
+        static IEnumerable<string> RangedItems => Ids(HandlingFamily.Ranged);
+        static IEnumerable<string> StashItems => Ids(HandlingFamily.Utility);
+        static IEnumerable<string> PosedItems =>ItemHolds.All.Select(h => h.Id).ToArray();
 
         static PlayerController Spawn(int seat, Vector3 at, out ScriptedBinding input)
         {
@@ -110,7 +113,8 @@ namespace Wreckabulary.Tests
         public void EveryHouseItemHasAFamilyCase()
         {
             CollectionAssert.AreEquivalent(House().All.Select(i => i.Id),
-                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems), "add a runtime case for any new handling family");
+                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems),
+                "add a runtime case for any new handling family");
         }
 
         [UnityTest]
@@ -310,6 +314,137 @@ namespace Wreckabulary.Tests
                     break;
             }
             Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " keeps its letters while placed");
+        }
+
+        const float Wound = 40f, BowTargetGap = 4f;
+
+        static string Sorted(IEnumerable<char> letters) => new string(letters.OrderBy(c => c).ToArray());
+
+        [UnityTest]
+        public IEnumerator UsedItemsTakeEffectAfterTheirChannelAndAreSpent([ValueSource(nameof(UseItems))] string id)
+        {
+            var use = Live(id).Use;
+            Assert.IsNotNull(use, id);
+            var p = Spawn(0, Vector3.zero, out var input);
+            yield return Frames(3);
+            Assert.IsTrue(p.Health.ApplyDamage(Hits.Of(null, Vector3.back, HitSource.Melee, Wound, 0f, hitStun: 0f)));
+            float wounded = p.Health.Current;
+            var gear = Craft(p, id);
+
+            input.Next.attack = true;
+            yield return TestScenes.WaitUntil(() => !p.Combat.Weapon, use.ChannelSeconds + 2f, id + " is used up");
+            Assert.IsFalse(gear, id + " is gone once used");
+            Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " is spent, not refunded");
+            switch (use.Effect)
+            {
+                case UseEffect.Heal:
+                    Assert.AreEqual(Mathf.Min(p.Health.Max, wounded + use.Amount), p.Health.Current, 0.01f, id + " restores its catalogue amount");
+                    break;
+                default:
+                    Assert.Fail($"{id}: add a runtime check for {use.Effect}");
+                    break;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator BowsDrawWhileAttackIsHeldAndHitHarderAtAFullDraw([ValueSource(nameof(RangedItems))] string id)
+        {
+            var ranged = Live(id).Ranged;
+            Assert.IsNotNull(ranged, id);
+            var p = Spawn(0, Vector3.zero, out var input);
+            var target = Spawn(1, Vector3.forward * BowTargetGap, out _);
+            yield return Frames(3);
+            p.FaceTowards(Vector3.forward);
+            p.Body.constraints = target.Body.constraints = RigidbodyConstraints.FreezeAll;
+            Physics.SyncTransforms();
+            var bow = Craft(p, id);
+            float durability = bow.DurabilityLeft, health = target.Health.Current;
+
+            input.Next.attack = true;
+            input.Next.attackHeld = true;
+            yield return TestScenes.WaitUntil(() => bow.IsDrawing, 1f, id + " starts drawing");
+            Assert.Less(bow.DrawPower, 1f, id + " starts slack");
+            yield return TestScenes.WaitUntil(() => bow.DrawPower >= 1f, ranged.DrawSeconds + 1f, id + " reaches a full draw");
+            yield return new WaitForSeconds(0.2f);
+            Assert.IsTrue(bow.IsDrawing, id + " keeps drawing while attack is held");
+            Assert.AreEqual(health, target.Health.Current, id + " holds its shot until attack is let go");
+
+            input.Next.attackHeld = false;
+            yield return TestScenes.WaitUntil(() => target.Health.Current < health, 2f, id + " full draw lands");
+            Assert.AreEqual(health - Mathf.Round(ranged.FullDamage), target.Health.Current, 0.01f, id + " full draw deals its full damage");
+            Assert.IsFalse(bow.IsDrawing, id + " is slack after the shot");
+            Assert.AreSame(bow, p.Combat.Weapon, id + " stays in hand after firing");
+            Assert.IsFalse(bow.IsSpent, id + " fires many shots");
+            Assert.AreEqual(durability - 1f, bow.DurabilityLeft, 0.01f, id + " wears one point a shot");
+            Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " keeps its letters");
+
+            target.Body.constraints = RigidbodyConstraints.None;
+            target.Body.position = target.transform.position = new Vector3(6f, 0f, 0f);
+            var second = Spawn(2, Vector3.forward * BowTargetGap, out _);
+            yield return Frames(3);
+            second.Body.constraints = RigidbodyConstraints.FreezeAll;
+            Physics.SyncTransforms();
+            float fresh = second.Health.Current;
+            yield return new WaitForSeconds(ranged.Recovery + 0.2f);
+
+            input.Next.attack = true;
+            yield return TestScenes.WaitUntil(() => second.Health.Current < fresh, 2f, id + " quick shot lands");
+            float quick = fresh - second.Health.Current;
+            Assert.GreaterOrEqual(quick, Mathf.Round(ranged.Damage) - 0.01f, id + " a quick tap still deals the slack damage");
+            Assert.Less(quick, Mathf.Round(ranged.FullDamage), id + " a quick tap hits softer than a full draw");
+        }
+
+        [UnityTest]
+        public IEnumerator PlacedStashBanksAndReturnsLettersForItsTeamOnly([ValueSource(nameof(StashItems))] string id)
+        {
+            var stats = Live(id).Deploy;
+            Assert.IsNotNull(stats, id);
+            Assert.AreEqual(DeployEffect.Stash, stats.Effect, id);
+            var p = Spawn(0, Vector3.zero, out var input);
+            var mate = Spawn(1, new Vector3(2f, 0f, 0f), out _);
+            var rival = Spawn(2, new Vector3(-2f, 0f, 0f), out _);
+            p.Team = mate.Team = 0;
+            rival.Team = 1;
+            yield return Frames(3);
+            p.FaceTowards(Vector3.forward);
+            var gear = Craft(p, id);
+
+            input.Next.attack = true;
+            yield return TestScenes.WaitUntil(() => DeployedGear.CountFor(p) == 1, stats.PlaceSeconds + 2f, id + " placed by the attack button");
+            yield return Frames(2);
+            Assert.IsFalse(p.Combat.Weapon, id + " left the hand");
+            var body = gear.GetComponent<Rigidbody>();
+            Assert.IsTrue(body.isKinematic, id + " stays where it was put");
+            Assert.Greater(Vector3.Dot(World.Flat(body.position - p.Body.position).normalized, Vector3.forward), 0.95f, id + " is placed in front");
+            var stash = gear.GetComponent<LetterStash>();
+            Assert.IsNotNull(stash, id + " opens as a letter stash");
+            Assert.IsTrue(stash.IsEmpty);
+            Assert.IsTrue(stash.CanOpen(p) && stash.CanOpen(mate), id + " opens for its team");
+            Assert.IsFalse(stash.CanOpen(rival), id + " stays shut for the other team");
+
+            p.Inventory.Set("WORDS");
+            Assert.IsTrue(stash.WantsExchange(p));
+            Assert.IsTrue(stash.TryExchange(p), id + " banks the bag");
+            Assert.IsTrue(p.Inventory.IsEmpty, "every letter went in");
+            Assert.AreEqual("DORSW", Sorted(stash.Letters));
+
+            rival.Inventory.Set("");
+            Assert.IsFalse(stash.TryExchange(rival), "a rival can't empty it");
+            Assert.AreEqual(5, stash.Count);
+
+            mate.Inventory.Set("");
+            Assert.IsTrue(stash.TryExchange(mate), "a teammate takes the letters back out");
+            Assert.AreEqual("DORSW", Sorted(mate.Inventory.Letters));
+            Assert.IsTrue(stash.IsEmpty);
+
+            Assert.IsTrue(stash.TryExchange(mate));
+            Assert.AreEqual(5, stash.Count);
+            Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " keeps its letters while placed");
+            int own = gear.IsSpent ? 0 : id.Length;
+            gear.Break();
+            yield return null;
+            Assert.IsFalse(gear, id + " breaks");
+            Assert.AreEqual(5 + own, TilePool.Instance.Active.Count, id + " spills what was banked when it breaks");
         }
     }
 }
