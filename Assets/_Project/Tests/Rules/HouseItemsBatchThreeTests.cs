@@ -28,7 +28,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var shared = TestData.Catalogue();
             var house = ItemCatalogue.FromJson(TestData.Read("items_house.json"), "items_house.json");
-            Assert.AreEqual(53, house.All.Count, "23 earlier House recipes plus three batches of ten");
+            Assert.GreaterOrEqual(house.All.Count, 53, "23 earlier House recipes plus at least three batches of ten");
             foreach (string id in Words)
             {
                 Assert.IsFalse(shared.TryGet(id, out _), id + " stays out of items.json");
@@ -170,8 +170,8 @@ namespace Wreckabulary.Rules.Tests
         public void TheModelManifestListsTheBatchAfterTheFirstTwo()
         {
             var entries = Json.Parse(File.ReadAllText(Path.Combine(TestData.Root, "ArtSource/Collections/HouseItemsV2/manifest.json")), "manifest.json")["entries"].Items.ToArray();
-            CollectionAssert.AreEqual(Words, entries.Skip(EarlierManifestEntries).Select(e => e["word"].String()));
-            foreach (var entry in entries.Skip(EarlierManifestEntries))
+            CollectionAssert.AreEqual(Words, entries.Skip(EarlierManifestEntries).Take(Words.Length).Select(e => e["word"].String()));
+            foreach (var entry in entries.Skip(EarlierManifestEntries).Take(Words.Length))
             {
                 string id = entry["word"].String();
                 var slots = entry["materials"].Strings();

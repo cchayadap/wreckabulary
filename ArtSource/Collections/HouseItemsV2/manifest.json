@@ -5,7 +5,7 @@
   "license": {
     "name": "Own work"
   },
-  "units": "Metres, Y up, Unity axes. size is the prefab bounds with the origin at the bottom centre; grip is the hand socket in that space. The builder models in Blender (X right, Y forward, Z up), fits the joined mesh to size, turns it half a turn about Z and exports so that Unity sees (x, z, y). targetLongest is the longest side of size. heldScale is the in-hand miniature scale from items_house.json.",
+  "units": "Metres, Y up, Unity axes. size is the prefab bounds with the origin at the bottom centre; grip is the hand socket in that space. The builder models in Blender (X right, Y forward, Z up), fits the joined mesh to size and exports with TURN = identity, so that Unity sees (x, z, y) and Blender +Y is the prefab's +Z front. targetLongest is the longest side of size. heldScale is the in-hand miniature scale from items_house.json.",
   "entries": [
     {
       "word": "RAKE",
@@ -30,8 +30,8 @@
       "maxTriangles": 6000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 109900,
-        "sha256": "c0433d22dc4a76c95cee000090652d168e6dd7a959f0b4d2e4e3ee691dc5bedb",
+        "bytes": 109884,
+        "sha256": "69a40fffcec73817591f6bcfa90b5fd0ad80603cf1bdb43abc95625d779b5eae",
         "triangles": 3520
       }
     },
@@ -60,7 +60,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 134092,
-        "sha256": "4ebd8912b9fd94ac70340560d466bfdbcc399a5da32e18f41cfd1452ee62cdd6",
+        "sha256": "d3ceb4dc13f7e737154f66948fbe224348e341d3f88d7a7e34b1d6e231f6ec14",
         "triangles": 4108
       }
     },
@@ -91,7 +91,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 139676,
-        "sha256": "28c43621103102cfee6c8ca965cbfe8035c39d55238240ecbad4a60fb0c1d1d9",
+        "sha256": "95c1a43e7f3839a9c17d7a7a2f614578583e73bf14a168c10cdac124dce353cc",
         "triangles": 4196
       }
     },
@@ -119,8 +119,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 132316,
-        "sha256": "418ccc55e36137b3f38c8cb572c7cea073521bcb6327ef2e61e4bbae5261868e",
+        "bytes": 132332,
+        "sha256": "dd43c6eb0cc0de173300463925e0c153e9bf02a8787df3c2d2357ac278e339eb",
         "triangles": 4332
       }
     },
@@ -150,8 +150,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 97596,
-        "sha256": "8105b52ad0af77bb0f75aca42a0d6b047c7992c034e891cc5dcd87551826c3c1",
+        "bytes": 97612,
+        "sha256": "d65dd3a9384ccbc3d13eb553cd8ff025516002c3e0e1821041a84a37fe1f0faa",
         "triangles": 2928
       }
     },
@@ -182,7 +182,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 156764,
-        "sha256": "194e57d1944800686fdbba00ee4526c89ed45e6e304d29961ccbc1d5d5c0e8ef",
+        "sha256": "08375f36b6e0ddf1f043bc724249b07d0b34e30e71aa35d9b6448725c60a19e9",
         "triangles": 5520
       }
     },
@@ -211,7 +211,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 99292,
-        "sha256": "1bdd8849d99909566e094c52f540c4864283dafd58fc8598df36d5d42fa41006",
+        "sha256": "334c28ddb0e02408c7a0be2423846eec9d40b456dbb6c9f22aef26d8e82d0d5f",
         "triangles": 2968
       }
     },
@@ -242,7 +242,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 119228,
-        "sha256": "70443bbdbd9a69a2d4fe2bd6e181a8047165426a5e02a65fe4fd75b91d4cecfd",
+        "sha256": "104d5892b09b10ea04d76a09a5061f5c09cf554d451d2d5d182406d152239a76",
         "triangles": 3300
       }
     },
@@ -270,7 +270,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 58348,
-        "sha256": "017093054de03585d86401f598a60d8a0422048cd224d52a87e040a467cf8a79",
+        "sha256": "b5c49f2fe871d53e260b4694616f655c121fc59c509aa62c8de64136aad73c60",
         "triangles": 1636
       }
     },
@@ -299,7 +299,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 86860,
-        "sha256": "0bb6ee4d3130859b1ec79de7f5d83abd23a0289e35fa8c570845edb0ef4daad8",
+        "sha256": "eb1b87403a2b5dd51e880d9b033f9ff7fae5cff89e2dbf33f027fe755eb5461e",
         "triangles": 2628
       }
     },
@@ -329,8 +329,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 119660,
-        "sha256": "ec7060f8f63da65cfae3161b528b40b1f95edf86ffc19cc88805cbae6eda086a",
+        "bytes": 119676,
+        "sha256": "04b0d2c6a96a21f74401c2d59f6d860762dc9435ab3e462d32b19d8008c1b62d",
         "triangles": 3488
       }
     },
@@ -359,8 +359,8 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 87292,
-        "sha256": "d6cc2022893c38a08b155dcabcbad42566f4d99011a7065cba74f84891c8968e",
+        "bytes": 87308,
+        "sha256": "6e58b6427d971258a8d2c2918ca4042326270364ec9329ce316fef84eb67966c",
         "triangles": 2444
       }
     },
@@ -390,7 +390,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 115132,
-        "sha256": "057783ecd3c627598d1b1ab42f099103d3e02c5586941b78360551071d0e231b",
+        "sha256": "048a4e71abc8dc17d0d238e7cd00a83327b2aa19d64cebdac850f632e4f9401a",
         "triangles": 3716
       }
     },
@@ -420,7 +420,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 80604,
-        "sha256": "306a74b5e2e2d40007b929fd9cb69dec35bca926a3f76452f384ad0a012afb66",
+        "sha256": "4f9674c1d21892048418f005ce5c535e84f13e41956f9636fe2c2cf3909a0741",
         "triangles": 2196
       }
     },
@@ -449,7 +449,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 156892,
-        "sha256": "bcb002e2468150554b5ee0c28ab9a96a22886ba1ec80d0f2948ee097c8933f84",
+        "sha256": "5d8c4683e98221aa1403812cdf51c96df332bec901187cebfa406eab6a5ba5db",
         "triangles": 4604
       }
     },
@@ -479,7 +479,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 101372,
-        "sha256": "db37c124004a38798466459e9da94491b15dd389c06339a8dbf1d1522debe102",
+        "sha256": "10c2b39c3b1f811678b4f3b6864220393913cc614ecaae72c4f6a2d1d441d573",
         "triangles": 2924
       }
     },
@@ -508,8 +508,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 50572,
-        "sha256": "04deabf15fc959c0b6c9e15ec2962367e12189bd4f56122d9eae1ded2522b8c4",
+        "bytes": 50540,
+        "sha256": "225be0ce8a3c484e8022afd9d50801e26603cb1aef701b6c590936735729b16a",
         "triangles": 1092
       }
     },
@@ -539,8 +539,8 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 82396,
-        "sha256": "b1c93fb2a9dc86578778b07add6a3217c12d8e80d51fbddaca98352d8466081f",
+        "bytes": 82412,
+        "sha256": "e4f7e419cc5237abb4050c6f334fa1b6308c064782c541c81d6322a80b33cdb8",
         "triangles": 2680
       }
     },
@@ -569,8 +569,8 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 95324,
-        "sha256": "9c73a6d93a65d1463ca35555c47b49a16813eb536c0ebdfde462253dd4ebbd3e",
+        "bytes": 95308,
+        "sha256": "d4fd6bd84f1d7654d4fc1726ce0b81bbfe552ea54ca51b174b621395851a5f95",
         "triangles": 2764
       }
     },
@@ -599,8 +599,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 109852,
-        "sha256": "fc0f21c042789a428e471d9d7ca8f7866210ec5f7f6eb26e0ebdce8bbb7a49ed",
+        "bytes": 109868,
+        "sha256": "2a7993761d7e422ddb827f6cb23e70ef24f93b22ce072aedc61adf7b825dbf50",
         "triangles": 2792
       }
     },
@@ -630,7 +630,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 140348,
-        "sha256": "9d0ecc3dfc6ae9df30cc33cbdc266348944795332c5d75fb731f49425a65d4af",
+        "sha256": "aa02df899692e823fa9ebd7bed159c2bb655af9e5ff7e3f07564810f02cf9ec0",
         "triangles": 4012
       }
     },
@@ -660,8 +660,8 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 92764,
-        "sha256": "78c4a5eef6128159308ef164e8743e7a9947be8a0ff3cbfeb931de8e8868dc61",
+        "bytes": 92780,
+        "sha256": "fe879fb64253ba0eb065cb0db72e9e458980b842ab64b847407be806511a0f07",
         "triangles": 2656
       }
     },
@@ -692,7 +692,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 97644,
-        "sha256": "bdf95696ee7a641f4483a3d1459d61abaf25bf7f9b6beb47578791fa7a9b2bb7",
+        "sha256": "aef21a5dde2cd93e4bc166f5eb20f70c55e615a26462b8250a74368078b53e2e",
         "triangles": 2800
       }
     },
@@ -723,7 +723,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 82908,
-        "sha256": "6757ece4214c1bef1e9ca566cdb7746bd606222e62c1ba77a846fde430c9f23d",
+        "sha256": "696c2b5d3340c1ffb0a98d7007de9f8fc712e3f2c7a0c2bcfd042e1ff11d092c",
         "triangles": 2186
       }
     },
@@ -751,8 +751,8 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 78780,
-        "sha256": "69aee262ce9e62fac7ecc0e5ed370b7d49e0fc7b2dcb7e5e282d6d8cb06f944d",
+        "bytes": 78748,
+        "sha256": "e131217a75dbf6d0b589754f6c4a6168e08f351cac28ff41379c3ec8c52ac98a",
         "triangles": 2244
       }
     },
@@ -783,7 +783,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 88060,
-        "sha256": "e6faa083bd528d1cdfaae2cf622ed0cf6244b51031be6d14430cb619c4e69a8d",
+        "sha256": "395352fdc87f8f2a5c12125bd41b988c8e9dde3de1b0a89ebe20483463b67e73",
         "triangles": 2632
       }
     },
@@ -813,7 +813,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 61644,
-        "sha256": "db5b6a4ada365e11b38b06ce6f0568d554af99dfb5977975576e32c656b3dd0d",
+        "sha256": "39aa2653c88c6d39c60907707d9550dd639f1dc0ef81b4635269b92a9dee24f1",
         "triangles": 1432
       }
     },
@@ -843,8 +843,8 @@
       "maxTriangles": 4500,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 113084,
-        "sha256": "4afe962beba4798307ad10ef6c7f9827f1e3248864df74bb24aaec1df2d0d6fc",
+        "bytes": 113100,
+        "sha256": "c643c2ed68353da78e2f17581d7b86a71c7a61751686acc056a54d5ef82a893a",
         "triangles": 3184
       }
     },
@@ -875,7 +875,7 @@
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
         "bytes": 112956,
-        "sha256": "c909faed135581419cb92e592e170d6c808dc9bb139dc004e69983fc50ca5982",
+        "sha256": "c300aca2225b7b23edb7f796deb3af6e835daa48f57372c0a41e22566bf93af3",
         "triangles": 3388
       }
     },
@@ -904,9 +904,318 @@
       "maxTriangles": 3000,
       "rebuilt": {
         "script": "Tools/AssetPipeline/build_house_items_v2.py",
-        "bytes": 99628,
-        "sha256": "55459acb3e57c9325c6785ff3b76f5c5fc78b2b5c875039440d2508e1aab250f",
+        "bytes": 99644,
+        "sha256": "e8282dec9655755ac303d13e93cc4d58986929d96c604abcf75abdcea56b47b2",
         "triangles": 2700
+      }
+    },
+    {
+      "word": "ANCHOR",
+      "size": [
+        0.5126,
+        0.7552,
+        0.091
+      ],
+      "targetLongest": 0.7552,
+      "grip": [
+        0.0,
+        0.477,
+        -0.0015
+      ],
+      "heldScale": 0.6,
+      "materials": [
+        "cobalt_Classic",
+        "yellow_Classic",
+        "scarlet_Classic",
+        "wood_light_Classic",
+        "white_Classic"
+      ],
+      "main": "cobalt_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 185420,
+        "sha256": "74b9eadee60ff0670186c78883ae3ceeb9c352af97276ff79a85852dedaf2408",
+        "triangles": 5232
+      }
+    },
+    {
+      "word": "POTION",
+      "size": [
+        0.17,
+        0.2631,
+        0.1737
+      ],
+      "targetLongest": 0.2631,
+      "grip": [
+        0.0,
+        0.083,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "magenta_Classic",
+        "glass_Classic",
+        "wood_light_Classic",
+        "yellow_Classic",
+        "white_Classic"
+      ],
+      "main": "magenta_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 98812,
+        "sha256": "c1847021967d393e3d8a49b0c7faaa2afbc6a617133256b8c0e40146e7a59743",
+        "triangles": 2756
+      }
+    },
+    {
+      "word": "FENCE",
+      "size": [
+        1.026,
+        0.5371,
+        0.18
+      ],
+      "targetLongest": 1.026,
+      "grip": [
+        0.0,
+        0.123,
+        -0.022
+      ],
+      "heldScale": 0.42,
+      "materials": [
+        "yellow_Classic",
+        "cobalt_Classic",
+        "scarlet_Classic",
+        "lime_Classic"
+      ],
+      "main": "yellow_Classic",
+      "accent": "cobalt_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 153868,
+        "sha256": "c41107a42e826cca9b3e00f9b74dd82200baac4e3c0d445c7ee2af4923b41819",
+        "triangles": 4436
+      }
+    },
+    {
+      "word": "CAMERA",
+      "size": [
+        0.292,
+        0.222,
+        0.1704
+      ],
+      "targetLongest": 0.292,
+      "grip": [
+        0.108,
+        0.075,
+        0.026
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "orange_Classic",
+        "cobalt_Classic",
+        "dark_Classic",
+        "glass_Classic",
+        "white_Classic"
+      ],
+      "main": "orange_Classic",
+      "accent": "cobalt_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 115724,
+        "sha256": "1b661d8911dd959cd214e9f5c1e4e1142c7145a3ef4cce45ae91ea2eb737beac",
+        "triangles": 3340
+      }
+    },
+    {
+      "word": "LATTE",
+      "size": [
+        0.184,
+        0.2561,
+        0.184
+      ],
+      "targetLongest": 0.2561,
+      "grip": [
+        0.0,
+        0.12,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "emerald_Classic",
+        "ivory_Classic",
+        "wood_Classic",
+        "wood_light_Classic",
+        "yellow_Classic"
+      ],
+      "main": "emerald_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 91020,
+        "sha256": "2ce042198a45a48fb1bab7933f71e682fbc15d367656939af7367c575eb465e5",
+        "triangles": 2528
+      }
+    },
+    {
+      "word": "PLANE",
+      "size": [
+        0.464,
+        0.111,
+        0.4008
+      ],
+      "targetLongest": 0.464,
+      "grip": [
+        0.0,
+        0.039,
+        0.0
+      ],
+      "heldScale": 0.8,
+      "materials": [
+        "cobalt_Classic",
+        "scarlet_Classic",
+        "yellow_Classic",
+        "white_Classic",
+        "glass_Classic"
+      ],
+      "main": "cobalt_Classic",
+      "accent": "scarlet_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 86492,
+        "sha256": "c37333486bc6af64e4d10816d5cc6b3ce7b86a50a059ab4700d3d42eb3b603b8",
+        "triangles": 2272
+      }
+    },
+    {
+      "word": "PAINT",
+      "size": [
+        0.3452,
+        0.167,
+        0.2755
+      ],
+      "targetLongest": 0.3452,
+      "grip": [
+        0.034,
+        0.065,
+        -0.034
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "teal_Classic",
+        "magenta_Classic",
+        "metal_Classic",
+        "wood_light_Classic",
+        "white_Classic"
+      ],
+      "main": "teal_Classic",
+      "accent": "magenta_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 130972,
+        "sha256": "1f973bf86c2fbe405a8966248370a64a8e71c6413fe1e0314f877af95edfb117",
+        "triangles": 3588
+      }
+    },
+    {
+      "word": "CASTLE",
+      "size": [
+        0.502,
+        0.6,
+        0.402
+      ],
+      "targetLongest": 0.6,
+      "grip": [
+        0.0,
+        0.08,
+        0.0
+      ],
+      "heldScale": 0.6,
+      "materials": [
+        "purple_Classic",
+        "scarlet_Classic",
+        "yellow_Classic",
+        "wood_Classic",
+        "dark_Classic"
+      ],
+      "main": "purple_Classic",
+      "accent": "scarlet_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 116428,
+        "sha256": "9b14897e92da1107113b6dd361cc24ddafa346eb885caa9f2a568f9f60178fb4",
+        "triangles": 3932
+      }
+    },
+    {
+      "word": "MALLET",
+      "size": [
+        0.298,
+        0.583,
+        0.166
+      ],
+      "targetLongest": 0.583,
+      "grip": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "heldScale": 0.7,
+      "materials": [
+        "lime_Classic",
+        "magenta_Classic",
+        "wood_light_Classic",
+        "yellow_Classic",
+        "white_Classic"
+      ],
+      "main": "lime_Classic",
+      "accent": "magenta_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 130684,
+        "sha256": "9b3d4ff18555be4d8a32118f7df338a49bff4013e602f2322a786e20f5003a98",
+        "triangles": 3790
+      }
+    },
+    {
+      "word": "CRAB",
+      "size": [
+        0.4778,
+        0.2905,
+        0.2286
+      ],
+      "targetLongest": 0.4778,
+      "grip": [
+        0.0,
+        0.068,
+        0.007
+      ],
+      "heldScale": 0.8,
+      "materials": [
+        "scarlet_Classic",
+        "yellow_Classic",
+        "white_Classic",
+        "dark_Classic",
+        "teal_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 108828,
+        "sha256": "3da37e3b64efd625ac20da0ca66928d0436b8a05f14bd3066e012325e9312626",
+        "triangles": 2866
       }
     }
   ]

@@ -377,6 +377,10 @@ namespace Wreckabulary.Tests
                     Assert.AreEqual(wounded, p.Health.Current, 0.01f, id + " boosts without healing");
                     Assert.That(p.BoostLeft, Is.InRange(use.Seconds - 1f, use.Seconds + 0.01f), id + " boosts for its catalogue time");
                     break;
+                case UseEffect.Bubble:
+                    Assert.AreEqual(wounded, p.Health.Current, 0.01f, id + " shields without healing");
+                    Assert.AreEqual(use.Amount, p.Health.Bubble, 0.01f, id + " wraps its drinker in its catalogue bubble");
+                    break;
                 default:
                     Assert.Fail($"{id}: add a runtime check for {use.Effect}");
                     break;

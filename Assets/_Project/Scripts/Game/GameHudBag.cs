@@ -17,7 +17,8 @@ namespace Wreckabulary
         const float BookCardGap = 12f, BookPadding = 8f, BookColumnStep = 200f;
         const int BookComfortColumns = 3;
         const float DropGrow = .04f, DropPulse = .03f, DropPulseSeconds = .3f, DropEaseSpeed = .5f, DragGhostAlpha = .9f, DragSourceAlpha = .35f, FocusRingOut = 3f;
-        const float GhostItem = 78f;
+        const float GhostItem = 78f, GhostBinOffset = 6f;
+        const float TrayTileWide = 54f, TrayTileTall = 58f, TrayTileFont = 34f;
         const int TrashTexture = 192, TrashSamples = 4, DropSides = 2, RightSide = 1;
         static readonly Color DropFace = Hex(0xffffff, .15f), DropFaceLit = Hex(0xffe7b8, .17f), DropRim = Hex(0xfff4e2, .55f);
 
@@ -26,9 +27,8 @@ namespace Wreckabulary
         LetterInventory bagOrderFor;
         readonly RectTransform[] dropColumns = new RectTransform[DropSides];
         readonly Image[] dropFaces = new Image[DropSides], dropEdges = new Image[DropSides], dropIcons = new Image[DropSides];
-        RectTransform bagClose, dragGhost;
-        LetterCell ghostCell;
-        RawImage ghostIcon;
+        RectTransform bagClose;
+        DragGhost bagGhost, trayGhost;
         BagDragSource dragging, hovered;
         bool dragShown;
         char dragLetter;
@@ -38,6 +38,8 @@ namespace Wreckabulary
         Sprite trashSprite;
 
         public bool BagDragging => dragging && dragShown;
+        public bool TrayDragging => BagDragging && dragging.tray;
+        public bool TrayDropShown => TrayDragging && trayGhost != null && trayGhost.bin && trayGhost.bin.enabled;
         public IReadOnlyList<char> BagLetterOrder => bagOrder;
         public int LongestRecipe { get; private set; }
 
@@ -52,6 +54,7 @@ namespace Wreckabulary
             public GameHud hud;
             public BagThing thing;
             public int index;
+            public bool tray;
             public CanvasGroup group;
 
             public void OnBeginDrag(PointerEventData data) { if (hud) hud.BeginBagDrag(this, data); }
@@ -80,6 +83,14 @@ namespace Wreckabulary
             }
         }
 
+        sealed class DragGhost
+        {
+            public RectTransform rect;
+            public LetterCell cell;
+            public RawImage icon;
+            public Image bin;
+        }
+
         void BuildBagDrag(RectTransform panel)
         {
             foreach (var card in bookCards) LongestRecipe = Mathf.Max(LongestRecipe, card.word.Length);
@@ -104,7 +115,19 @@ namespace Wreckabulary
                 AddBagSource(hand, BagThing.Item, i);
             }
             BuildDropColumns(panel);
-            BuildDragGhost(panel);
+            bagGhost = BuildDragGhost("Drag ghost", panel, new Vector2(BagLetterWide, BagLetterTall), 33f, false);
+        }
+
+        void BuildTrayDrag()
+        {
+            for (int i = 0; i < trayCells.Length; i++)
+            {
+                var cell = trayCells[i];
+                cell.face.raycastTarget = true;
+                AddBagSource((RectTransform)cell.face.transform.parent, BagThing.Letter, i).tray = true;
+            }
+            for (int i = 0; i < hands.Length; i++) AddBagSource((RectTransform)hands[i].face.transform, BagThing.Item, i).tray = true;
+            trayGhost = BuildDragGhost("Tray drag ghost", safe, new Vector2(TrayTileWide, TrayTileTall), TrayTileFont, true);
         }
 
         void PlaceBagLetters(float scale)
@@ -116,14 +139,15 @@ namespace Wreckabulary
                 holder.localScale = Vector3.one * scale;
             }
             bagPanelCount.rectTransform.anchoredPosition = new Vector2(0f, -(BagLetterGridTall * scale + BagLetterCountGap));
-            if (ghostCell != null) ghostCell.face.transform.parent.localScale = Vector3.one * scale;
+            if (bagGhost != null) bagGhost.cell.face.transform.parent.localScale = Vector3.one * scale;
         }
 
-        void AddBagSource(RectTransform holder, BagThing thing, int index)
+        BagDragSource AddBagSource(RectTransform holder, BagThing thing, int index)
         {
             var group = holder.gameObject.AddComponent<CanvasGroup>();
             var source = holder.gameObject.AddComponent<BagDragSource>();
             source.hud = this; source.thing = thing; source.index = index; source.group = group;
+            return source;
         }
 
         Image BagFocusRing(RectTransform holder, Sprite sprite, float pixels)
@@ -154,18 +178,25 @@ namespace Wreckabulary
             PlaceDropColumns(BagDrag.ColumnMax);
         }
 
-        void BuildDragGhost(RectTransform panel)
+        DragGhost BuildDragGhost(string label, RectTransform parent, Vector2 tile, float font, bool bin)
         {
-            dragGhost = Rect("Drag ghost", panel, new Vector2(.5f, .5f), Vector2.zero, Vector2.one * GhostItem);
-            var fade = dragGhost.gameObject.AddComponent<CanvasGroup>();
+            var ghost = new DragGhost { rect = Rect(label, parent, new Vector2(.5f, .5f), Vector2.zero, Vector2.one * GhostItem) };
+            var fade = ghost.rect.gameObject.AddComponent<CanvasGroup>();
             fade.alpha = DragGhostAlpha; fade.blocksRaycasts = false; fade.interactable = false;
-            ghostCell = MakeCell("Letter", dragGhost, Vector2.zero, new Vector2(BagLetterWide, BagLetterTall), 33f);
-            var holder = (RectTransform)ghostCell.face.transform.parent;
+            ghost.cell = MakeCell("Letter", ghost.rect, Vector2.zero, tile, font);
+            var holder = (RectTransform)ghost.cell.face.transform.parent;
             holder.anchorMin = holder.anchorMax = holder.pivot = new Vector2(.5f, .5f);
             holder.anchoredPosition = Vector2.zero;
-            ghostIcon = Rect("Item", dragGhost, new Vector2(.5f, .5f), Vector2.zero, Vector2.one * GhostItem).gameObject.AddComponent<RawImage>();
-            ghostIcon.raycastTarget = false;
-            dragGhost.gameObject.SetActive(false);
+            ghost.icon = Rect("Item", ghost.rect, new Vector2(.5f, .5f), Vector2.zero, Vector2.one * GhostItem).gameObject.AddComponent<RawImage>();
+            ghost.icon.raycastTarget = false;
+            if (bin)
+            {
+                ghost.bin = CreateImage("Trash", ghost.rect, Vector2.one, new Vector2(GhostBinOffset, GhostBinOffset), Vector2.one * BagDrag.IconMin, Gold);
+                ghost.bin.sprite = TrashSprite(); ghost.bin.preserveAspect = true;
+                ghost.bin.enabled = false;
+            }
+            ghost.rect.gameObject.SetActive(false);
+            return ghost;
         }
 
         float PlaceDropColumns(float width)
@@ -205,10 +236,18 @@ namespace Wreckabulary
             return trashSprite;
         }
 
+        bool TrayDragOpen => tray && tray.gameObject.activeInHierarchy && BagDrag.TrayAccepts(BagOpen, AcceptsGameplayInput, FullCardShown,
+            ComposerOpen || DesktopBinding.Typing, CursorPolicy.Locked, LocalPlayer && LocalPlayer.Binding is DesktopBinding or TouchBinding);
+
+        bool DragOpen(BagDragSource source) => source.tray ? TrayDragOpen : BagOpen;
+
+        DragGhost GhostFor(BagDragSource source) => source && source.tray ? trayGhost : bagGhost;
+
         void BeginBagDrag(BagDragSource source, PointerEventData data)
         {
             StopBagDrag();
-            if (!BagOpen || !LocalPlayer || !source) return;
+            if (!LocalPlayer || !source || !DragOpen(source)) return;
+            if (source.tray && data.button != PointerEventData.InputButton.Left) return;
             bool hasItem = source.thing == BagThing.Item && LocalPlayer.Combat.GearIn(source.index);
             if (!BagDrag.CanDrag(source.thing, source.index, bagOrder.Count, hasItem)) return;
             dragging = source;
@@ -219,15 +258,17 @@ namespace Wreckabulary
         void MoveBagDrag(BagDragSource source, PointerEventData data)
         {
             if (!dragging || dragging != source) return;
-            if (!BagOpen) { StopBagDrag(); return; }
+            if (!DragOpen(source)) { StopBagDrag(); return; }
             if (!dragShown)
             {
                 var moved = data.position - data.pressPosition;
                 if (!BagDrag.Started(moved.x, moved.y)) return;
                 ShowDragGhost(source);
             }
-            dragGhost.position = data.position;
-            (dragSpot, dragTo) = BagSpotAt(data.position);
+            var ghost = GhostFor(source);
+            ghost.rect.position = data.position;
+            (dragSpot, dragTo) = DragSpotAt(source, data.position);
+            if (ghost.bin) ghost.bin.enabled = BagDrag.ShowsBin(dragSpot, CanBagDrop());
             ShowDragTargets();
         }
 
@@ -235,28 +276,31 @@ namespace Wreckabulary
         {
             if (!dragging || dragging != source) return;
             bool shown = dragShown;
-            var (spot, to) = BagSpotAt(data.position);
+            var (spot, to) = DragSpotAt(source, data.position);
             StopBagDrag();
-            if (!shown || !BagOpen || !LocalPlayer) return;
+            if (!shown || !DragOpen(source) || !LocalPlayer) return;
             ApplyBagMove(source, BagDrag.Resolve(source.thing, source.index, spot, to, bagOrder.Count));
-            RefreshBagContents();
+            if (source.tray) RefreshTray();
+            else RefreshBagContents();
         }
 
         void ShowDragGhost(BagDragSource source)
         {
             dragShown = true;
+            var ghost = GhostFor(source);
             bool letter = source.thing == BagThing.Letter;
-            ghostCell.face.transform.parent.gameObject.SetActive(letter);
-            ghostIcon.gameObject.SetActive(!letter);
-            if (letter) ghostCell.letter.text = One(dragLetter);
+            ghost.cell.face.transform.parent.gameObject.SetActive(letter);
+            ghost.icon.gameObject.SetActive(!letter);
+            if (letter) ghost.cell.letter.text = One(dragLetter);
             else
             {
                 var gear = LocalPlayer.Combat.GearIn(source.index);
-                Wreckabulary.UI.ItemArt.Apply(ghostIcon, gear ? gear.word : null);
+                Wreckabulary.UI.ItemArt.Apply(ghost.icon, gear ? gear.word : null);
             }
+            if (source.tray) ghost.rect.localScale = tray.localScale;
             if (source.group) source.group.alpha = DragSourceAlpha;
-            dragGhost.gameObject.SetActive(true);
-            dragGhost.SetAsLastSibling();
+            ghost.rect.gameObject.SetActive(true);
+            ghost.rect.SetAsLastSibling();
         }
 
         void StopBagDrag()
@@ -266,9 +310,36 @@ namespace Wreckabulary
             dragShown = false;
             dragSpot = BagSpot.None;
             dragTo = -1;
-            if (dragGhost) dragGhost.gameObject.SetActive(false);
+            foreach (var ghost in new[] { bagGhost, trayGhost })
+            {
+                if (ghost == null || !ghost.rect) continue;
+                ghost.rect.gameObject.SetActive(false);
+                if (ghost.bin) ghost.bin.enabled = false;
+            }
             ShowDragTargets();
         }
+
+        (BagSpot spot, int index) DragSpotAt(BagDragSource source, Vector2 screen) => source.tray ? TraySpotAt(screen) : BagSpotAt(screen);
+
+        (BagSpot spot, int index) TraySpotAt(Vector2 screen) =>
+            BagDrag.TraySpot(HitIndex(trayCells, screen), HitIndex(hands, screen), RectTransformUtility.RectangleContainsScreenPoint(tray, screen, null));
+
+        static int HitIndex(LetterCell[] cells, Vector2 screen)
+        {
+            for (int i = 0; i < cells.Length; i++)
+                if (PointerCovers((RectTransform)cells[i].face.transform.parent, screen)) return i;
+            return -1;
+        }
+
+        static int HitIndex(HandView[] views, Vector2 screen)
+        {
+            for (int i = 0; i < views.Length; i++)
+                if (PointerCovers((RectTransform)views[i].face.transform, screen)) return i;
+            return -1;
+        }
+
+        static bool PointerCovers(RectTransform rect, Vector2 screen) =>
+            rect && rect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(rect, screen, null);
 
         (BagSpot spot, int index) BagSpotAt(Vector2 screen)
         {
@@ -362,11 +433,17 @@ namespace Wreckabulary
             if (!LocalPlayer || LocalPlayer.Binding is not GamepadBinding) return null;
             var events = EventSystem.current;
             var selected = events ? events.currentSelectedGameObject : null;
-            return selected && selected.TryGetComponent(out BagDragSource source) && source.hud == this && source.isActiveAndEnabled ? source : null;
+            return selected && selected.TryGetComponent(out BagDragSource source) && source.hud == this && !source.tray && source.isActiveAndEnabled ? source : null;
+        }
+
+        void KeepTrayDrag()
+        {
+            if (dragging && dragging.tray && !TrayDragOpen) StopBagDrag();
         }
 
         void HoverBag(BagDragSource source, bool on)
         {
+            if (source.tray) return;
             if (on) hovered = source;
             else if (hovered == source) hovered = null;
             if (!BagDragging) ShowBagHint(FocusedBagSource());
@@ -375,6 +452,7 @@ namespace Wreckabulary
 
         void SelectBag(BagDragSource source, bool on)
         {
+            if (source.tray) return;
             var focus = FocusedBagSource();
             if (!on && focus == source && hovered != source) focus = null;
             if (!BagDragging) ShowBagHint(focus);

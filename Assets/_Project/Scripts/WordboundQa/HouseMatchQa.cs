@@ -266,20 +266,25 @@ namespace Wreckabulary.Qa
             var cards = root.GetComponentsInChildren<Button>(true).Where(b => b.transform.parent && b.transform.parent.name == "Cards").ToList();
             if (cards.Count == 0) throw new QaFailException("The recipe book has no cards.");
             var spellable = new HashSet<string>(WordSolver.Spellable(Words(attacker), attacker.Inventory.Letters).Select(w => w.word));
-            var card = cards.Where(c => Effect(c.name).Length > 0).OrderBy(c => spellable.Contains(c.name) ? 0 : 1).FirstOrDefault()
-                ?? cards.FirstOrDefault(c => c.name == weaponWord) ?? cards[0];
+            var card = cards.Where(c => Effect(c.name).Length > 0 && InBook(c)).OrderBy(c => spellable.Contains(c.name) ? 0 : 1).FirstOrDefault()
+                ?? cards.FirstOrDefault(c => c.name == weaponWord && InBook(c)) ?? cards.FirstOrDefault(InBook) ?? cards[0];
             string word = card.name;
             var line = HudText("Book line");
             try
             {
                 events.SetSelectedGameObject(card.gameObject);
-                yield return context.WaitUntil(() => line.text.StartsWith(word + " ·", System.StringComparison.Ordinal), 10, "the book line for " + word);
+                yield return context.WaitUntil(() => hud.BookDetailWord == word, 10, "the recipe detail panel for " + word);
                 yield return context.WaitSeconds(.5f);
+                var sheet = root.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(t => t.name == GameHud.BookDetailName);
+                var texts = sheet ? sheet.Find(word).GetComponentsInChildren<TMP_Text>().Select(t => t.text).ToList() : new List<string>();
                 context.Note("house_match_book_card", word);
                 context.Note("house_match_book_line", line.text);
+                context.Note("house_match_book_detail", string.Join(" | ", texts));
+                context.Note("house_match_book_detail_right", sheet && sheet.position.x > card.transform.position.x);
                 context.Note("house_match_book_card_lit", card.interactable);
                 yield return Capture(context, "house_match_recipe_book");
-                if (line.text.Trim().Length <= word.Length + 2) throw new QaFailException("The focused recipe card shows no effect line.");
+                var effects = RecipeSheet.Effects(GameConfig.Current.Items.Get(word), GameConfig.Current.Tuning);
+                if (!effects.All(texts.Contains)) throw new QaFailException($"The recipe detail for {word} misses its effects: {string.Join(" | ", texts)}");
             }
             finally
             {
@@ -604,6 +609,13 @@ namespace Wreckabulary.Qa
         static IReadOnlyList<WordEntry> Words(PlayerController player) => player.Summoner.Words;
 
         static string Effect(string word) => GameConfig.Current.Tuning?.Describe(word) ?? "";
+
+        static bool InBook(Button card)
+        {
+            var view = card.transform.parent ? card.transform.parent.parent as RectTransform : null;
+            var rt = (RectTransform)card.transform;
+            return view && view.rect.Contains(view.InverseTransformPoint(rt.TransformPoint(rt.rect.center)));
+        }
 
         static string Held(PlayerController player)
         {

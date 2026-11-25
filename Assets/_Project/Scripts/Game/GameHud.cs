@@ -403,7 +403,7 @@ namespace Wreckabulary
             for (int i = 0; i < 2; i++)
             {
                 int slot = i;
-                hands[i] = MakeHand($"Gear slot {i + 1}", tray, new Vector2(324f, 94f - i * 94f), new Vector2(176f, 82f), i, () => SelectHand(slot));
+                hands[i] = MakeHand($"Gear slot {i + 1}", tray, new Vector2(324f, 94f - i * 94f), new Vector2(176f, 82f), i, () => { if (!BagDragging) SelectHand(slot); });
             }
             TextMeshProUGUI Shortcut(string label, float x, Action action, out RectTransform cap)
             {
@@ -430,11 +430,12 @@ namespace Wreckabulary
             spellHint.gameObject.SetActive(false);
             for (int i = 0; i < TrayTiles; i++)
             {
-                var cell = trayCells[i] = MakeCell($"Letter {i + 1}", tray, new Vector2((i % TilesPerRow) * 62f, -(i / TilesPerRow) * 70f), new Vector2(54f, 58f), 34f);
+                var cell = trayCells[i] = MakeCell($"Letter {i + 1}", tray, new Vector2((i % TilesPerRow) * 62f, -(i / TilesPerRow) * 70f), new Vector2(TrayTileWide, TrayTileTall), TrayTileFont);
                 cell.outline = CreateImage("Outline", cell.face.transform, Vector2.zero, Vector2.zero, Vector2.zero, CellRim);
                 Stretch(cell.outline.rectTransform); cell.outline.sprite = hairRing; cell.outline.type = Image.Type.Sliced;
             }
             craftProgress = Fill("Building", Panel("Progress track", tray, Vector2.zero, new Vector2(0f, -12f), new Vector2(302f, 6f), Vector2.zero, Track), Health);
+            BuildTrayDrag();
         }
 
         void BuildHint()
@@ -676,6 +677,7 @@ namespace Wreckabulary
             Text("Label", close, new Vector2(.5f, .5f), new Vector2(0f, 2f), new Vector2(40f, 40f), 30f, BagInk).text = "×";
             bagClose = close;
             BuildBagDrag(rt);
+            BuildBookDetail(rt);
             bagPanel.SetActive(false);
         }
 
@@ -746,7 +748,6 @@ namespace Wreckabulary
             card.button.targetGraphic = card.face;
             var colours = card.button.colors; colours.disabledColor = Color.white; card.button.colors = colours;
             card.button.onClick.AddListener(() => SpellFromBook(word));
-            root.gameObject.AddComponent<BookCardFocus>().Changed = on => ShowBookLine(on ? word : null);
             var icon = Rect("Picture", root, new Vector2(.5f, 1f), new Vector2(0f, -BookPictureTop), new Vector2(BookPicture, BookPicture)).gameObject.AddComponent<RawImage>();
             ((RectTransform)icon.transform).pivot = new Vector2(.5f, 1f); icon.raycastTarget = false;
             Wreckabulary.UI.ItemArt.Apply(icon, word);
@@ -926,14 +927,6 @@ namespace Wreckabulary
             bookLine.text = word == null ? (free ? FreeBookLine : "") : $"{word} · {(string.IsNullOrEmpty(effect) ? "no extra effect" : effect)}";
         }
 
-        sealed class BookCardFocus : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
-        {
-            public Action<bool> Changed;
-            public void OnPointerEnter(PointerEventData _) => Changed?.Invoke(true);
-            public void OnPointerExit(PointerEventData _) => Changed?.Invoke(false);
-            public void OnSelect(BaseEventData _) => Changed?.Invoke(true);
-            public void OnDeselect(BaseEventData _) => Changed?.Invoke(false);
-        }
         void GoHome()
         {
             if (Paused) SetPaused(false);
@@ -977,6 +970,7 @@ namespace Wreckabulary
             CloseComposerOnKeys();
             if (BagOpen != WantsBag()) RefreshBagPanel();
             DropFocusedInBag();
+            KeepTrayDrag();
             var screen = Touchscreen.current;
             if (!touchChosen && !TouchControlsShown && screen != null && screen.primaryTouch.press.wasPressedThisFrame) ShowTouchControls(true);
             UpdateCards();

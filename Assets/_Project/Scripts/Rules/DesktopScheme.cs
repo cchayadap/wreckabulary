@@ -35,6 +35,9 @@ namespace Wreckabulary.Rules
             ? step is PressStep.Tap or PressStep.Release
             : step == PressStep.Down;
 
+        public static bool HudOwnsPress(bool pressedNow, bool held, bool overHudAtPress, bool owned) =>
+            pressedNow ? overHudAtPress : held && owned;
+
         public static string ClosesLine(string key) => $"{key} closes.";
 
         public static string ReadyLine(string word, string key) => $"{word} is ready. Press {key} to spell it.";

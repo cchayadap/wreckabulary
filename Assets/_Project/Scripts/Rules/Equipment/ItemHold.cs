@@ -67,10 +67,11 @@ namespace Wreckabulary.Rules
         public static readonly HoldTurn TwoHandSocket = new HoldTurn(-.655f, -.166f, .0623f, .7345f).Normalized;
 
         public const string GuardPosedItem = "SHIELD";
-        const float SwingLean = 25f, ThrustLean = 45f;
+        const float SwingLean = 25f, ThrustLean = 45f, GliderLift = 15f;
 
         static readonly ItemHold[] holds =
         {
+            new ItemHold { Id = "ANCHOR", Turn = new[] { SwingLean - 180f, 0f, 0f } },
             new ItemHold { Id = "ARROW", Turn = new[] { 45f, 15f, 0f } },
             new ItemHold { Id = "BARREL", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "BEAR", Turn = new[] { 0f, 180f, 0f } },
@@ -79,27 +80,36 @@ namespace Wreckabulary.Rules
             new ItemHold { Id = "BOOT", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "BRICK", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "CABINET", Grip = new[] { 0f, .5675f, 0f }, ModelYaw = 180f, ModelShift = new[] { 0f, 0f, .043f } },
+            new ItemHold { Id = "CAMERA", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "CARPET", Turn = new[] { 0f, 90f, 0f } },
+            new ItemHold { Id = "CASTLE", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "CHAIR", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "CHILI", Turn = new[] { -SwingLean, 180f, 90f } },
+            new ItemHold { Id = "CRAB", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "CRATE", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "DESK", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "DISC", Turn = new[] { -30f, -45f, 0f } },
             new ItemHold { Id = "DOOR", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "FENCE", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "HELMET", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "HOSE", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "LADDER", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "LATTE", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "LEMON", Turn = new[] { 0f, 180f, 90f }, Grip = new[] { -.0675f, .0743f, 0f } },
             new ItemHold { Id = "LID", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "MALLET", Turn = new[] { -SwingLean, 180f, 0f } },
             new ItemHold { Id = "MARBLE", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "MELON", Turn = new[] { -60f, 180f, 0f } },
             new ItemHold { Id = "OIL", Turn = new[] { 0f, 90f, 0f } },
             new ItemHold { Id = "PADDLE", Turn = new[] { -SwingLean, 180f, 0f } },
+            new ItemHold { Id = "PAINT", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "PAN", Turn = new[] { 0f, -90f, 105f } },
             new ItemHold { Id = "PEAR", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "PENCIL", Turn = new[] { ThrustLean, 0f, 0f } },
             new ItemHold { Id = "PIANO", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "PILLOW", Turn = new[] { 35f, 0f, 45f } },
+            new ItemHold { Id = "PLANE", Turn = new[] { -GliderLift, 0f, 0f } },
+            new ItemHold { Id = "POTION", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "RACKET", Turn = new[] { -SwingLean, 180f, 0f } },
             new ItemHold { Id = "RAKE", Turn = new[] { SwingLean, 0f, 0f } },
             new ItemHold { Id = "RAMP", Turn = new[] { 0f, 90f, 0f } },

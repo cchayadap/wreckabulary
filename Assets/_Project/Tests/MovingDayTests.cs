@@ -261,7 +261,7 @@ namespace Wreckabulary.Tests
             yield return TestScenes.WaitForActive(Session.MovingDayScene);
             var p = Object.FindAnyObjectByType<PlayerJoinManager>().Players.Single();
             int offered = GameAssets.I.words.Words.Select(w => w.word).Union(p.Summoner.ChecklistPlacementWords).Count();
-            Assert.AreEqual(77, GameAssets.I.words.Words.Count, "24 shared recipes plus 53 from items_house.json");
+            Assert.AreEqual(87, GameAssets.I.words.Words.Count, "24 shared recipes plus 63 from items_house.json");
             Assert.AreEqual(offered, p.Summoner.WordsOverride.Count, "the word wheel offers objectives and creative tools");
         }
     }

@@ -310,7 +310,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator RecipeBookSaysWhatTheFocusedItemDoesInOneLine()
+        public IEnumerator RecipeBookLeavesTheFocusedItemToItsDetailPanel()
         {
             Spawn(TouchBinding.Shared);
             var hud = new GameObject("Recipe line HUD", typeof(Canvas)).AddComponent<GameHud>();
@@ -334,18 +334,22 @@ namespace Wreckabulary.Tests
             var batTile = cards.Find("BAT/Tile 1");
             Assert.AreEqual(0f, batTile.GetComponent<Image>().color.a, .01f, "A missing letter is hollow...");
             Assert.IsTrue(batTile.Find("Rim").GetComponent<Image>().enabled, "...with an outline.");
-            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("HAMMER").gameObject,
+            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("BLADE").gameObject,
                 new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.pointerEnterHandler);
-            StringAssert.StartsWith("HAMMER · ", line.text);
-            StringAssert.Contains("every 3rd hit crushes", line.text);
-            Assert.GreaterOrEqual(line.fontSize, 23f);
+            yield return TestScenes.WaitUntil(() => hud.BookDetailWord == "BLADE", 10f, "the BLADE detail panel");
+            Assert.AreEqual("", line.text, "the panel says it, so the title line does not repeat it");
+            var detail = safe.Find("Bag panel/" + GameHud.BookDetailName + "/BLADE");
+            Assert.IsTrue(detail.GetComponentsInChildren<TMPro.TMP_Text>().Any(t => t.text.StartsWith("Bleeds 2/s for 3 s")), "the panel says the bleed in a sentence");
             Assert.IsTrue(legend.gameObject.activeSelf, "The star key stays on its own line while a card is focused.");
-            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("HAMMER").gameObject,
+            UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("BLADE").gameObject,
                 new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.pointerExitHandler);
+            yield return TestScenes.WaitUntil(() => hud.BookDetailWord == null, 10f, "the panel to go with the pointer");
             Assert.AreEqual("", line.text);
             UnityEngine.EventSystems.ExecuteEvents.Execute(cards.Find("BAT").gameObject,
                 new UnityEngine.EventSystems.BaseEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.selectHandler);
-            Assert.AreEqual("BAT · no extra effect", line.text, "a pad selection says it too");
+            yield return TestScenes.WaitUntil(() => hud.BookDetailWord == "BAT", 10f, "a pad selection opens it too");
+            Assert.AreEqual(Wreckabulary.Rules.RecipeSheet.NoEffect, safe.Find("Bag panel/" + GameHud.BookDetailName + "/BAT/Effect 1").GetComponent<TMPro.TMP_Text>().text);
+            Assert.AreEqual("", line.text);
             Object.Destroy(hud.gameObject);
         }
 
@@ -896,6 +900,7 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual("", hud.ComposerHint);
                 AssertSpellBoxIsClean(box, false, "pad");
                 AssertSpellBoxHugs(box, false, "pad");
+                AssertSpellBoxIsClear(box, false, "pad");
                 Assert.AreEqual(player.Summoner.Ready.Count > 1, box.Find("Field/Next").gameObject.activeSelf, "Arrows only when more than one word is ready.");
                 AssertApart(box, (RectTransform)safe.Find("Letter bag"), "The spell box keeps clear of the tray.");
                 foreach (var (name, units) in PhoneWindows)
@@ -958,6 +963,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual($"{word} is ready. Tap SPELL.", hud.ComposerStatus);
             AssertSpellBoxIsClean(box, true, "touch");
             AssertSpellBoxHugs(box, true, "touch");
+            AssertSpellBoxIsClear(box, true, "touch");
             var build = box.Find("Chrome/Build").GetComponent<Button>();
             var close = box.Find("Chrome/Cancel").GetComponent<Button>();
             Assert.IsTrue(build.gameObject.activeInHierarchy && build.interactable, "Touch keeps a SPELL tap target.");
@@ -993,6 +999,174 @@ namespace Wreckabulary.Tests
             }
             foreach (var button in box.GetComponentsInChildren<Button>())
                 Assert.IsTrue(button.name is "Previous" or "Next" || (tap && button.name is "Build" or "Cancel"), $"{message}: no {button.name} button");
+        }
+
+        const float SpellTileWidth = 47.5f, SpellTileHeight = 55f, SpellTileStep = 55f, SpellLineMinFont = 15f;
+        const string LongestTyped = "ABCDEFGHIJ";
+
+        static bool UnderAny(Transform part, Transform box, params string[] names)
+        {
+            for (var at = part; at && at != box; at = at.parent)
+                if (names.Contains(at.name) || at.name.StartsWith("Tile ")) return true;
+            return false;
+        }
+
+        static void AssertSpellBoxIsClear(RectTransform box, bool tap, string message)
+        {
+            Assert.IsEmpty(box.GetComponentsInParent<Mask>(true), message + ": nothing above the spell box masks it");
+            Assert.IsEmpty(box.GetComponentsInChildren<Mask>(true), message + ": no mask clips the letters");
+            Assert.IsEmpty(box.GetComponentsInChildren<RectMask2D>(true), message + ": no rect mask clips the letters");
+            Assert.IsEmpty(box.GetComponentsInParent<RectMask2D>(true), message + ": nothing above the spell box clips it");
+            string[] allowed = tap ? new[] { "Previous", "Next", "Caret", "Build", "Cancel" } : new[] { "Previous", "Next", "Caret" };
+            foreach (var image in box.GetComponentsInChildren<Image>())
+            {
+                if (!image.enabled || !image.gameObject.activeInHierarchy || image.color.a <= .01f) continue;
+                Assert.IsTrue(UnderAny(image.transform, box, allowed), $"{message}: only the letter tiles are drawn, not {image.name} on {image.transform.parent.name}");
+            }
+            var tiles = box.Find("Field/Tiles").Cast<Transform>().Where(t => t.name.StartsWith("Tile ") && t.gameObject.activeSelf).ToList();
+            foreach (var tile in tiles)
+            {
+                var face = tile.Find("Face").GetComponent<Image>();
+                var outline = tile.Find("Outline").GetComponent<Image>();
+                bool letter = tile.Find("Letter").GetComponent<TMPro.TMP_Text>().text.Length > 0;
+                if (letter)
+                {
+                    Assert.Greater(face.color.a, .9f, $"{message}: {tile.name} with a letter is filled");
+                    Assert.IsFalse(outline.enabled, $"{message}: {tile.name} with a letter has no slot outline");
+                }
+                else
+                {
+                    Assert.AreEqual(0f, face.color.a, .001f, $"{message}: empty {tile.name} has no fill");
+                    Assert.IsFalse(tile.Find("Lip").GetComponent<Image>().enabled, $"{message}: empty {tile.name} has no lip");
+                    Assert.IsTrue(outline.enabled && outline.color.a > .5f, $"{message}: empty {tile.name} shows an outline");
+                }
+            }
+            foreach (var text in box.GetComponentsInChildren<TMPro.TMP_Text>())
+            {
+                if (text.name is not ("Craft status" or "Typed hint")) continue;
+                Assert.Greater(text.outlineWidth, 0f, $"{message}: {text.name} carries the on-game outline");
+                Assert.IsNotNull(text.GetComponent<Shadow>(), $"{message}: {text.name} carries the on-game shadow");
+                Assert.GreaterOrEqual(text.enableAutoSizing ? text.fontSizeMin : text.fontSize, SpellLineMinFont - .01f, $"{message}: {text.name} stays at least 15 pt");
+                float said = text.GetPreferredValues(text.text).x;
+                Assert.LessOrEqual(said, ((RectTransform)text.transform).rect.width + .5f, $"{message}: {text.name} fits its line");
+                AssertRectInside(box, (RectTransform)text.transform);
+            }
+        }
+
+        static void AssertEveryLetterShows(RectTransform safe, RectTransform box, string word, int slots, string message)
+        {
+            var tiles = box.Find("Field/Tiles").Cast<Transform>().Where(t => t.name.StartsWith("Tile ") && t.gameObject.activeSelf).Select(t => (RectTransform)t).ToList();
+            Assert.AreEqual(slots, tiles.Count, $"{message}: one tile per letter plus the slots");
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                var tile = tiles[i];
+                Assert.AreEqual(SpellTileWidth, tile.rect.width, .5f, $"{message}: {tile.name} keeps its full width");
+                Assert.AreEqual(SpellTileHeight, tile.rect.height, .5f, $"{message}: {tile.name} keeps its full height");
+                Assert.AreEqual(1f, tile.lossyScale.x / box.lossyScale.x, .001f, $"{message}: {tile.name} is not scaled down");
+                if (i > 0) Assert.AreEqual(SpellTileStep, tile.anchoredPosition.x - tiles[i - 1].anchoredPosition.x, .5f, $"{message}: {tile.name} sits beside the one before, not on it");
+                AssertRectInside(safe, tile);
+                AssertRectInside(box, tile);
+                string shown = tile.Find("Letter").GetComponent<TMPro.TMP_Text>().text;
+                if (i < word.Length) StringAssert.Contains(word[i].ToString(), shown, $"{message}: {tile.name} shows its letter");
+                else Assert.AreEqual("", shown, $"{message}: {tile.name} is an empty slot");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TheLongestTypedWordShowsEveryLetterOverAClearView()
+        {
+            var player = Spawn(DesktopBinding.Shared);
+            var hud = new GameObject("Typed HUD", typeof(Canvas)).AddComponent<GameHud>();
+            try
+            {
+                yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the keyboard player's HUD");
+                hud.ShowTouchControls(false);
+                player.Inventory.Set("BAT");
+                player.Summoner.Open();
+                yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "the spell box opens");
+                Assert.IsTrue(hud.ComposerLettersOnly, "Typing shows the letters and the one hint line.");
+                var safe = (RectTransform)hud.transform.Find("Safe HUD");
+                var box = (RectTransform)safe.Find("Craft drawer");
+                yield return new WaitForSecondsRealtime(.15f);
+                Canvas.ForceUpdateCanvases();
+                AssertEveryLetterShows(safe, box, "", 1, "empty");
+                AssertSpellBoxIsClear(box, false, "empty");
+                foreach (var (name, units) in PhoneWindows)
+                {
+                    safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
+                    safe.anchoredPosition = Vector2.zero;
+                    safe.sizeDelta = units;
+                    foreach (string word in new[] { LongestTyped.Substring(0, LongestTyped.Length - 1), LongestTyped })
+                    {
+                        hud.TypeWord(word);
+                        yield return new WaitForSecondsRealtime(.2f);
+                        Canvas.ForceUpdateCanvases();
+                        Assert.IsTrue(hud.ComposerOpen, name);
+                        Assert.AreEqual(word, hud.ComposerText, $"{name}: every typed letter is kept");
+                        int slots = word.Length < LongestTyped.Length ? word.Length + 1 : word.Length;
+                        AssertEveryLetterShows(safe, box, word, slots, $"{name} {word}");
+                        AssertSpellBoxIsClear(box, false, $"{name} {word}");
+                        AssertRectInside(safe, box);
+                        AssertApart(box, (RectTransform)safe.Find("Letter bag"), $"{name} {word}: the spell box keeps clear of the tray.");
+                    }
+                }
+                player.Summoner.Close();
+                yield return null;
+            }
+            finally
+            {
+                Object.Destroy(hud.gameObject);
+                Object.Destroy(player.gameObject);
+                DesktopBinding.Typing = false;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator TheLongestReadyWordShowsEveryLetterBesideItsArrows()
+        {
+            var touch = TouchBinding.Shared;
+            touch.Enabled = true;
+            var player = Spawn(touch);
+            var hud = new GameObject("Touch HUD", typeof(Canvas)).AddComponent<GameHud>();
+            yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the touch player's HUD");
+            hud.ShowTouchControls(true);
+            yield return null;
+            player.Inventory.Set("HAMMERBAT");
+            touch.SetCraftOpen(true);
+            yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "SPELL opens the spell box");
+            var ready = player.Summoner.Ready;
+            Assert.Greater(ready.Count, 1, "More than one word is ready, so the arrows pick between them.");
+            int longest = ready.Max(w => w.word.Length);
+            player.Summoner.Select(ready.FindIndex(w => w.word.Length == longest));
+            var safe = (RectTransform)hud.transform.Find("Safe HUD");
+            var box = (RectTransform)safe.Find("Craft drawer");
+            foreach (var (name, units) in PhoneWindows)
+            {
+                safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
+                safe.anchoredPosition = Vector2.zero;
+                safe.sizeDelta = units;
+                yield return new WaitForSecondsRealtime(.2f);
+                Canvas.ForceUpdateCanvases();
+                Assert.IsTrue(hud.ComposerOpen, name);
+                string word = player.Summoner.SelectedWord.word;
+                Assert.AreEqual(longest, word.Length, $"{name}: the longest ready word is picked");
+                AssertEveryLetterShows(safe, box, word, word.Length, $"{name} {word}");
+                AssertSpellBoxIsClear(box, true, $"{name} {word}");
+                AssertRectInside(safe, box);
+                var previousArrow = (RectTransform)box.Find("Field/Previous");
+                var nextArrow = (RectTransform)box.Find("Field/Next");
+                Assert.IsTrue(previousArrow.gameObject.activeInHierarchy && nextArrow.gameObject.activeInHierarchy, $"{name}: both arrows show");
+                var tiles = (RectTransform)box.Find("Field/Tiles");
+                Rect first = InBox(box, (RectTransform)tiles.Find("Tile 1")), last = InBox(box, (RectTransform)tiles.Find($"Tile {word.Length}"));
+                Assert.LessOrEqual(InBox(box, previousArrow).xMax, first.xMin + 2f, $"{name}: the previous arrow sits before the first letter, not over it");
+                Assert.GreaterOrEqual(InBox(box, nextArrow).xMin, last.xMax - 2f, $"{name}: the next arrow sits after the last letter, not over it");
+            }
+            touch.SetCraftOpen(false);
+            player.Summoner.Close();
+            yield return null;
+            hud.ShowTouchControls(false);
+            Object.Destroy(hud.gameObject);
+            Object.Destroy(player.gameObject);
         }
 
         static Rect InBox(RectTransform box, RectTransform part)
