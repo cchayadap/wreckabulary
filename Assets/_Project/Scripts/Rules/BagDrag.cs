@@ -42,7 +42,15 @@ namespace Wreckabulary.Rules
             return Math.Max(floor, areaWidth - leftTaken - gap - reserve - book);
         }
 
-        public static float MapSide(float height, float inventory, float gap, float floor, float most) => Math.Min(most, Math.Max(floor, height - inventory - gap));
+        public static float LetterScale(float footprint, float margin, float gridWidth) => (footprint - margin) / gridWidth;
+
+        public static float MapSide(float height, float rest, float gap, float floor, float most, float column, float margin, float gridWidth, float gridHeight)
+        {
+            float free = height - rest - gap, slope = gridHeight / gridWidth;
+            float wide = (free + slope * margin) / (1f + slope);
+            float side = wide >= column ? wide : free - gridHeight * LetterScale(column, margin, gridWidth);
+            return Math.Min(most, Math.Max(floor, side));
+        }
 
         public static float IconSize(float columnWidth) =>
             Math.Max(0f, Math.Min(Math.Min(IconMax, Math.Max(IconMin, columnWidth * IconShare)), columnWidth - 2f * IconInset));

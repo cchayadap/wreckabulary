@@ -342,7 +342,7 @@ namespace Wreckabulary.Tests
             var close = (RectTransform)safe.Find("Bag panel/Close bag");
             var grid = book.Find("View/Cards").GetComponent<GridLayoutGroup>();
 
-            var expectedMap = new System.Collections.Generic.Dictionary<float, float> { [1920f] = 514f, [2119.6f] = 490.3f, [1440f] = 325f, [2520f] = 592f };
+            var expectedMap = new System.Collections.Generic.Dictionary<float, float> { [1920f] = 514f, [2119.6f] = 447.5f, [1440f] = 325f, [2520f] = 519.2f };
             foreach (var size in new[] { new Vector2(1920f, 1080f), new Vector2(2119.6f, 978.3f), new Vector2(1440f, 1080f), new Vector2(2520f, 1080f) })
             {
                 safe.anchorMin = safe.anchorMax = safe.pivot = Vector2.zero;
@@ -370,12 +370,20 @@ namespace Wreckabulary.Tests
                 Assert.Less(mapBox.xMax, bookBox.xMin, size + " the map column sits left of the book");
                 Assert.Less(bookBox.xMax, rightBox.xMin, size + " the right column sits right of the book");
                 Assert.AreEqual(mapBox.center.x, inventoryBox.center.x, slack, size + " the inventory is centred under the map");
-                Assert.AreEqual(GameHud.BagInventoryCellWidth * scale, inventoryBox.width, slack, size + " and keeps its own width");
+                Assert.AreEqual(Mathf.Max(mapBox.width, GameHud.BagInventoryCellWidth * scale), inventoryBox.width, slack, size + " and is as wide as the map");
+                Assert.AreEqual(mapBox.center.x, handsBox.center.x, slack, size + " the item slots stay centred under the map");
+                var firstLetter = OnScreen((RectTransform)inventory.Find("Letters/Big letter 1"));
+                var lastLetter = OnScreen((RectTransform)inventory.Find("Letters/Big letter 10"));
+                float letterScale = BagDrag.LetterScale(inventory.rect.width, GameHud.BagLetterMargin, GameHud.BagLetterGridWide);
+                Assert.AreEqual(inventoryBox.xMax, lastLetter.xMax, slack, size + " the letters reach the right edge of the column");
+                Assert.AreEqual(GameHud.BagLetterWide * letterScale * scale, firstLetter.width, slack, size + " the letter tiles grow with the column");
+                Assert.GreaterOrEqual(firstLetter.width, GameHud.BagLetterWide * scale - slack, size + " never smaller than before");
+                Assert.Greater(lastLetter.yMin, handsBox.yMax, size + " the letters stay above the item slots");
                 float footLeft = Mathf.Min(mapBox.xMin, inventoryBox.xMin), footRight = Mathf.Max(mapBox.xMax, inventoryBox.xMax);
                 Assert.AreEqual(footLeft - leftBox.xMax, bookBox.xMin - footRight, slack, size + " equal gaps either side of the map column");
                 Assert.Greater(footLeft, leftBox.xMax, size + " clear of the left bin");
                 Assert.Greater(bookBox.xMin, footRight, size + " clear of the book");
-                Assert.AreEqual(expectedMap[size.x], map.rect.width, .5f, size + " the map keeps its fix1 size unless the height says otherwise");
+                Assert.AreEqual(expectedMap[size.x], map.rect.width, .5f, size + " the map keeps its size unless the height says otherwise");
                 Assert.AreEqual(GameHud.BagInventoryGap * scale, mapBox.yMin - inventoryBox.yMax, slack, size + " one gap between map and inventory");
                 Assert.LessOrEqual(handsBox.yMax, mapBox.yMin, size + " the item slots sit under the map");
                 Assert.AreEqual(bookBox.yMax, mapBox.yMax, slack, size + " the map column starts level with the book");

@@ -10,6 +10,10 @@ namespace Wreckabulary
     {
         public const float BookTile = 24f, BookTileStep = 28f, BookTilePad = 1f;
         public const float BagMapFloor = 325f, BagInventoryGap = BagGap, BagInventoryCellWidth = BagColumn;
+        public const float BagLetterMargin = 40f, BagLetterWide = 55f, BagLetterTall = 60f, BagLetterStepX = 62.5f, BagLetterStepY = 67.5f;
+        public const float BagLetterGridWide = (TilesPerRow - 1) * BagLetterStepX + BagLetterWide;
+        public const float BagLetterGridTall = (TrayTiles / TilesPerRow - 1) * BagLetterStepY + BagLetterTall;
+        const float BagLetterCountGap = 6f, BagLetterFoot = 27.5f, BagHandTall = 145f;
         const float BookCardGap = 12f, BookPadding = 8f, BookColumnStep = 200f;
         const int BookComfortColumns = 3;
         const float DropGrow = .04f, DropPulse = .03f, DropPulseSeconds = .3f, DropEaseSpeed = .5f, DragGhostAlpha = .9f, DragSourceAlpha = .35f, FocusRingOut = 3f;
@@ -103,6 +107,18 @@ namespace Wreckabulary
             BuildDragGhost(panel);
         }
 
+        void PlaceBagLetters(float scale)
+        {
+            for (int i = 0; i < bagCells.Length; i++)
+            {
+                var holder = (RectTransform)bagCells[i].face.transform.parent;
+                holder.anchoredPosition = new Vector2(BagLetterMargin + i % TilesPerRow * BagLetterStepX * scale, -(i / TilesPerRow) * BagLetterStepY * scale);
+                holder.localScale = Vector3.one * scale;
+            }
+            bagPanelCount.rectTransform.anchoredPosition = new Vector2(0f, -(BagLetterGridTall * scale + BagLetterCountGap));
+            if (ghostCell != null) ghostCell.face.transform.parent.localScale = Vector3.one * scale;
+        }
+
         void AddBagSource(RectTransform holder, BagThing thing, int index)
         {
             var group = holder.gameObject.AddComponent<CanvasGroup>();
@@ -143,7 +159,7 @@ namespace Wreckabulary
             dragGhost = Rect("Drag ghost", panel, new Vector2(.5f, .5f), Vector2.zero, Vector2.one * GhostItem);
             var fade = dragGhost.gameObject.AddComponent<CanvasGroup>();
             fade.alpha = DragGhostAlpha; fade.blocksRaycasts = false; fade.interactable = false;
-            ghostCell = MakeCell("Letter", dragGhost, Vector2.zero, new Vector2(55f, 60f), 33f);
+            ghostCell = MakeCell("Letter", dragGhost, Vector2.zero, new Vector2(BagLetterWide, BagLetterTall), 33f);
             var holder = (RectTransform)ghostCell.face.transform.parent;
             holder.anchorMin = holder.anchorMax = holder.pivot = new Vector2(.5f, .5f);
             holder.anchoredPosition = Vector2.zero;
