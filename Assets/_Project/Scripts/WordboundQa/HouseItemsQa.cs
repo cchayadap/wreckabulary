@@ -14,25 +14,44 @@ namespace Wreckabulary.Qa
 {
     public sealed class HouseItemsQa : IQaScenario
     {
-        public string Name => "house_items";
-        const int MaxItems = 20;
+        public const string Scenario = "house_items";
+        public const int MaxItems = 20, Parts = 2;
+        const float Wound = 30f, ShotSeconds = 3f, ShotGap = 3f;
+        public string Name => ScenarioFor(part);
         static readonly Vector3 Lane = new Vector3(-5.5f, 0f, -2.6f);
+        readonly int part;
+        bool opened;
+        string openFailure = "house_open has not run";
         BeltRangeDirector director;
         PlayerController player;
         ScriptedBinding input;
         Vector3 dummyHome;
         int throws;
-        List<string> ids = new();
+        List<string> ids = new(), allIds = new();
         readonly List<string> errors = new();
         readonly List<Dictionary<string, object>> records = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-        static void Register() => QaScenarios.Register("house_items", () => new HouseItemsQa());
+        static void Register()
+        {
+            for (int i = 0; i < Parts; i++)
+            {
+                int index = i;
+                QaScenarios.Register(ScenarioFor(index), () => new HouseItemsQa(index));
+            }
+        }
+
+        public HouseItemsQa(int part = 0) => this.part = part;
+
+        public static string ScenarioFor(int part) => part == 0 ? Scenario : $"{Scenario}_{part + 1}";
+
+        public static List<string> PartOf(IReadOnlyList<string> all, int part) => all.Skip(part * MaxItems).Take(MaxItems).ToList();
 
         public IEnumerable<QaStep> BuildSteps(QaContext context)
         {
             var data = Resources.Load<GameData>(GameData.ResourcePath);
-            ids = data && data.houseItems ? ItemCatalogue.FromJson(data.houseItems.text, "items_house.json").All.Select(i => i.Id).ToList() : new List<string>();
+            allIds = data && data.houseItems ? ItemCatalogue.FromJson(data.houseItems.text, "items_house.json").All.Select(i => i.Id).ToList() : new List<string>();
+            ids = PartOf(allIds, part);
             yield return QaStep.Named("house_open").Timeout(60).When(_ => Object.FindFirstObjectByType<LobbyMenu>() != null).Do(Open);
             foreach (string id in ids)
                 yield return QaStep.Named("house_" + id.ToLowerInvariant()).Timeout(30).Do(c => Exercise(c, id));
@@ -48,8 +67,10 @@ namespace Wreckabulary.Qa
 
         IEnumerator Open(QaContext context)
         {
-            if (ids.Count == 0) throw new QaFailException("GameData lists no items_house.json recipes. Run Wreckabulary > Data > Set Up Game Data.");
-            if (ids.Count > MaxItems) throw new QaFailException($"{ids.Count} House items would take {ids.Count * 2} captures; split the scenario.");
+            if (allIds.Count == 0) Refuse("GameData lists no items_house.json recipes. Run Wreckabulary > Data > Set Up Game Data.");
+            if (allIds.Count > MaxItems * Parts)
+                Refuse($"{allIds.Count} House items need {(allIds.Count + MaxItems - 1) / MaxItems} parts of {MaxItems}; raise HouseItemsQa.Parts and run {ScenarioFor(Parts)} too.");
+            if (ids.Count == 0) Refuse($"{Name} has no House items: items_house.json lists {allIds.Count}, which fit in {ScenarioFor(0)} alone.");
             Session.Load(BeltRangeDirector.SceneName);
             yield return context.WaitUntil(() => (director = Object.FindFirstObjectByType<BeltRangeDirector>()) != null, 30, "the BELT range scene");
             Application.logMessageReceived += Log;
@@ -63,13 +84,28 @@ namespace Wreckabulary.Qa
             dummyHome = director.Dummy.transform.position;
             var shared = ItemCatalogue.FromJson(Resources.Load<GameData>(GameData.ResourcePath).items.text);
             context.Note("house_items", ids.ToArray());
+            context.Note("house_items_part", $"{part + 1} of {(allIds.Count + MaxItems - 1) / MaxItems}");
+            opened = true;
             context.Note("house_items_shared_enabled", ids.Where(id => shared.TryGet(id, out var s) && s.Enabled).ToArray());
             context.Note("house_items_scope", "items_house scope: House-mode recipes layered on items.json, exercised in the offline Windows BELT range " +
                 "with scripted input. Wordbound and online read items.json only; no network, remote peer or human-feel claim.");
         }
 
+        void Refuse(string why)
+        {
+            openFailure = why;
+            throw new QaFailException(why);
+        }
+
+        void RequireOpened(string id)
+        {
+            if (!opened || !director || !player || input == null)
+                throw new QaFailException($"{id} skipped: house_open did not finish ({openFailure}).");
+        }
+
         IEnumerator Exercise(QaContext context, string id)
         {
+            RequireOpened(id);
             errors.Clear();
             var item = GameConfig.Current.Items.Get(id);
             string name = "house_" + id.ToLowerInvariant();
@@ -99,7 +135,15 @@ namespace Wreckabulary.Qa
                 case HandlingFamily.DeployPad:
                 case HandlingFamily.DeploySpeed:
                 case HandlingFamily.DeployZone:
+                case HandlingFamily.Utility:
                     yield return Place(context, gear, item, name, record);
+                    break;
+                case HandlingFamily.Heal:
+                case HandlingFamily.Buff:
+                    yield return Consume(context, item, name, record);
+                    break;
+                case HandlingFamily.Ranged:
+                    yield return Shoot(context, gear, item, name, record);
                     break;
                 default:
                     throw new QaFailException($"{id}: no House QA use for {item.Family}.");
@@ -188,9 +232,58 @@ namespace Wreckabulary.Qa
             bool field = effect is DeployEffect.WindField or DeployEffect.SlowField, pad = effect is DeployEffect.JumpPad or DeployEffect.SpeedStrip;
             if ((field && !gear.GetComponent<DeployedPowerField>()) || (pad && !gear.GetComponentInChildren<GearTrigger>()))
                 throw new QaFailException(item.Id + " was placed without its " + effect + " effect.");
+            if (effect == DeployEffect.Stash)
+            {
+                var stash = gear.GetComponent<LetterStash>();
+                if (!stash) throw new QaFailException(item.Id + " was placed without a letter stash.");
+                player.Inventory.Set("QA");
+                bool banked = stash.TryExchange(player) && player.Inventory.IsEmpty && stash.Count == 2;
+                bool returned = banked && stash.TryExchange(player) && stash.IsEmpty && player.Inventory.Count == 2;
+                record["stash_banked"] = banked;
+                record["stash_returned"] = returned;
+                player.Inventory.Set("");
+                if (!returned) throw new QaFailException(item.Id + " did not bank and return its placer's letters.");
+            }
             yield return context.WaitSeconds(0.5f);
             yield return Capture(context, name + "_used");
             Object.Destroy(gear.gameObject);
+        }
+
+        IEnumerator Consume(QaContext context, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            yield return context.WaitUntil(() => !player.Health.IsInvulnerable, 5, "spawn protection to end");
+            player.Health.ApplyDamage(Hits.Of(null, -player.Facing, HitSource.Melee, Wound, 0f, hitStun: 0f));
+            float before = player.Health.Current;
+            input.Next.attack = true;
+            yield return context.WaitUntil(() => !player.Combat.Weapon, item.Use.ChannelSeconds + 3f, item.Id + " to be used");
+            yield return context.WaitSeconds(0.3f);
+            yield return Capture(context, name + "_used");
+            float restored = player.Health.Current - before;
+            record["restored"] = restored;
+            if (item.Use.Effect == UseEffect.Heal && restored <= 0f) throw new QaFailException(item.Id + " was used but restored no health.");
+        }
+
+        IEnumerator Shoot(QaContext context, HeldWeapon gear, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            var dummy = director.Dummy;
+            if (!dummy) throw new QaFailException("The range dummy is missing.");
+            dummy.Respawn(dummyHome);
+            dummy.Body.linearVelocity = Vector3.zero;
+            dummy.FaceTowards(Vector3.back);
+            Stand(dummyHome - Vector3.forward * ShotGap, Vector3.forward);
+            yield return context.WaitSeconds(0.5f);
+            float before = dummy.Health.Current;
+            input.Next.attack = true;
+            input.Next.attackHeld = true;
+            try
+            {
+                yield return context.WaitUntil(() => gear.DrawPower >= 1f, item.Ranged.DrawSeconds + 3f, item.Id + " to reach a full draw");
+                yield return Capture(context, name + "_used");
+            }
+            finally { input.Next.attackHeld = false; }
+            yield return context.WaitUntil(() => dummy.Health.Current < before, ShotSeconds, item.Id + " shot to land");
+            record["dummy_damage"] = before - dummy.Health.Current;
+            record["durability_left"] = gear ? gear.DurabilityLeft : 0f;
         }
 
         IEnumerator Return(QaContext context)

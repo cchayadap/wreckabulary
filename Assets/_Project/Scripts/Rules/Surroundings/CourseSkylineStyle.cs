@@ -7,10 +7,10 @@ namespace Wreckabulary.Rules.Surroundings
 {
     public static class CourseSkylineTypes
     {
-        public const string Block = "block", Loft = "loft", LPlan = "lplan", UPlan = "uplan", Slab = "slab", Deco = "deco", Round = "round", Curtain = "curtain", Twin = "twin";
+        public const string Block = "block", Loft = "loft", LPlan = "lplan", UPlan = "uplan", Slab = "slab", Deco = "deco", Round = "round", Curtain = "curtain", Twin = "twin", Shed = "shed";
         public const string Supertall = "supertall", Needle = "needle", Clock = "clock";
 
-        public static readonly IReadOnlyList<string> Plain = new[] { Block, Loft, LPlan, UPlan, Slab, Deco, Round, Curtain, Twin };
+        public static readonly IReadOnlyList<string> Plain = new[] { Block, Loft, LPlan, UPlan, Slab, Deco, Round, Curtain, Twin, Shed };
         public static readonly IReadOnlyList<string> Landmarks = new[] { Supertall, Needle, Clock };
     }
 
@@ -23,7 +23,8 @@ namespace Wreckabulary.Rules.Surroundings
 
     sealed class CourseSkylineSpec
     {
-        public const float MinStorey = 2.5f, MinHeight = 8f, MaxHeight = 300f;
+        public const float MinStorey = 2.5f, MinHeight = 8f, MaxHeight = 400f;
+        public const int MostSupertalls = 4;
 
         public float Cell, Jitter, Gap, Plaza, CardGap, Inset, DetailReach;
         public (float min, float max) Storey, Plinth;
@@ -32,10 +33,13 @@ namespace Wreckabulary.Rules.Surroundings
         public readonly Dictionary<string, CourseFacadeSpec> Facades = new Dictionary<string, CourseFacadeSpec>(StringComparer.Ordinal);
         public readonly List<CourseTypeSpec> Types = new List<CourseTypeSpec>();
         public CourseLandmarkHeights Supertall, Needle, Clock;
-        public float NeedleChance, CraneChance;
+        public float NeedleChance, CraneChance, SupertallApart, Proportion;
+        public int SupertallCount;
+        public CourseCityStreetSpec Streets;
+        public readonly List<CourseDistrictSpec> Districts = new List<CourseDistrictSpec>();
         public List<string> SupertallFacades, ClockFacades, NeedleFacades;
         public List<uint> Plant, Caps, Roofs, Awnings, Signs, Crowns, Bold, ShopGlass;
-        public uint Pavement, Tank, Crane, Face, Hands, Metal, Mast, HazeTint;
+        public uint Pavement, Tank, Crane, Face, Hands, Metal, Mast, HazeTint, Stack;
         public float HazeFrom, HazeTo, HazeMost, ShopLit;
         public List<string> ThinCards;
         public float KeepDowntown, KeepRing;
@@ -62,6 +66,9 @@ namespace Wreckabulary.Rules.Surroundings
                 Clock = CourseLandmarkHeights.Read(At(marks, "clock"), (44f, 58f)),
                 NeedleChance = Fraction(At(At(marks, "needle"), "chance"), .75f),
                 CraneChance = Fraction(At(At(marks, "crane"), "chance"), .1f),
+                SupertallCount = At(At(marks, "supertall"), "count").Int(1),
+                SupertallApart = AtLeast(At(At(marks, "supertall"), "apart"), 60f, 0f),
+                Proportion = AtLeast(At(n, "proportion"), 10f, 3f),
                 SupertallFacades = Names(At(At(marks, "supertall"), "facades"), false),
                 ClockFacades = Names(At(At(marks, "clock"), "facades"), false),
                 NeedleFacades = Names(At(At(marks, "needle"), "facades"), false),
@@ -78,6 +85,7 @@ namespace Wreckabulary.Rules.Surroundings
                 Mast = Tint(At(At(marks, "needle"), "mast"), 0xB8433A),
                 Pavement = Tint(At(n, "pavement"), 0xCFC9BD),
                 Tank = Tint(At(n, "tank"), 0x6E5A48),
+                Stack = Tint(At(n, "stack"), 0x8A5A4A),
                 Crane = Tint(At(At(marks, "crane"), "tint"), 0xD9A23A),
                 Face = Tint(At(At(marks, "clock"), "face"), 0xF1EDE2),
                 Hands = Tint(At(At(marks, "clock"), "hands"), 0x2E2E2E),
@@ -89,6 +97,7 @@ namespace Wreckabulary.Rules.Surroundings
                 FarStoreysPerBand = Math.Max(1, At(n, "farStoreysPerBand").Int(2)),
             };
             if (spec.HazeTo <= spec.HazeFrom) throw At(haze, "to").Error("must be beyond from");
+            if (spec.SupertallCount < 1 || spec.SupertallCount > MostSupertalls) throw At(At(marks, "supertall"), "count").Error($"must be between 1 and {MostSupertalls}");
             if (spec.Plant.Count == 0) spec.Plant.Add(0x9A9C9E);
             if (spec.Roofs.Count == 0) spec.Roofs.Add(0x4E5257);
             if (spec.Caps.Count == 0) spec.Caps.AddRange(spec.Roofs);
@@ -113,23 +122,37 @@ namespace Wreckabulary.Rules.Surroundings
                 if (!spec.Facades.ContainsKey(id)) throw marks.Error($"names the facade \"{id}\", which is not in facades");
             float widest = Math.Max(spec.Downtown.Band.Width.max, spec.Ring.Width.max);
             if (widest > spec.LotLimit) throw At(n, "cell").Error($"leaves {spec.LotLimit:0.##} m for a building, less than the widest footprint {widest} m");
+            spec.Streets = CourseCityStreetSpec.Read(At(n, "streets"), spec.Gap);
+            var districts = At(n, "districts");
+            if (!districts.IsNull)
+                foreach (string key in districts.Keys.OrderBy(k => k, StringComparer.Ordinal))
+                    spec.Districts.Add(CourseDistrictSpec.Read(key, districts[key], spec.Types));
+            if (spec.Districts.Count == 0) spec.Districts.Add(CourseDistrictSpec.Plain());
             return spec;
         }
 
-        public CourseFacadeSpec Facade(IReadOnlyList<string> ids, double pick, double downtown = 0)
+        public CourseFacadeSpec Facade(IReadOnlyList<string> ids, double pick, double downtown = 0, CourseDistrictSpec district = null)
         {
             var list = (ids.Count > 0 ? ids : Facades.Keys.ToList()).Select(id => Facades[id]).ToList();
-            double total = list.Sum(f => f.WeightAt(downtown));
+            double Weight(CourseFacadeSpec f) => f.WeightAt(downtown) * (district?.KindScale(f.Kind) ?? 1);
+            double total = list.Sum(Weight);
             if (total <= 0) return list[Math.Min(list.Count - 1, (int)(pick * list.Count))];
             double at = pick * total;
             foreach (var facade in list)
             {
-                double w = facade.WeightAt(downtown);
+                double w = Weight(facade);
                 if (w <= 0) continue;
                 at -= w;
                 if (at < 0) return facade;
             }
-            return list.Last(f => f.WeightAt(downtown) > 0);
+            return list.Last(f => Weight(f) > 0);
+        }
+
+        public CourseDistrictSpec District(string courseId, double pick)
+        {
+            foreach (var district in Districts)
+                if (district.Match.Any(prefix => (courseId ?? "").StartsWith(prefix, StringComparison.Ordinal))) return district;
+            return Districts[Math.Min(Districts.Count - 1, (int)(pick * Districts.Count))];
         }
 
         static List<uint> Tints(JsonNode node) => node.IsNull ? new List<uint>() : node.Items.Select(SurroundingsPlan.Tint).ToList();
@@ -249,5 +272,87 @@ namespace Wreckabulary.Rules.Surroundings
         }
 
         public float WeightAt(double downtown) => (float)(Ring + (Downtown - Ring) * downtown);
+    }
+
+    sealed class CourseDistrictSpec
+    {
+        public string Id;
+        public List<string> Match;
+        public readonly Dictionary<string, (float ring, float downtown)> Types = new Dictionary<string, (float, float)>(StringComparer.Ordinal);
+        public readonly Dictionary<string, float> Kinds = new Dictionary<string, float>(StringComparer.Ordinal);
+        public float RingHeight = 1, DowntownHeight = 1, Parks, Yards, Chimneys, Cranes = 1;
+
+        public static CourseDistrictSpec Plain() => new CourseDistrictSpec { Id = "plain", Match = new List<string>() };
+
+        public static CourseDistrictSpec Read(string id, JsonNode n, IReadOnlyList<CourseTypeSpec> types)
+        {
+            var spec = new CourseDistrictSpec
+            {
+                Id = id, Match = Names(At(n, "match"), false),
+                RingHeight = AtLeast(At(n, "ringHeight"), 1f, .3f), DowntownHeight = AtLeast(At(n, "downtownHeight"), 1f, .3f),
+                Parks = Fraction(At(n, "parks"), 0f), Yards = Fraction(At(n, "yards"), 0f), Chimneys = Fraction(At(n, "chimneys"), 0f),
+                Cranes = AtLeast(At(n, "cranes"), 1f, 0f),
+            };
+            if (spec.Parks + spec.Yards > 1f) throw At(n, "yards").Error("parks and yards together must stay at or below 1");
+            var kinds = At(n, "kinds");
+            if (!kinds.IsNull)
+                foreach (string kind in kinds.Keys.OrderBy(k => k, StringComparer.Ordinal))
+                {
+                    if (!CourseSkylineKinds.All.Contains(kind)) throw kinds.Error($"has an unknown kind \"{kind}\"");
+                    spec.Kinds[kind] = AtLeast(kinds[kind], 1f, 0f);
+                }
+            var weights = At(n, "types");
+            if (!weights.IsNull)
+                foreach (string type in weights.Keys.OrderBy(k => k, StringComparer.Ordinal))
+                {
+                    if (!types.Any(t => t.Id == type)) throw weights.Error($"names the type \"{type}\", which is not in types");
+                    spec.Types[type] = (AtLeast(At(weights[type], "ring"), 0f, 0f), AtLeast(At(weights[type], "downtown"), 0f, 0f));
+                }
+            if (types.Sum(t => spec.WeightOf(t, 0)) <= 0 || types.Sum(t => spec.WeightOf(t, 1)) <= 0) throw n.Error("leaves no type with a ring and a downtown weight above 0");
+            return spec;
+        }
+
+        public float KindScale(string kind) => Kinds.TryGetValue(kind, out float scale) ? scale : 1f;
+
+        public float WeightOf(CourseTypeSpec type, double downtown)
+        {
+            if (!Types.TryGetValue(type.Id, out var w)) return type.WeightAt(downtown);
+            return (float)(w.ring + (w.downtown - w.ring) * downtown);
+        }
+    }
+
+    sealed class CourseCityStreetSpec
+    {
+        public float Road, Walk, Reach, LowReach, TreeEvery, LampEvery, CarChance, StopChance, LowTrees, Kerb;
+        public uint RoadTint, PavementTint, Line, Crossing, Grass, Path, Trunk, Lamp, Shelter, Fence, Wall, Yard, Gantry;
+        public List<uint> Crowns, Cars, Containers;
+
+        public static CourseCityStreetSpec Read(JsonNode n, float gap)
+        {
+            var spec = new CourseCityStreetSpec
+            {
+                Road = AtLeast(At(n, "road"), 7f, 4f), Walk = AtLeast(At(n, "walk"), 2f, .8f), Kerb = AtLeast(At(n, "kerb"), .16f, .05f),
+                Reach = AtLeast(At(n, "reach"), 160f, 0f), LowReach = AtLeast(At(n, "lowReach"), 110f, 0f),
+                TreeEvery = AtLeast(At(n, "treeEvery"), 12f, 4f), LampEvery = AtLeast(At(n, "lampEvery"), 24f, 6f),
+                CarChance = Fraction(At(n, "carChance"), .5f), StopChance = Fraction(At(n, "stopChance"), .12f), LowTrees = Fraction(At(n, "lowTrees"), .5f),
+                RoadTint = Tint(At(n, "roadTint"), 0x5B5F64), PavementTint = Tint(At(n, "pavementTint"), 0xBDB7AC), Line = Tint(At(n, "line"), 0xE8E4D8),
+                Crossing = Tint(At(n, "crossing"), 0xECE8DE), Grass = Tint(At(n, "grass"), 0x7FA05A), Path = Tint(At(n, "path"), 0xCFC4AE),
+                Trunk = Tint(At(n, "trunk"), 0x6B5440), Lamp = Tint(At(n, "lamp"), 0x3E4246), Shelter = Tint(At(n, "shelter"), 0x4E5A62),
+                Fence = Tint(At(n, "fence"), 0x3A4A3E), Wall = Tint(At(n, "wall"), 0xB0A898), Yard = Tint(At(n, "yard"), 0x9A968E), Gantry = Tint(At(n, "gantry"), 0xD9A23A),
+                Crowns = Tints(At(n, "crowns"), 0x5E8A4A), Cars = Tints(At(n, "cars"), 0x8A8F94), Containers = Tints(At(n, "containers"), 0x7A7F84),
+            };
+            if (spec.Road + 2 * spec.Walk > gap + 1e-4f) throw At(n, "road").Error($"and two pavements need {spec.Road + 2 * spec.Walk} m, more than the {gap} m gap between lots");
+            if (spec.LowReach > spec.Reach) throw At(n, "lowReach").Error("must be at most reach");
+            return spec;
+        }
+
+        static uint Tint(JsonNode node, uint fallback) => SurroundingsPlan.OptionalTint(node) ?? fallback;
+
+        static List<uint> Tints(JsonNode node, uint fallback)
+        {
+            var list = node.IsNull ? new List<uint>() : node.Items.Select(SurroundingsPlan.Tint).ToList();
+            if (list.Count == 0) list.Add(fallback);
+            return list;
+        }
     }
 }

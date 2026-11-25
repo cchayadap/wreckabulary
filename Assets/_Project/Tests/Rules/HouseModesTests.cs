@@ -24,7 +24,7 @@ namespace Wreckabulary.Rules.Tests
 
         [TestCase("Dibs", "Last One Standing"), TestCase("Duos", "Duos"), TestCase("MovingOut", "Pack the Van"), TestCase("MovingDay", "Furnish the House")]
         [TestCase("Escape", "Escape the House"), TestCase("Tutorial", "Tutorial"), TestCase("Deathmatch", "Free-for-All"), TestCase("War", "Team Battle")]
-        [TestCase("ShoppingList", "Spell the List"), TestCase("RiddleRush", "Riddles")]
+        [TestCase("ShoppingList", "Spell the List"), TestCase("RiddleRush", "Riddles"), TestCase("BossFight", "Boss Fight")]
         public void PlayerFacingNamesComeFromOnePlace(string id, string name) => Assert.AreEqual(name, HouseModes.Name(id));
 
         [Test]
@@ -32,7 +32,7 @@ namespace Wreckabulary.Rules.Tests
         {
             Assert.AreEqual(new[] { "Dibs", "Duos", "Deathmatch", "War" }, HouseModes.InFamily(HouseModeFamily.Classic).Select(m => m.Id).ToArray());
             Assert.AreEqual(new[] { "MovingOut", "MovingDay", "Escape" }, HouseModes.InFamily(HouseModeFamily.Coop).Select(m => m.Id).ToArray());
-            Assert.AreEqual(new[] { "ShoppingList", "RiddleRush" }, HouseModes.InFamily(HouseModeFamily.Arcade).Select(m => m.Id).ToArray());
+            Assert.AreEqual(new[] { "ShoppingList", "RiddleRush", "BossFight" }, HouseModes.InFamily(HouseModeFamily.Arcade).Select(m => m.Id).ToArray());
             Assert.AreEqual(new[] { "Tutorial" }, HouseModes.InFamily(HouseModeFamily.Training).Select(m => m.Id).ToArray());
             Assert.AreEqual(new[] { "Classic", "Co-op", "Arcade", "Training" }, HouseModes.Families.Select(HouseModes.FamilyName).ToArray());
             Assert.AreEqual(Enum.GetValues(typeof(HouseModeFamily)).Cast<HouseModeFamily>().ToArray(), HouseModes.Families.ToArray());
@@ -43,7 +43,7 @@ namespace Wreckabulary.Rules.Tests
         {
             Assert.AreEqual(new[] { "Dibs", "Duos", "Deathmatch", "War" }, HouseModes.ModesIn(HouseModeFamily.Classic));
             Assert.AreEqual(new[] { "MovingOut", "MovingDay", "Escape" }, HouseModes.ModesIn(HouseModeFamily.Coop));
-            Assert.AreEqual(new[] { "ShoppingList", "RiddleRush", "TimeRun" }, HouseModes.ModesIn(HouseModeFamily.Arcade));
+            Assert.AreEqual(new[] { "ShoppingList", "RiddleRush", "BossFight", "TimeRun" }, HouseModes.ModesIn(HouseModeFamily.Arcade));
             Assert.AreEqual(new[] { "Tutorial", "Freestyle" }, HouseModes.ModesIn(HouseModeFamily.Training));
             var grouped = HouseModes.Families.SelectMany(HouseModes.ModesIn).ToArray();
             Assert.AreEqual(grouped.Length, grouped.Distinct().Count(), "every mode sits in exactly one group");
@@ -81,6 +81,22 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(4, HouseModes.BotSeats("Hub"), "Unknown modes keep the old four-seat fill.");
             Assert.IsTrue(HouseModes.Rounds("Dibs") && HouseModes.Rounds("Duos"));
             Assert.IsFalse(HouseModes.Rounds("Deathmatch") || HouseModes.Rounds("War") || HouseModes.Rounds("Escape"));
+        }
+
+        [Test]
+        public void BossFightIsOneHumanWithoutBotsRoundsOrTeams()
+        {
+            var boss = HouseModes.Find(HouseModes.BossFight);
+            Assert.AreEqual(1, boss.MaxSeats);
+            Assert.AreEqual(1, boss.MinSeats);
+            CollectionAssert.AreEqual(new[] { "pinwheel" }, boss.Maps, "Boss Fight is locked to Pinwheel House");
+            Assert.AreEqual(BossFightTuning.Map, boss.Maps[0]);
+            foreach (var mode in HouseModes.All)
+                if (mode.Id != HouseModes.BossFight) CollectionAssert.IsEmpty(mode.Maps, mode.Id);
+            Assert.AreEqual(0, HouseModes.BotSeats(HouseModes.BossFight));
+            Assert.IsFalse(boss.Coop || boss.Rounds || boss.Teams);
+            Assert.AreEqual(HouseModeFamily.Arcade, boss.Family);
+            Assert.IsFalse(HomeDesigner.Playable(HouseModes.BossFight), "Boss Fight clears the furniture, so a built home has nothing to offer");
         }
 
         [Test]

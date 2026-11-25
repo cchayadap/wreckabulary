@@ -101,20 +101,54 @@ namespace Wreckabulary
     {
         public const float PictureAspect = 16f / 9f, Inset = 8, CaptionHeight = 40, PreferredWidth = 384, ShortestCard = 140, ViewportMargin = 28;
         public float MinimumWidth = 264;
-        public int MaximumColumns = 3;
+        public int MaximumColumns = 3, Basis;
         GridLayoutGroup grid;
         bool fitting;
         Vector2 viewportSize;
 
         public static float HeightFor(float width) => Mathf.Max(0f, width - Inset * 2) / PictureAspect + CaptionHeight + Inset;
 
-        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight)
+        public static float WidthFor(float height) => Mathf.Max(0f, height - CaptionHeight - Inset) * PictureAspect + Inset * 2;
+
+        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight) =>
+            Layout(available, spacing, minimumWidth, maximumColumns, viewportHeight, 0);
+
+        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight, int count) =>
+            Layout(available, spacing, minimumWidth, maximumColumns, viewportHeight, count, 0);
+
+        public static (int columns, Vector2 cell) Layout(float available, float spacing, float minimumWidth, int maximumColumns, float viewportHeight, int count, int basis)
         {
-            int columns = Mathf.Clamp(Mathf.FloorToInt((available + spacing) / (Mathf.Min(PreferredWidth, minimumWidth) + spacing)), 1, Mathf.Max(1, maximumColumns));
+            int fit = Mathf.Clamp(Mathf.FloorToInt((available + spacing) / (Mathf.Min(PreferredWidth, minimumWidth) + spacing)), 1, Mathf.Max(1, maximumColumns));
+            int shape = basis > 0 ? basis : count;
+            int columns = shape > 0 ? Balanced(shape, fit) : fit;
             float width = Mathf.Max(1f, Mathf.Min(PreferredWidth, (available - (columns - 1) * spacing) / columns));
             float height = HeightFor(width);
-            if (viewportHeight > 0) height = Mathf.Min(height, Mathf.Max(ShortestCard, viewportHeight - ViewportMargin));
+            if (viewportHeight > 0 && height > viewportHeight - ViewportMargin)
+            {
+                height = Mathf.Max(ShortestCard, viewportHeight - ViewportMargin);
+                width = Mathf.Max(1f, Mathf.Min(width, WidthFor(height)));
+            }
+            if (count > 0) columns = Mathf.Min(columns, count);
             return (columns, new Vector2(width, height));
+        }
+
+        public static int Balanced(int count, int fit)
+        {
+            fit = Mathf.Max(1, fit);
+            int rows = Mathf.CeilToInt(Mathf.Max(1, count) / (float)fit);
+            return Mathf.Clamp(Mathf.CeilToInt(Mathf.Max(1, count) / (float)rows), 1, fit);
+        }
+
+        public static int Rows(int count, int columns) => Mathf.CeilToInt(Mathf.Max(0, count) / (float)Mathf.Max(1, columns));
+
+        int Cards
+        {
+            get
+            {
+                int count = 0;
+                foreach (Transform child in transform) if (child.gameObject.activeSelf) count++;
+                return count;
+            }
         }
 
         void OnEnable() { grid = GetComponent<GridLayoutGroup>(); Fit(); }
@@ -137,8 +171,9 @@ namespace Wreckabulary
             var nextViewportSize = scroll && scroll.viewport ? scroll.viewport.rect.size : Vector2.zero;
             bool changed = nextViewportSize != viewportSize;
             viewportSize = nextViewportSize;
-            var (columns, cell) = Layout(rect.rect.width, grid.spacing.x, MinimumWidth, MaximumColumns, viewportSize.y);
-            int rows = Mathf.CeilToInt(transform.childCount / (float)columns);
+            int count = Cards;
+            var (columns, cell) = Layout(rect.rect.width, grid.spacing.x, MinimumWidth, MaximumColumns, viewportSize.y, count, Basis);
+            int rows = Mathf.Max(1, Rows(count, columns));
             float height = rows * cell.y + (rows - 1) * grid.spacing.y;
             if (grid.startCorner != GridLayoutGroup.Corner.UpperLeft) { grid.startCorner = GridLayoutGroup.Corner.UpperLeft; changed = true; }
             if (grid.childAlignment != TextAnchor.UpperLeft) { grid.childAlignment = TextAnchor.UpperLeft; changed = true; }
@@ -157,114 +192,51 @@ namespace Wreckabulary
         }
     }
 
-    public sealed class LobbyPlayModeDock : MonoBehaviour
-    {
-        public RectTransform Choices, Goal;
-        public float MaximumWidth = 1160, GoalHeight = 30, GoalGap = 2;
-        bool fitting;
-
-        void LateUpdate() => Fit();
-
-        public void Fit()
-        {
-            if (fitting || !Choices || !(transform.parent is RectTransform parent)) return;
-            fitting = true;
-            try
-            {
-                var row = (RectTransform)transform;
-                var layout = GetComponent<LayoutElement>();
-                float height = Mathf.Max(44, layout ? layout.preferredHeight : row.rect.height);
-                float width = Mathf.Min(MaximumWidth, Mathf.Max(1, parent.rect.width));
-                Place(row, width, 0, height);
-                var families = GetComponentInChildren<LobbyPlayModeFamilies>();
-                if (families) families.Fit();
-                height = Mathf.Max(44, layout ? layout.preferredHeight : row.rect.height);
-                Place(row, width, 0, height);
-                float below = height;
-                if (Goal)
-                {
-                    Place(Goal, width, height + GoalGap, GoalHeight);
-                    below += GoalGap + GoalHeight;
-                }
-                var choicesTop = new Vector2(Choices.offsetMax.x, -below - 12);
-                if (Choices.offsetMax != choicesTop) Choices.offsetMax = choicesTop;
-            }
-            finally { fitting = false; }
-        }
-
-        static void Place(RectTransform rect, float width, float top, float height)
-        {
-            var anchor = new Vector2(.5f, 1);
-            var minimum = new Vector2(-width * .5f, -top - height); var maximum = new Vector2(width * .5f, -top);
-            if (rect.anchorMin != anchor || rect.anchorMax != anchor || rect.offsetMin != minimum || rect.offsetMax != maximum)
-                rect.Place(anchor, anchor, minimum, maximum);
-        }
-    }
-
     public sealed class LobbyPlayModeBoard : MonoBehaviour
     {
         public LobbyPlayModeFamilies Sections;
         public TMP_Text Goal, Access;
-        public float Gap = 36, GoalMinimumWidth = 420, GoalHeight = 30, GoalGap = 2, AccessHeight = 44;
-        float arrangedWidth = -1f;
+        public float GoalHeight = 30, GoalGap = 6, AccessHeight = 44;
+        float arrangedWidth = -1f, arrangedTiles = -1f;
         bool fitting;
 
-        public bool Beside { get; private set; }
+        public bool Beside => false;
 
         void OnEnable() => Fit();
         void OnRectTransformDimensionsChange() => Fit();
         void LateUpdate() => Fit();
 
-        float Available => transform.parent is RectTransform parent ? parent.rect.width : ((RectTransform)transform).rect.width;
-
         public void Fit()
         {
-            float width = Available;
-            if (fitting || !Sections || width <= 0 || Mathf.Approximately(width, arrangedWidth)) return;
+            float width = LobbyPlayColumnFlow.WidthIn(transform);
+            if (fitting || !Sections || width <= 0) return;
+            if (Mathf.Approximately(width, arrangedWidth) && Mathf.Approximately(Sections.Height, arrangedTiles)) return;
             fitting = true;
-            try { Arrange(width); arrangedWidth = width; }
+            try { Arrange(width); arrangedWidth = width; arrangedTiles = Sections.Height; }
             finally { fitting = false; }
         }
 
         void Arrange(float width)
         {
-            float columns = Sections.NaturalWidth;
-            Beside = (Goal || Access) && width - columns - Gap >= GoalMinimumWidth;
             var sections = (RectTransform)Sections.transform;
-            float sectionsWidth = Beside ? columns : width;
-            LobbyPlayModeFamilies.Set(sections, Vector2.zero, new Vector2(sectionsWidth, sections.sizeDelta.y));
+            LobbyPlayModeFamilies.Set(sections, Vector2.zero, new Vector2(width, Mathf.Max(1f, sections.sizeDelta.y)));
             Sections.Fit();
             float height = Sections.Height;
-            LobbyPlayModeFamilies.Set(sections, Vector2.zero, new Vector2(sectionsWidth, height));
-            float besideTop = Sections.CaptionHeight;
-            if (Goal)
-            {
-                height = PlaceLine(Goal, width, columns, height, besideTop, Sections.ButtonHeight, GoalHeight);
-                besideTop += Sections.ButtonHeight;
-            }
-            if (Access) height = PlaceLine(Access, width, columns, height, besideTop, AccessHeight, AccessHeight);
+            LobbyPlayModeFamilies.Set(sections, Vector2.zero, new Vector2(width, height));
+            if (Goal) height = PlaceLine(Goal, width, height, GoalHeight, GoalGap);
+            if (Access) height = PlaceLine(Access, width, height, AccessHeight, 0f);
             if (!TryGetComponent(out LayoutElement element)) element = gameObject.AddComponent<LayoutElement>();
             if (Mathf.Approximately(element.preferredHeight, height)) return;
             element.preferredHeight = element.minHeight = height;
             if (transform.parent is RectTransform parent) LayoutRebuilder.MarkLayoutForRebuild(parent);
         }
 
-        float PlaceLine(TMP_Text line, float width, float columns, float height, float besideTop, float besideHeight, float underHeight)
+        static float PlaceLine(TMP_Text line, float width, float height, float lineHeight, float gap)
         {
-            var alignment = Beside ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.Center;
-            if (line.alignment != alignment) line.alignment = alignment;
-            if (Beside)
-            {
-                LobbyPlayModeFamilies.Set(line.rectTransform, new Vector2(columns + Gap, -besideTop), new Vector2(width - columns - Gap, besideHeight));
-                height = Mathf.Max(height, besideTop + besideHeight);
-            }
-            else
-            {
-                LobbyPlayModeFamilies.Set(line.rectTransform, new Vector2(0, -height - GoalGap), new Vector2(width, underHeight));
-                height += GoalGap + underHeight;
-            }
+            if (line.alignment != TextAlignmentOptions.MidlineLeft) line.alignment = TextAlignmentOptions.MidlineLeft;
+            LobbyPlayModeFamilies.Set(line.rectTransform, new Vector2(0, -height - gap), new Vector2(width, lineHeight));
             if (line.TryGetComponent(out LobbyPlayGoalInfo info)) info.Fit();
-            return height;
+            return height + gap + lineHeight;
         }
     }
 
@@ -296,28 +268,92 @@ namespace Wreckabulary
         }
     }
 
+    public sealed class LobbyPlayTilePlan
+    {
+        public int Rows { get; }
+        public float Width { get; }
+        public float Height { get; }
+        public float BandHeight { get; }
+        public IReadOnlyList<int> Columns { get; }
+        public IReadOnlyList<int> Line { get; }
+        public IReadOnlyList<float> Left { get; }
+        public IReadOnlyList<float> Top { get; }
+
+        public LobbyPlayTilePlan(int rows, float width, float height, float band, int[] columns, int[] line, float[] left, float[] top)
+        {
+            Rows = rows; Width = width; Height = height; BandHeight = band; Columns = columns; Line = line; Left = left; Top = top;
+        }
+
+        public (int column, int row) Cell(int group, int entry) => (entry % Mathf.Max(1, Columns[group]), entry / Mathf.Max(1, Columns[group]));
+
+        public Vector2 Position(int group, int entry)
+        {
+            var (column, row) = Cell(group, entry);
+            return new Vector2(Left[group] + column * (Width + LobbyPlayModeFamilies.Gutter),
+                -(Top[group] + LobbyPlayModeFamilies.Head + row * (Height + LobbyPlayModeFamilies.Gutter)));
+        }
+
+        public float GroupWidth(int group) => Columns[group] * Width + (Columns[group] - 1) * LobbyPlayModeFamilies.Gutter;
+
+        public int RowsOf(int group, int count) => Mathf.CeilToInt(Mathf.Max(1, count) / (float)Mathf.Max(1, Columns[group]));
+
+        public float GroupHeight(int group, int count) =>
+            LobbyPlayModeFamilies.Head + RowsOf(group, count) * Height + Mathf.Max(0, RowsOf(group, count) - 1) * LobbyPlayModeFamilies.Gutter;
+    }
+
     public sealed class LobbyPlayModeFamilies : MonoBehaviour
     {
         public const string Caption = "Family caption";
-        public const float NoteWidth = 200f, ButtonSlack = 12f, ContentPadding = 16f;
-        public const int NoteRows = 2;
-        public float ButtonWidth = 104, ButtonHeight = 52, CaptionHeight = 22;
-        public float Spacing = 6, StackSpacing = 0, FamilySpacing = 28, LineSpacing = 8, OneLineScale = .8f;
-        public bool Stacked;
-        readonly Dictionary<Transform, float> natural = new Dictionary<Transform, float>();
-        float arrangedWidth = -1f;
+        public const float Gutter = 12f, GroupGap = 28f, CaptionHeight = 22f, CaptionGap = 4f, Head = CaptionHeight + CaptionGap;
+        public const float MinimumTile = 120f, MaximumTile = 200f, TileHeight = 112f, LineGap = 16f;
+        public float MinimumWidth = MinimumTile;
+        float arrangedWidth = -1f, arrangedMinimum = -1f;
         int arrangedCount = -1;
         bool fitting;
 
         public float Height { get; private set; }
 
-        public float NaturalWidth
+        public LobbyPlayTilePlan Plan { get; private set; }
+
+        public static LobbyPlayTilePlan Layout(IReadOnlyList<int> counts, float width) => Layout(counts, width, MinimumTile);
+
+        public static LobbyPlayTilePlan Layout(IReadOnlyList<int> counts, float width, float minimum)
         {
-            get
+            minimum = Mathf.Max(MinimumTile, minimum);
+            float widest = Mathf.Max(MaximumTile, minimum);
+            int groups = counts.Count;
+            if (groups == 0 || width <= 0) return new LobbyPlayTilePlan(0, 0f, 0f, 0f, new int[groups], new int[groups], new float[groups], new float[groups]);
+            int most = Mathf.Max(1, counts.Max());
+            for (int rows = 1; rows <= most; rows++)
             {
-                var families = Families();
-                return families.Sum(Natural) + FamilySpacing * Mathf.Max(0, families.Count - 1);
+                var columns = counts.Select(count => Mathf.Max(1, Mathf.CeilToInt(Mathf.Max(1, count) / (float)rows))).ToArray();
+                float tile = TileWidth(width, columns.Sum(), groups);
+                if (tile >= minimum) return Place(counts, columns, new int[groups], rows, Mathf.Floor(Mathf.Min(widest, tile)));
             }
+            var single = counts.Select(_ => 1).ToArray();
+            int perLine = Mathf.Clamp(Mathf.FloorToInt((width + GroupGap) / (minimum + GroupGap)), 1, groups);
+            var lines = Enumerable.Range(0, groups).Select(group => group / perLine).ToArray();
+            float narrow = Mathf.Floor(Mathf.Clamp((width - GroupGap * (perLine - 1)) / perLine, 1f, widest));
+            return Place(counts, single, lines, most, narrow);
+        }
+
+        static float TileWidth(float width, int columns, int groups) =>
+            (width - Gutter * (columns - groups) - GroupGap * (groups - 1)) / Mathf.Max(1, columns);
+
+        static LobbyPlayTilePlan Place(IReadOnlyList<int> counts, int[] columns, int[] lines, int rows, float tile)
+        {
+            int groups = counts.Count;
+            var left = new float[groups]; var top = new float[groups];
+            float y = 0f, x = 0f, tallest = 0f;
+            for (int group = 0; group < groups; group++)
+            {
+                if (group > 0 && lines[group] != lines[group - 1]) { y += tallest + LineGap; x = 0f; tallest = 0f; }
+                left[group] = x; top[group] = y;
+                int used = Mathf.CeilToInt(Mathf.Max(1, counts[group]) / (float)columns[group]);
+                tallest = Mathf.Max(tallest, Head + used * TileHeight + (used - 1) * Gutter);
+                x += columns[group] * tile + (columns[group] - 1) * Gutter + GroupGap;
+            }
+            return new LobbyPlayTilePlan(rows, tile, TileHeight, y + tallest, columns, lines, left, top);
         }
 
         void OnEnable() => Fit();
@@ -328,184 +364,40 @@ namespace Wreckabulary
         {
             float width = ((RectTransform)transform).rect.width;
             if (fitting || width <= 0) return;
-            int count = ActiveFamilies();
-            if (count == arrangedCount && Mathf.Approximately(width, arrangedWidth)) return;
+            int count = Families().Sum(family => Tiles(family).Count);
+            if (count == arrangedCount && Mathf.Approximately(width, arrangedWidth) && Mathf.Approximately(MinimumWidth, arrangedMinimum)) return;
             fitting = true;
             try
             {
                 Arrange(width);
-                arrangedWidth = width; arrangedCount = count;
+                arrangedWidth = width; arrangedCount = count; arrangedMinimum = MinimumWidth;
             }
             finally { fitting = false; }
-        }
-
-        int ActiveFamilies()
-        {
-            int count = 0;
-            foreach (Transform child in transform)
-                if (child.gameObject.activeSelf) count++;
-            return count;
         }
 
         List<RectTransform> Families() =>
             transform.Cast<Transform>().Where(child => child.gameObject.activeSelf).Select(child => (RectTransform)child).ToList();
 
+        static List<RectTransform> Tiles(Transform family) =>
+            family.Cast<Transform>().Where(child => child.name != Caption && child.gameObject.activeSelf).Select(child => (RectTransform)child).ToList();
+
         void Arrange(float width)
         {
             var families = Families();
-            if (families.Count == 0) return;
-            float y = 0f;
-            int start = 0;
-            foreach (int size in Lines(families.Select(Natural).ToList(), FamilySpacing, width, OneLineScale, families.Select(NaturalHeight).ToList()))
+            var tiles = families.Select(Tiles).ToList();
+            Plan = Layout(tiles.Select(list => list.Count).ToArray(), width, MinimumWidth);
+            for (int group = 0; group < families.Count; group++)
             {
-                y += ArrangeLine(families.GetRange(start, size), width, y) + LineSpacing;
-                start += size;
+                var origin = new Vector2(Plan.Left[group], -Plan.Top[group]);
+                float groupWidth = Plan.GroupWidth(group);
+                Set(families[group], origin, new Vector2(groupWidth, Plan.GroupHeight(group, tiles[group].Count)));
+                if (families[group].Find(Caption) is RectTransform caption) Set(caption, Vector2.zero, new Vector2(groupWidth, CaptionHeight));
+                for (int entry = 0; entry < tiles[group].Count; entry++)
+                    Set(tiles[group][entry], Plan.Position(group, entry) - origin, new Vector2(Plan.Width, Plan.Height));
             }
-            Height = y - LineSpacing;
+            Height = Plan.BandHeight;
             if (!TryGetComponent(out LayoutElement element)) element = gameObject.AddComponent<LayoutElement>();
             if (!Mathf.Approximately(element.preferredHeight, Height)) { element.preferredHeight = Height; element.minHeight = Height; }
-        }
-
-        float ArrangeLine(List<RectTransform> line, float width, float y)
-        {
-            float sum = line.Sum(Natural), gaps = FamilySpacing * (line.Count - 1);
-            float scale = Mathf.Min(1f, Mathf.Max(0f, width - gaps) / Mathf.Max(1f, sum));
-            float x = Mathf.Max(0f, (width - sum * scale - gaps) * .5f), tallest = 0f;
-            foreach (var family in line)
-            {
-                float familyWidth = Natural(family) * scale;
-                float familyHeight = Stacked ? Stack(family, familyWidth) : Row(family, familyWidth, scale);
-                Set(family, new Vector2(x, -y), new Vector2(familyWidth, familyHeight));
-                tallest = Mathf.Max(tallest, familyHeight);
-                x += familyWidth + FamilySpacing;
-            }
-            return tallest;
-        }
-
-        float Row(RectTransform family, float familyWidth, float scale)
-        {
-            float at = 0f;
-            foreach (Transform child in family)
-            {
-                var item = (RectTransform)child;
-                if (child.name == Caption) { Set(item, Vector2.zero, new Vector2(familyWidth, CaptionHeight)); continue; }
-                float itemWidth = Choice(item) * scale;
-                Set(item, new Vector2(at, -CaptionHeight), new Vector2(itemWidth, ButtonHeight));
-                at += itemWidth + Spacing * scale;
-            }
-            return CaptionHeight + ButtonHeight;
-        }
-
-        float Stack(RectTransform family, float familyWidth)
-        {
-            float at = CaptionHeight;
-            foreach (Transform child in family)
-            {
-                var item = (RectTransform)child;
-                if (child.name == Caption) { Set(item, Vector2.zero, new Vector2(familyWidth, CaptionHeight)); continue; }
-                float itemHeight = ItemHeight(item);
-                Set(item, new Vector2(0, -at), new Vector2(familyWidth, itemHeight));
-                at += itemHeight + StackSpacing;
-            }
-            return Mathf.Max(CaptionHeight, at - StackSpacing);
-        }
-
-        float ItemHeight(Transform item)
-        {
-            int rows = item.GetComponent<Selectable>() ? 1 : NoteRows;
-            return rows * ButtonHeight + (rows - 1) * StackSpacing;
-        }
-
-        float NaturalHeight(Transform family)
-        {
-            if (!Stacked) return CaptionHeight + ButtonHeight;
-            float at = CaptionHeight;
-            foreach (Transform child in family)
-                if (child.name != Caption) at += ItemHeight(child) + StackSpacing;
-            return Mathf.Max(CaptionHeight, at - StackSpacing);
-        }
-
-        public static int[] Lines(IReadOnlyList<float> widths, float spacing, float width, float minimumScale, IReadOnlyList<float> heights = null)
-        {
-            int count = widths.Count;
-            if (count == 0) return new int[0];
-            int[] best = null;
-            float widestBest = float.MaxValue, blockBest = float.MaxValue;
-            for (int mask = 0; mask < 1 << (count - 1); mask++)
-            {
-                var sizes = new List<int>();
-                float line = widths[0], widest = 0f, tallest = HeightAt(heights, 0), block = 0f;
-                int members = 1;
-                bool fits = true;
-                for (int i = 1; i <= count && fits; i++)
-                {
-                    if (i < count && (mask & (1 << (i - 1))) == 0)
-                    { line += widths[i]; tallest = Mathf.Max(tallest, HeightAt(heights, i)); members++; continue; }
-                    float gaps = spacing * (members - 1);
-                    fits = members == 1 || line * minimumScale + gaps <= width;
-                    widest = Mathf.Max(widest, line + gaps);
-                    block += tallest;
-                    sizes.Add(members);
-                    if (i < count) { line = widths[i]; tallest = HeightAt(heights, i); members = 1; }
-                }
-                if (!fits) continue;
-                if (best == null || Better(sizes.Count, block, widest, best.Length, blockBest, widestBest))
-                { best = sizes.ToArray(); widestBest = widest; blockBest = block; }
-            }
-            return best;
-        }
-
-        static float HeightAt(IReadOnlyList<float> heights, int index) => heights != null && index < heights.Count ? heights[index] : 0f;
-
-        static bool Better(int lines, float block, float widest, int bestLines, float bestBlock, float bestWidest)
-        {
-            if (lines != bestLines) return lines < bestLines;
-            if (!Mathf.Approximately(block, bestBlock)) return block < bestBlock;
-            return widest < bestWidest;
-        }
-
-        float Natural(Transform family)
-        {
-            if (natural.TryGetValue(family, out float known)) return known;
-            float choices = 0f, widest = 0f, caption = 0f; int count = 0;
-            foreach (Transform child in family)
-            {
-                if (child.name == Caption) { caption = Preferred(child) + 2f; continue; }
-                float choice = Choice((RectTransform)child);
-                choices += choice; widest = Mathf.Max(widest, choice); count++;
-            }
-            float result = Mathf.Max(caption, Stacked ? widest : choices + Spacing * Mathf.Max(0, count - 1));
-            natural[family] = result;
-            return result;
-        }
-
-        float Choice(RectTransform item)
-        {
-            if (natural.TryGetValue(item, out float known)) return known;
-            float result = item.GetComponent<Selectable>() ? Mathf.Max(ButtonWidth, Content(item) + ButtonSlack) : Stacked ? NoteWidth : Preferred(item) + 4f;
-            natural[item] = result;
-            return result;
-        }
-
-        static float Content(Transform item)
-        {
-            var row = item.GetComponentInChildren<HorizontalLayoutGroup>(true);
-            if (!row) return Preferred(item) + ContentPadding;
-            float width = row.padding.horizontal;
-            int parts = 0;
-            foreach (Transform child in row.transform)
-            {
-                if (!child.gameObject.activeSelf || child.TryGetComponent(out LayoutElement element) && element.ignoreLayout) continue;
-                width += LayoutUtility.GetPreferredWidth((RectTransform)child);
-                parts++;
-            }
-            return width + row.spacing * Mathf.Max(0, parts - 1);
-        }
-
-        static float Preferred(Transform item)
-        {
-            var text = item.GetComponentInChildren<TMP_Text>(true);
-            return text ? text.GetPreferredValues(text.text).x : 0f;
         }
 
         internal static void Set(RectTransform rect, Vector2 position, Vector2 size)

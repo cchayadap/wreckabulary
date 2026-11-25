@@ -27,6 +27,7 @@ namespace Wreckabulary
         public WordEntry SelectedWord => Selected >= 0 && Selected < Ready.Count ? Ready[Selected] : null;
         public event Action<string> Summoned;
         public IReadOnlyList<WordEntry> WordsOverride { get; set; }
+        public IReadOnlyCollection<string> SignalWords { get; set; }
         public IReadOnlyCollection<string> ChecklistPlacementWords { get; set; }
         public bool Typed { get; set; }
         public string WantedWord => HouseModeDirectors.WantedWord(controller);
@@ -118,7 +119,7 @@ namespace Wreckabulary
                     craftFree = false;
                     inventory.ReservedCount = 0;
                     controller.MoveScale = 1f;
-                    if (SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
+                    if (IsSignalWord(entry.word) || SummonEffects.Apply(controller, entry)) Summoned?.Invoke(entry.word);
                     else Refund(entry.word, free);
                 }
                 return;
@@ -189,10 +190,27 @@ namespace Wreckabulary
             return false;
         }
 
+        public bool IsSignalWord(string word)
+        {
+            if (SignalWords == null || string.IsNullOrEmpty(word)) return false;
+            string id = word.ToUpperInvariant();
+            foreach (var signal in SignalWords) if (signal == id) return true;
+            return false;
+        }
+
+        bool Applies(WordEntry entry) => IsSignalWord(entry.word) || SummonEffects.CanApply(controller, entry);
+
+        public bool CanCraft(WordEntry entry)
+        {
+            entry = ResolveRecipe(entry);
+            if (entry == null || IsCrafting || !controller.CanAct || controller.IsDodging || controller.Combat.IsChanneling) return false;
+            return Applies(entry);
+        }
+
         public bool BeginCraft(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
+            if (IsCrafting || entry == null || !Applies(entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
             Close();
@@ -232,10 +250,10 @@ namespace Wreckabulary
         public bool Summon(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            if (IsCrafting || entry == null || !SummonEffects.CanApply(controller, entry)) return false;
+            if (IsCrafting || entry == null || !Applies(entry)) return false;
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
-            if (!SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
+            if (!IsSignalWord(entry.word) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }
             Summoned?.Invoke(entry.word);
             return true;
         }

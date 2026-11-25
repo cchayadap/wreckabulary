@@ -61,9 +61,10 @@ namespace Wreckabulary.Qa
             }
             yield return QaStep.Named("solo_selection").Timeout(30)
                 .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning).Do(Setup);
-            yield return QaStep.Named("time_run").Timeout(180).Do(value => Guard(value, Run(value, "TimeRun")));
+            yield return QaStep.Named("time_run").Timeout(180).Do(value => Guard(value, Run(value, "TimeRun", WordboundSoloEntry.LostAddressMap, true)));
             yield return QaStep.Named("freestyle").Timeout(180).Do(value => Guard(value, Run(value, "Freestyle")));
             yield return QaStep.Named("parcel_hall").Timeout(180).Do(value => Guard(value, Run(value, "Freestyle", WordboundSoloEntry.ParcelHallMap)));
+            yield return QaStep.Named("parcel_depot").Timeout(180).Do(value => Guard(value, Run(value, "Freestyle", WordboundSoloEntry.ParcelServiceMap)));
         }
 
         IEnumerator Setup(QaContext context)
@@ -86,33 +87,43 @@ namespace Wreckabulary.Qa
             foreach (var asset in new Object[] { assets, assets.CameraProfile, assets.VisualProfile, assets.UiTheme, assets.StoryProfile })
                 if (asset) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
             sourceText.Add(data.items, data.items.text); sourceText.Add(data.rules, data.rules.text);
+            parcelSource = assets.ParcelServiceCourse;
+            Require(parcelSource && parcelSource.Items && parcelSource.RuleBook &&
+                parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId,
+                "Parcel Depot QA requires its explicit saved course, item catalogue and rule book.");
+            foreach (var asset in new Object[] { parcelSource, parcelSource.CameraProfile, parcelSource.VisualProfile })
+                if (asset && !sourceMemory.ContainsKey(asset)) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
+            foreach (var text in new[] { parcelSource.Items, parcelSource.RuleBook })
+                if (!sourceText.ContainsKey(text)) sourceText.Add(text, text.text);
+            context.Note("parcel_service_source", new Dictionary<string, object> {
+                ["course_id"] = parcelSource.ReadDocument().Id, ["source_hash"] = parcelSource.SourceHash,
+                ["input_hash"] = parcelSource.InputHash, ["geometry_hash"] = parcelSource.Catalogue().Hash,
+                ["item_hash"] = WordboundIdentity.Sha256(parcelSource.Items.text),
+                ["rule_hash"] = WordboundIdentity.Sha256(parcelSource.RuleBook.text) });
             if (parcelServiceOnly)
-            {
-                parcelSource = assets.ParcelServiceCourse;
-                Require(parcelSource && parcelSource.Items && parcelSource.RuleBook &&
-                    parcelSource.ReadDocument().Id == WordboundSoloEntry.ParcelServiceCourseId,
-                    "Parcel Depot QA requires its explicit saved course, item catalogue and rule book.");
-                foreach (var asset in new Object[] { parcelSource, parcelSource.CameraProfile, parcelSource.VisualProfile })
-                    if (asset && !sourceMemory.ContainsKey(asset)) sourceMemory.Add(asset, JsonUtility.ToJson(asset));
-                foreach (var text in new[] { parcelSource.Items, parcelSource.RuleBook })
-                    if (!sourceText.ContainsKey(text)) sourceText.Add(text, text.text);
-                context.Note("parcel_service_source", new Dictionary<string, object> {
-                    ["course_id"] = parcelSource.ReadDocument().Id, ["source_hash"] = parcelSource.SourceHash,
-                    ["input_hash"] = parcelSource.InputHash, ["geometry_hash"] = parcelSource.Catalogue().Hash,
-                    ["item_hash"] = WordboundIdentity.Sha256(parcelSource.Items.text),
-                    ["rule_hash"] = WordboundIdentity.Sha256(parcelSource.RuleBook.text) });
                 context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: the installed saved Parcel Depot course in Time Run and Freestyle. Exact source/profile memory, Single runner, fresh render frames and borrowed device checks. No physical-input, full-finish, network, bot, team or Workshop acceptance claim.");
-            }
             else
-            context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.");
+                context.Note("scope", "Normal Windows production UI Submit launch and actual local return handler: installed Lost Address in two modes, plus the separate furnished Parcel Hall and the saved Parcel Depot course in Freestyle. No physical-input, full-finish, network, bot or team acceptance claim.");
+            context.Note("course_frame_scope", "Every course also records frame times with its town and skyline on and off. Set " +
+                WordboundCourseFrameQa.LowTierVariable + "=1 to run every course on the Low graphics preset (now " + WordboundCourseFrameQa.LowTierRequested + ").");
             yield return Shot(context, parcelServiceOnly ? "parcel_service_initial_lobby" : "solo_initial_lobby");
             VerifyPreserved(context);
         }
 
-        IEnumerator Run(QaContext context, string mode, string soloMap = WordboundSoloEntry.LostAddressMap)
+        static string Tag(string mode, string soloMap) => (soloMap == WordboundSoloEntry.ParcelServiceMap ? "parcelservice_" :
+            soloMap == WordboundSoloEntry.ParcelHallMap ? "parcelhall_" : "") + mode.ToLowerInvariant();
+
+        IEnumerator Run(QaContext context, string mode, string soloMap = WordboundSoloEntry.LostAddressMap, bool seatStrip = false)
+        {
+            var tier = WordboundCourseFrameQa.LowTier.Begin(context, Tag(mode, soloMap));
+            try { yield return Play(context, mode, soloMap, seatStrip, tier.Forced); }
+            finally { tier.Dispose(); }
+        }
+
+        IEnumerator Play(QaContext context, string mode, string soloMap, bool seatStrip, bool forcedLow)
         {
             bool parcelService = soloMap == WordboundSoloEntry.ParcelServiceMap;
-            string tag = (parcelService ? "parcelservice_" : soloMap == WordboundSoloEntry.ParcelHallMap ? "parcelhall_" : "") + mode.ToLowerInvariant();
+            string tag = Tag(mode, soloMap);
             var menu = LobbyMenu.Instance;
             Require(menu && menu.PartySize == 1, "The single local human must remain available.");
             if (introCaptured) PlayerPrefs.DeleteKey(WordboundMatchHud.IntroSeenKey);
@@ -247,6 +258,8 @@ namespace Wreckabulary.Qa
                 Require(camera.enabled && camera.targetTexture == null && guide.Fault == "", "The assigned game camera or guide is unavailable.");
                 yield return Shot(context, "solo_" + tag + "_world");
                 yield return CityShot(context, world.transform, camera, tag);
+                yield return WordboundCourseFrameQa.FrameTimes(context, tag, world.transform, camera, forcedLow);
+                if (seatStrip) yield return WordboundCourseFrameQa.SeatStrip(context, tag, gameplay, hud, name => Shot(context, name));
                 view.SetMenuOpen(true);
                 yield return context.WaitFrames(3);
                 yield return Shot(context, "solo_" + tag + "_menu");
@@ -398,7 +411,7 @@ namespace Wreckabulary.Qa
             Require(LobbyThemes.Current.Id == originalTheme, "The selected original theme changed.");
             foreach (var pair in sourceMemory) Require(pair.Key && JsonUtility.ToJson(pair.Key) == pair.Value, "An installed launch/content/profile object changed.");
             foreach (var pair in sourceText) Require(pair.Key && pair.Key.text == pair.Value, "Installed item or rule bytes changed.");
-            if (parcelServiceOnly)
+            if (parcelSource)
             {
                 var assets = Resources.Load<WordboundLaunchAssets>(WordboundLaunchAssets.ResourcePath);
                 Require(assets && ReferenceEquals(assets.ParcelServiceCourse, parcelSource), "The installed Parcel Depot assignment changed.");

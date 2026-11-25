@@ -146,7 +146,7 @@ namespace Wreckabulary
                 marker.ring.rectTransform.sizeDelta = Vector2.one * (you ? 5f : 3f);
                 marker.facing.rectTransform.anchoredPosition = new Vector2(0f, size * .5f + (map.full ? 7f : 5f));
                 marker.root.localRotation = Quaternion.Euler(0f, 0f, -Mathf.Atan2(player.Facing.x, player.Facing.z) * Mathf.Rad2Deg);
-                marker.level.rectTransform.rotation = Quaternion.identity;
+                marker.level.rectTransform.rotation = marker.ring.rectTransform.rotation = marker.dot.rectTransform.rotation = Quaternion.identity;
                 if (marker.otherFloor != level)
                 {
                     marker.otherFloor = level;
@@ -346,9 +346,9 @@ namespace Wreckabulary
         MapPlayer MakeMapPlayer(MapView map)
         {
             var root = Rect("Player", map.markerLayer, Vector2.zero, Vector2.zero, Vector2.one * 10f);
-            var ring = Panel("Outline", root, Vector2.one * .5f, Vector2.zero, Vector2.zero, Vector2.one * .5f, Cream, true).GetComponent<Image>();
+            var ring = CreateImage("Outline", root, Vector2.one * .5f, Vector2.zero, Vector2.zero, Cream);
             Stretch(ring.rectTransform);
-            var dot = Panel("Dot", root, Vector2.one * .5f, Vector2.zero, Vector2.zero, Vector2.one * .5f, Cream, true).GetComponent<Image>();
+            var dot = CreateImage("Dot", root, Vector2.one * .5f, Vector2.zero, Vector2.zero, Cream);
             Stretch(dot.rectTransform);
             var facing = CreateImage("Facing", root, Vector2.one * .5f, Vector2.zero, new Vector2(map.full ? 11f : 8f, map.full ? 13f : 9f), Cream);
             facing.sprite = mapPointer;

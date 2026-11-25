@@ -529,9 +529,11 @@ namespace Wreckabulary.Online.Tests
             Assert.IsTrue(commands.aimHeld);
             var legacy = new GamepadBinding(pad);
             var unchanged = default(PlayerCommands); legacy.Read(ref unchanged);
-            Assert.IsTrue(unchanged.attack);
-            Assert.IsFalse(unchanged.attackHeld);
-            Assert.IsFalse(unchanged.aimHeld);
+            Assert.IsTrue(unchanged.attack, "the house pad keeps attack on the west button");
+            Assert.IsTrue(unchanged.attackHeld, "the house pad now reports held attack for the BOW draw");
+            Assert.IsFalse(legacy.HoldingAttackRaisesShield, "the house pad keeps block on its own trigger");
+            Assert.IsFalse(unchanged.aimHeld, "the house pad still has no aim button");
+            Assert.IsFalse(unchanged.blockHeld);
             Read(new GamepadState());
             commands = Read(new GamepadState { leftTrigger = 1, rightTrigger = 1 });
             Assert.IsTrue(commands.blockHeld);

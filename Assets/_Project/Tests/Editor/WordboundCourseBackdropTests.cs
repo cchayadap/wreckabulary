@@ -145,8 +145,11 @@ namespace Wreckabulary.Tests
             var skyline = root.transform.Find(CourseSkylineMesh.RootName);
             Assert.IsNotNull(skyline, "the towers hang under the backdrop root");
             var renderers = skyline.GetComponentsInChildren<MeshRenderer>(true);
-            Assert.AreEqual(layout.Skyline.Renderers, renderers.Length, "one renderer per skyline slot and vertex split");
-            Assert.LessOrEqual(renderers.Length, limit);
+            Assert.AreEqual(layout.Skyline.Renderers + layout.Skyline.StreetRenderers, renderers.Length, "one renderer per vertex split of the towers and of the streets");
+            Assert.LessOrEqual(renderers.Count(r => !r.name.StartsWith(CourseSkyline.StreetPrefix, StringComparison.Ordinal)), limit);
+            Assert.AreEqual(layout.Skyline.StreetRenderers, renderers.Count(r => r.name.StartsWith(CourseSkyline.StreetPrefix, StringComparison.Ordinal)), "the street detail has its own renderers");
+            Assert.LessOrEqual(layout.Skyline.StreetRenderers, layout.Skyline.StreetRendererLimit);
+            Assert.IsNotEmpty(layout.Skyline.Streets, "every course city gets streets");
             Assert.IsTrue(renderers.All(r => r.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.Off), "far towers cast no shadows");
             Assert.IsTrue(renderers.All(r => r.sharedMaterial), "every skyline renderer has its backdrop material");
             var skylineMaterial = CourseSkylineMesh.MaterialOf(kit, out bool fallback);
@@ -185,7 +188,8 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(vertices.Length, extra.Count, $"{filter.name} carries its seed and haze in UV3");
                 var grid = new List<Vector4>();
                 mesh.GetUVs(1, grid);
-                Assert.IsTrue(grid.Any(g => g.x > 0f), $"{filter.name} has facades with windows");
+                if (filter.name.StartsWith(CourseSkyline.StreetPrefix, StringComparison.Ordinal)) Assert.IsTrue(grid.All(g => g.x == 0f), $"{filter.name} draws streets without windows");
+                else Assert.IsTrue(grid.Any(g => g.x > 0f), $"{filter.name} has facades with windows");
                 foreach (var vertex in vertices)
                 {
                     var local = world.transform.InverseTransformPoint(filter.transform.TransformPoint(vertex));
@@ -197,7 +201,7 @@ namespace Wreckabulary.Tests
                     Assert.Greater(Vector3.Dot(face, normals[indices[i]]), 0f, $"triangle {i / 3} of {filter.name} faces inwards");
                 }
             }
-            Assert.AreEqual(layout.Skyline.Triangles, triangles);
+            Assert.AreEqual(layout.Skyline.Triangles + layout.Skyline.StreetTriangles, triangles);
             Assert.LessOrEqual(farthest, CourseSkyline.ViewReach + RealMeshSlack, "every tower stays inside the course camera far clip");
         }
 

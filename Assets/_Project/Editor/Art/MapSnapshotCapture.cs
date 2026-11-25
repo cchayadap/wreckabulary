@@ -16,21 +16,63 @@ using Object = UnityEngine.Object;
 
 namespace Wreckabulary.EditorTools
 {
+    public enum MapHeroKind { Room, Dollhouse, Course, Arena }
+
+    public sealed class MapHeroShot
+    {
+        public readonly string Id, Subject;
+        public readonly IReadOnlyList<string> Modules;
+        public readonly MapHeroKind Kind;
+        public readonly Rect Area;
+        public readonly int Storey;
+        public readonly float Yaw, Pitch, FieldOfView, Fill, Eye, Back;
+        public readonly bool Locked;
+
+        MapHeroShot(string id, string subject, MapHeroKind kind, Rect area, int storey, string[] modules, float yaw, float pitch, float fieldOfView, float fill, float eye, float back, bool locked)
+        {
+            Locked = locked;
+            Id = id; Subject = subject; Kind = kind; Area = area; Storey = storey; Modules = modules ?? Array.Empty<string>();
+            Yaw = yaw; Pitch = pitch; FieldOfView = fieldOfView; Fill = fill; Eye = eye; Back = back;
+        }
+
+        public bool House => Kind == MapHeroKind.Room || Kind == MapHeroKind.Dollhouse;
+
+        public static MapHeroShot Room(string id, string subject, float minX, float minZ, float maxX, float maxZ, int storey, float yaw, float pitch, float fieldOfView, float fill,
+            bool locked = false) =>
+            new MapHeroShot(id, subject, MapHeroKind.Room, Rect.MinMaxRect(minX, minZ, maxX, maxZ), storey, null, yaw, pitch, fieldOfView, fill, 0f, 0f, locked);
+
+        public static MapHeroShot Dollhouse(string id, string subject, float minX, float minZ, float maxX, float maxZ, float yaw, float pitch, float fieldOfView, float fill,
+            bool locked = false) =>
+            new MapHeroShot(id, subject, MapHeroKind.Dollhouse, Rect.MinMaxRect(minX, minZ, maxX, maxZ), -1, null, yaw, pitch, fieldOfView, fill, 0f, 0f, locked);
+
+        public static MapHeroShot Course(string id, string subject, string[] modules, float turn, float pitch, float fieldOfView, float eye, float back, bool locked = false) =>
+            new MapHeroShot(id, subject, MapHeroKind.Course, Rect.zero, -1, modules, turn, pitch, fieldOfView, 1f, eye, back, locked);
+
+        public static MapHeroShot Arena(string id, string subject, string[] modules, float turn, float pitch, float fieldOfView, float eye, float back, bool locked = false) =>
+            new MapHeroShot(id, subject, MapHeroKind.Arena, Rect.zero, -1, modules, turn, pitch, fieldOfView, 1f, eye, back, locked);
+
+        public string Pose => Kind + (House ? " yaw " : " turn from downtown ") + Yaw.ToString("F0") + " pitch " + Pitch.ToString("F0") + " fov " + FieldOfView.ToString("F0") +
+            (House ? " fill " + Fill.ToString("F2") + " area " + Area.xMin + "," + Area.yMin + " to " + Area.xMax + "," + Area.yMax + (Storey >= 0 ? " storey " + Storey : "")
+                : " eye " + Eye.ToString("F1") + " back " + Back.ToString("F2") + " modules " + string.Join("/", Modules)) + (Locked ? " locked" : " searched");
+    }
+
     public static class MapSnapshotCapture
     {
         public const string Folder = "Assets/_Project/Resources/MapSnapshots";
-        public const string SheetPath = "BuildNotes/w21a/maps-sheet.png";
+        public const string SheetPath = "BuildNotes/w23a/map-heroes-sheet.png";
         public const int Width = 1280, Height = 720;
         const int Supersample = 2, MaximumShadowDistance = 400;
-        const float Pitch = 34f, Tilt = 28f, FieldOfView = 28f, FillAcross = .93f, FillAbove = .93f, FillBelow = .84f;
-        const float MinimumNear = .3f, NearSlack = 4f, FarSlack = 50f, ShadowReach = 10f;
-        const float SunPitch = 50f, SunTurn = 18f, SunIntensity = .55f, FillPitch = 30f, FillTurn = 70f, FillIntensity = .16f, ShadowStrength = .55f;
-        const float WallProbe = .45f, WallReach = .45f, WallSlack = .2f, LowSlack = .05f, YardMargin = 1.5f, Oversize = 8f, TallestPart = 9f;
-        const float ShownHeight = 2.2f, LevelStep = .5f, CourseMargin = 1f;
-        const float MinCover = .004f, SolidCover = .95f, WhitePoint = .98f, TargetWhite = .92f, MinGain = .85f, MaxGain = 1.5f, Contrast = 1.05f, Saturation = 1.08f;
-        const float PaperShadow = .7f, PaperShadowDepth = .5f, EmptyShare = .02f, FullShare = .995f;
-        const int ShadowBlur = 22, ShadowPasses = 2, ShadowDrop = 12;
-        const int SheetColumns = 4, CellWidth = 480, CellHeight = 270, SheetGap = 8, SmallColumns = 8, SmallWidth = 236, SmallHeight = 133, LabelScale = 2, LabelRoom = 16;
+        const float MinimumNear = .3f, NearSlack = 4f, FarSlack = 400f, FurnitureHeight = 1.4f, StoreyHeight = 3f, RoofRoom = 2.5f;
+        const float SunPitch = 46f, SunTurn = 24f, SunIntensity = .62f, FillPitch = 28f, FillTurn = 75f, FillIntensity = .2f, ShadowStrength = .6f;
+        const float WallProbe = .45f, WallReach = .45f, WallSlack = .2f, LowSlack = .05f, YardMargin = 1.5f, Oversize = 8f;
+        const float LevelStep = .5f, SectionThin = 1f, SectionBand = .9f, AutoYaw = 35f, AutoPitch = 38f, AutoFieldOfView = 30f;
+        const float CeilingRoom = 4f, EyeFar = 2000f, EyeNear = .1f, EdgeMargin = .8f, FlatLimit = .35f;
+        const int FlatReach = 14, FlatBits = 4, LeastProps = 12, ProbeWidth = 320, ProbeHeight = 180, LeastPieces = 3;
+        const float FurnishedMargin = 1.2f, HandMargin = .08f, PropHeight = 2.5f, PropSpan = 3f, PropRows = 40f, PropWeight = .6f, ShareWeight = .8f, ShareScale = 3f, Tie = .0001f;
+        const float NearProps = 4f, FarProps = 7f, CourseTurn = 30f;
+        static readonly float[] AutoYaws = { 35f, 155f, 275f };
+        const float MinCover = .004f, SolidCover = .95f, WhitePoint = .98f, TargetWhite = .86f, MinGain = .8f, MaxGain = 1.1f, Contrast = 1.1f, Saturation = 1.12f, EmptyShare = .02f;
+        const int SheetColumns = 3, CellWidth = 640, CellHeight = 360, SheetGap = 8, SmallColumns = 9, SmallWidth = 236, SmallHeight = 133, LabelScale = 2, LabelRoom = 16;
         const string OnlineEditor = ", Wreckabulary.Online.Authoring.Editor", OnlineClient = ", Wreckabulary.Online.Client";
         const string StageType = "Wreckabulary.Online.Editor.WordboundSoloPreviewStage" + OnlineEditor;
         const string SettingsType = "Wreckabulary.Online.Editor.WordboundSoloPreviewSettings" + OnlineEditor;
@@ -40,24 +82,60 @@ namespace Wreckabulary.EditorTools
         const string ArenaMode = "FreeForAll", ArenaFormat = "Solo", ArenaSeed = "0123456789abcdef", ArenaModule = "Start", ArenaLabel = "Toybox Arena";
         const int StageInputs = 6;
         const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        static readonly Color SunColour = LobbyKit.Hex(0xfff3dc), FillColour = LobbyKit.Hex(0xfff3e6), Ambient = new Color(.42f, .4f, .37f);
-        static readonly Color PaperCentre = LobbyKit.Hex(0xf8eccf), PaperEdge = Color.Lerp(LobbyStage.SkyTop, LobbyParcel.Kraft, .18f);
-        static readonly Color PaperShade = Color.Lerp(Color.white, LobbyParcel.Ink, PaperShadowDepth);
-        static readonly string[] Courses = { WordboundSoloEntry.ParcelServiceMap, WordboundSoloEntry.LostAddressMap, WordboundSoloEntry.ParcelHallMap };
+        static readonly Color SunColour = LobbyKit.Hex(0xfff3dc), FillColour = LobbyKit.Hex(0xfff3e6), Ambient = new Color(.38f, .36f, .34f);
+        static readonly Color SkyHigh = LobbyStage.SkyTop, SkyMid = LobbyKit.Hex(0xf8eccf), SkyLow = LobbyKit.Hex(0xfff4de), PaperCentre = LobbyKit.Hex(0xf8eccf);
 
-        sealed class Shot { public string id, path, source, note; public int bytes; public Color32[] pixels; public byte[] previous; }
+        public static readonly IReadOnlyList<MapHeroShot> Heroes = new[]
+        {
+            MapHeroShot.Room("pinwheel", "Playroom at the hub, pinwheel arms running out", -10f, -10f, 10f, 10f, 0, 40f, 42f, 30f, 1f, locked: true),
+            MapHeroShot.Room("courtyard", "Open-air fountain square with the house wings behind", -14f, -13f, 14f, 12f, 0, 15f, 34f, 30f, 1.05f, locked: true),
+            MapHeroShot.Room("flat", "Roof garden washing lines, used only if it beats the searched rooms", 5f, -5f, 20f, 13f, 1, 0f, 26f, 30f, 1.1f),
+            MapHeroShot.Room("terrace", "Attic crate pile, used only if it beats the searched rooms", 3f, 6f, 16f, 14f, 2, 0f, 32f, 30f, 1f),
+            MapHeroShot.Dollhouse("walkup", "Four storeys cut open like a dollhouse, fire escapes in front", -18f, -12f, 12f, 12f, 270f, 10f, 28f, 1f, locked: true),
+            MapHeroShot.Course(WordboundSoloEntry.ParcelServiceMap, "Loading ramp and tables, industrial skyline above the wall", new[] { "Hall" }, 0f, -3f, 58f, 2f, .8f, locked: true),
+            MapHeroShot.Course(WordboundSoloEntry.LostAddressMap, "Course tables in front, old brick town behind", new[] { "Rooftop_PottingSort", "Attic_LostLabels", "Kitchen_CutlerySort", "" }, 0f, -1f, 44f, 1.6f, .9f),
+            MapHeroShot.Course(WordboundSoloEntry.ParcelHallMap, "Parcel gate and its furniture, civic glass towers behind", new[] { "Packing_ParcelGate" }, 0f, 4f, 56f, 2.4f, .85f, locked: true),
+            MapHeroShot.Arena(LobbyMapSnapshots.ToyboxArena, "Arena floor at eye height with the skyline above the walls", new[] { ArenaModule }, 0f, -2f, 58f, 2f, .85f, locked: true),
+        };
+
+        sealed class Shot { public string id, path, source, note, guard; public int bytes; public Color32[] pixels; public byte[] previous; }
+
+        readonly struct Guard
+        {
+            public readonly float Flat, Share;
+            public readonly int Props;
+            public Guard(float flat, int props, float share) { Flat = flat; Props = props; Share = share; }
+            public bool Passed => Flat <= FlatLimit && Props >= LeastProps;
+            public float Value => 1f - Flat + PropWeight * Mathf.Min(Props, PropRows) / PropRows + ShareWeight * Mathf.Min(1f, Share * ShareScale);
+            public string Line => "flat " + Mathf.RoundToInt(Flat * 100f) + " props " + Props + " cover " + Mathf.RoundToInt(Share * 100f) +
+                (Flat > FlatLimit ? " FLAT FRAME" : "") + (Props < LeastProps ? " FEW PROPS" : "");
+        }
+
+        sealed class Candidate
+        {
+            public string Name;
+            public MapHeroShot Shot;
+            public string Module;
+            public Vector3 Eye;
+            public View View;
+            public Guard Score;
+        }
 
         sealed class Partition { public Bounds Box; public float Top; public int Storey; public bool AlongX, Lowered; }
 
         readonly struct View
         {
-            public readonly float Yaw, SunYaw, FillYaw;
-            public View(float facing, int side) { Yaw = facing + side * Tilt; SunYaw = facing + side * SunTurn; FillYaw = facing + side * FillTurn; }
+            public readonly float Yaw, Pitch;
+            public View(float yaw, float pitch) { Yaw = yaw; Pitch = pitch; }
             public Vector3 Forward => Quaternion.Euler(0f, Yaw, 0f) * Vector3.forward;
             public Quaternion Rotation => Quaternion.Euler(Pitch, Yaw, 0f);
+            public float SunYaw => Yaw + SunTurn;
+            public float FillYaw => Yaw - FillTurn;
         }
 
-        [MenuItem("Wreckabulary/Art/Capture map snapshots")]
+        public static MapHeroShot HeroFor(string id) => Heroes.FirstOrDefault(hero => hero.Id == id);
+
+        [MenuItem("Wreckabulary/Art/Capture map hero snapshots")]
         public static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Capture map snapshots in Edit Mode.");
@@ -66,7 +144,8 @@ namespace Wreckabulary.EditorTools
             var data = Resources.Load<GameData>(GameData.ResourcePath);
             if (!data) throw new InvalidOperationException("Resources/GameData is missing; run Wreckabulary > Data > Set Up Game Data.");
             var houses = data.Parse().Houses;
-            Log("start: " + houses.Count + " houses, " + Courses.Length + " courses, 1 arena -> " + Folder + " (" + Width + "x" + Height + ")");
+            var plan = Plan(houses.Keys);
+            Log("start: " + plan.Count + " hero shots -> " + Folder + " (" + Width + "x" + Height + ")");
 
             string scenes = SceneState(), global = Global();
             var selection = Selection.objects; var selected = Selection.activeObject;
@@ -79,10 +158,16 @@ namespace Wreckabulary.EditorTools
             {
                 EditorSettings.asyncShaderCompilation = false;
                 EnsureFolder();
-                foreach (var house in houses.OrderBy(pair => pair.Key, StringComparer.Ordinal))
-                    Attempt(house.Key, () => House(house.Key, house.Value, pipeline), shots, skipped);
-                foreach (string course in Courses) Attempt(course, () => Course(course, pipeline), shots, skipped);
-                Attempt(LobbyMapSnapshots.ToyboxArena, () => Arena(pipeline), shots, skipped);
+                foreach (var hero in plan)
+                {
+                    if (hero.House)
+                    {
+                        if (!houses.TryGetValue(hero.Id, out var layout)) { skipped.Add(hero.Id + ": no such house in GameData"); continue; }
+                        Attempt(hero, () => House(hero, layout, pipeline), shots, skipped);
+                    }
+                    else if (hero.Kind == MapHeroKind.Course) Attempt(hero, () => Course(hero, pipeline), shots, skipped);
+                    else Attempt(hero, () => Arena(hero, pipeline), shots, skipped);
+                }
             }
             catch (Exception error) { failure = error; }
             finally
@@ -106,54 +191,64 @@ namespace Wreckabulary.EditorTools
             if (skipped.Count > 0) Debug.LogWarning(summary); else Debug.Log(summary);
         }
 
-        static void Attempt(string id, Func<(Color32[] pixels, string source, string note)> render, List<Shot> shots, List<string> skipped)
+        static List<MapHeroShot> Plan(IEnumerable<string> houses)
+        {
+            var plan = Heroes.ToList();
+            foreach (string id in houses.OrderBy(id => id, StringComparer.Ordinal))
+                if (plan.All(hero => hero.Id != id)) plan.Add(MapHeroShot.Room(id, "automatic view of the spawn storey", 0f, 0f, 0f, 0f, -1, AutoYaw, AutoPitch, AutoFieldOfView, 1f));
+            return plan;
+        }
+
+        static void Attempt(MapHeroShot hero, Func<(Color32[] pixels, string source, string note, Guard guard)> render, List<Shot> shots, List<string> skipped)
         {
             try
             {
-                var (pixels, source, note) = render();
+                var (pixels, source, note, guard) = render();
                 byte[] png = Encode(pixels);
-                string path = Folder + "/" + id + ".png", file = Full(path);
+                string path = Folder + "/" + hero.Id + ".png", file = Full(path);
                 byte[] previous = File.Exists(file) ? File.ReadAllBytes(file) : null;
                 File.WriteAllBytes(file, png);
-                shots.Add(new Shot { id = id, path = path, source = source, note = note, bytes = png.Length, pixels = pixels, previous = previous });
+                shots.Add(new Shot { id = hero.Id, path = path, source = source, note = hero.Pose + "; " + guard.Line + "; " + note, guard = guard.Line, bytes = png.Length, pixels = pixels, previous = previous });
             }
             catch (Exception error) when (error is not (IOException or UnauthorizedAccessException))
             {
                 var cause = error is TargetInvocationException { InnerException: { } inner } ? inner : error;
-                skipped.Add(id + ": " + cause.GetType().Name + ": " + cause.Message);
+                skipped.Add(hero.Id + ": " + cause.GetType().Name + ": " + cause.Message);
             }
         }
 
-        static (Color32[] pixels, string source, string note) House(string id, HouseLayout layout, UniversalRenderPipelineAsset pipeline)
+        static (Color32[] pixels, string source, string note, Guard guard) House(MapHeroShot hero, HouseLayout layout, UniversalRenderPipelineAsset pipeline)
         {
             PreviewRenderUtility preview = null; GameObject anchor = null; Scene scene = default;
             try
             {
                 preview = new PreviewRenderUtility(); scene = preview.camera.gameObject.scene;
                 if (!EditorSceneManager.IsPreviewScene(scene)) throw new InvalidOperationException("Expected an owned preview scene.");
-                anchor = EditorUtility.CreateGameObjectWithHideFlags("Map snapshot " + id, HideFlags.HideAndDontSave);
+                anchor = EditorUtility.CreateGameObjectWithHideFlags("Map snapshot " + hero.Id, HideFlags.HideAndDontSave);
                 SceneManager.MoveGameObjectToScene(anchor, scene);
-                var (geometry, source) = Build(id, layout, anchor.transform);
+                var (geometry, source) = Build(hero.Id, layout, anchor.transform);
                 if (anchor.scene != scene || anchor.GetComponentsInChildren<Transform>(true).Any(part => part.gameObject.scene != scene))
                     throw new InvalidOperationException("The house did not stay inside the owned preview scene.");
                 foreach (var part in anchor.GetComponentsInChildren<Transform>(true)) part.gameObject.hideFlags = HideFlags.HideAndDontSave;
                 var floors = layout.StoreyFloors();
-                int focus = FocusStorey(layout);
-                var shown = layout.Rooms.Where(room => layout.StoreyOf(room) <= focus).ToList();
-                if (shown.Count == 0) shown = layout.Rooms.ToList();
-                if (shown.Count == 0) throw new InvalidOperationException("The house has no rooms to frame.");
-                var footprint = Footprint(shown);
-                var view = Choose(footprint, forward => shown.Sum(room => (room.Outdoor ? -1f : 1f) * room.Area * Vector3.Dot(Centre(room) - footprint.center, forward)));
-                var walls = SetWalls(geometry, layout, floors, focus, view.Forward);
+                if (layout.Rooms.Count == 0) throw new InvalidOperationException("The house has no rooms to frame.");
                 var yard = Footprint(layout.Rooms);
                 yard.Expand(new Vector3(YardMargin, 0f, YardMargin) * 2f);
-                CutAway(anchor.transform, geometry, floors, focus, walls, yard);
-                var points = Silhouette(anchor.transform, null);
-                foreach (var room in shown) AddRectangle(points, room.MinX, room.MaxX, room.MinZ, room.MaxZ, room.FloorY);
-                foreach (var wall in walls) AddRectangle(points, wall.Box.min.x, wall.Box.max.x, wall.Box.min.z, wall.Box.max.z, wall.Top);
-                var (pixels, framing) = Shoot(preview, points, view, pipeline);
-                string storey = floors.Count > 1 ? layout.StoreyLabel(focus).ToLowerInvariant() + " shown, upper floors cut away" : "single floor";
-                return (pixels, source, storey + ", " + walls.Count(wall => wall.Lowered) + " of " + walls.Count + " walls low, " + framing);
+                var initial = anchor.GetComponentsInChildren<Renderer>(true).ToDictionary(renderer => renderer, renderer => renderer.forceRenderingOff);
+                var candidates = new List<Candidate> { new Candidate { Name = "hand pose", Shot = hero } };
+                if (!hero.Locked) candidates.AddRange(RoomCandidates(hero.Id, layout));
+                foreach (var candidate in candidates)
+                {
+                    Restore(initial);
+                    var (focus, view, _) = Prepare(candidate.Shot, layout, anchor.transform, geometry, floors, yard);
+                    var (position, nearest, farthest) = Frame(focus, view, candidate.Shot.FieldOfView, candidate.Shot.Fill);
+                    candidate.Score = Probe(preview, position, view, candidate.Shot.FieldOfView, Mathf.Max(MinimumNear, nearest - NearSlack), farthest + FarSlack, pipeline, null);
+                }
+                var chosen = Choose(candidates, HandMargin);
+                Restore(initial);
+                var (shotFocus, shotView, note) = Prepare(chosen.Shot, layout, anchor.transform, geometry, floors, yard);
+                var (pixels, framing, guard) = Shoot(preview, shotFocus, shotView, chosen.Shot.FieldOfView, chosen.Shot.Fill, pipeline);
+                return (pixels, source, "subject " + chosen.Shot.Subject + ", chose " + chosen.Name + " of " + candidates.Count + " (" + Scores(candidates) + "), " + note + ", " + framing, guard);
             }
             finally
             {
@@ -161,8 +256,64 @@ namespace Wreckabulary.EditorTools
                 Clean(() => { if (anchor) Object.DestroyImmediate(anchor); }, errors);
                 Clean(() => preview?.Cleanup(), errors);
                 Clean(() => { if (scene.IsValid() && scene.isLoaded && EditorSceneManager.IsPreviewScene(scene)) EditorSceneManager.ClosePreviewScene(scene); }, errors);
-                if (errors.Count > 0) throw new AggregateException("Map snapshot cleanup failed: " + id, errors);
+                if (errors.Count > 0) throw new AggregateException("Map snapshot cleanup failed: " + hero.Id, errors);
             }
+        }
+
+        static (Bounds focus, View view, string note) Prepare(MapHeroShot shot, HouseLayout layout, Transform anchor, Transform geometry, List<float> floors, Bounds yard)
+        {
+            var view = new View(shot.Yaw, shot.Pitch);
+            if (shot.Kind == MapHeroKind.Dollhouse)
+            {
+                var whole = DollhouseFocus(shot, layout, floors);
+                int cut = Section(anchor, geometry, layout, view.Forward);
+                HideOutlying(anchor, yard);
+                return (whole, view, "all " + floors.Count + " storeys, " + cut + " facade parts removed");
+            }
+            int storey = shot.Storey >= 0 ? Mathf.Min(shot.Storey, floors.Count - 1) : FocusStorey(layout);
+            var focus = RoomFocus(shot, layout, floors, storey);
+            var walls = SetWalls(geometry, layout, floors, storey, view.Forward, focus);
+            CutAway(anchor, geometry, floors, storey, walls, yard);
+            return (focus, view, (floors.Count > 1 ? layout.StoreyLabel(storey).ToLowerInvariant() + " shown" : "single floor") + ", " +
+                walls.Count(wall => wall.Lowered) + " of " + walls.Count + " walls low");
+        }
+
+        static IEnumerable<Candidate> RoomCandidates(string id, HouseLayout layout)
+        {
+            foreach (var room in layout.Rooms)
+            {
+                var pieces = layout.Furniture.Where(piece => piece.Room == room.Name).ToList();
+                if (pieces.Count < LeastPieces) continue;
+                float minX = Mathf.Max(room.MinX, pieces.Min(piece => piece.X) - FurnishedMargin), maxX = Mathf.Min(room.MaxX, pieces.Max(piece => piece.X) + FurnishedMargin);
+                float minZ = Mathf.Max(room.MinZ, pieces.Min(piece => piece.Z) - FurnishedMargin), maxZ = Mathf.Min(room.MaxZ, pieces.Max(piece => piece.Z) + FurnishedMargin);
+                if (maxX - minX < FurnishedMargin || maxZ - minZ < FurnishedMargin) continue;
+                int storey = layout.StoreyOf(room);
+                foreach (float yaw in AutoYaws)
+                    yield return new Candidate { Name = room.Name + " yaw " + yaw.ToString("F0"),
+                        Shot = MapHeroShot.Room(id, "furnished " + Spaced(room.Name), minX, minZ, maxX, maxZ, storey, yaw, AutoPitch, AutoFieldOfView, 1f) };
+            }
+        }
+
+        static string Spaced(string name) =>
+            string.Concat(name.Select((letter, index) => index > 0 && (char.IsUpper(letter) || char.IsDigit(letter) && !char.IsDigit(name[index - 1])) ? " " + char.ToLowerInvariant(letter) : letter.ToString()));
+
+        static Candidate Choose(List<Candidate> candidates, float handMargin)
+        {
+            Candidate best = null;
+            foreach (var candidate in candidates)
+                if (best == null || candidate.Score.Value > best.Score.Value + Tie ||
+                    Mathf.Abs(candidate.Score.Value - best.Score.Value) <= Tie && string.CompareOrdinal(candidate.Name, best.Name) < 0) best = candidate;
+            var hand = candidates[0];
+            return hand.Score.Value >= best.Score.Value - handMargin ? hand : best;
+        }
+
+        static string Scores(List<Candidate> candidates) =>
+            string.Join("; ", candidates.OrderByDescending(candidate => candidate.Score.Value).ThenBy(candidate => candidate.Name, StringComparer.Ordinal).Take(4)
+                .Select(candidate => candidate.Name + " " + candidate.Score.Value.ToString("F2") + " [" + candidate.Score.Line + "]"));
+
+        static void Restore(Dictionary<Renderer, bool> initial)
+        {
+            foreach (var pair in initial) if (pair.Key && pair.Key.forceRenderingOff != pair.Value) pair.Key.forceRenderingOff = pair.Value;
         }
 
         static (Transform geometry, string source) Build(string id, HouseLayout layout, Transform anchor)
@@ -190,6 +341,29 @@ namespace Wreckabulary.EditorTools
         static int FocusStorey(HouseLayout layout) => layout.Spawns.Select(spawn => layout.Room(spawn.Room)).Where(room => room != null)
             .GroupBy(layout.StoreyOf).OrderByDescending(group => group.Count()).ThenBy(group => group.Key).Select(group => group.Key).DefaultIfEmpty(0).First();
 
+        static Bounds RoomFocus(MapHeroShot hero, HouseLayout layout, List<float> floors, int storey)
+        {
+            float floor = storey < floors.Count ? floors[storey] : 0f;
+            var area = hero.Area;
+            if (area.width <= 0f || area.height <= 0f)
+            {
+                var rooms = layout.Rooms.Where(room => layout.StoreyOf(room) == storey).ToList();
+                var footprint = Footprint(rooms.Count > 0 ? rooms : layout.Rooms.ToList());
+                area = Rect.MinMaxRect(footprint.min.x, footprint.min.z, footprint.max.x, footprint.max.z);
+            }
+            var box = new Bounds();
+            box.SetMinMax(new Vector3(area.xMin, floor, area.yMin), new Vector3(area.xMax, floor + FurnitureHeight, area.yMax));
+            return box;
+        }
+
+        static Bounds DollhouseFocus(MapHeroShot hero, HouseLayout layout, List<float> floors)
+        {
+            float top = (floors.Count > 0 ? floors[floors.Count - 1] : 0f) + (layout.Rooms.Any(room => room.Outdoor && layout.StoreyOf(room) == floors.Count - 1) ? RoofRoom : StoreyHeight);
+            var box = new Bounds();
+            box.SetMinMax(new Vector3(hero.Area.xMin, 0f, hero.Area.yMin), new Vector3(hero.Area.xMax, top, hero.Area.yMax));
+            return box;
+        }
+
         static Bounds Footprint(IReadOnlyList<RoomBox> rooms)
         {
             var box = new Bounds();
@@ -198,16 +372,7 @@ namespace Wreckabulary.EditorTools
             return box;
         }
 
-        static Vector3 Centre(RoomBox room) => new Vector3((room.MinX + room.MaxX) * .5f, room.FloorY, (room.MinZ + room.MaxZ) * .5f);
-
-        static View Choose(Bounds footprint, Func<Vector3, float> score)
-        {
-            float facing = footprint.size.x >= footprint.size.z ? 0f : 90f;
-            var candidates = new[] { new View(facing, 1), new View(facing, -1), new View(facing + 180f, 1), new View(facing + 180f, -1) };
-            return candidates.OrderByDescending(view => score(view.Forward)).First();
-        }
-
-        static List<Partition> SetWalls(Transform geometry, HouseLayout layout, List<float> floors, int focus, Vector3 forward)
+        static List<Partition> SetWalls(Transform geometry, HouseLayout layout, List<float> floors, int focus, Vector3 forward, Bounds area)
         {
             var walls = new List<Partition>();
             if (!geometry) return walls;
@@ -217,8 +382,14 @@ namespace Wreckabulary.EditorTools
                 if (storey > focus || !wall.TryGetComponent<Renderer>(out var renderer) || !wall.TryGetComponent<BoxCollider>(out _)) continue;
                 var box = renderer.bounds;
                 bool alongX = box.size.x >= box.size.z;
-                var nearSide = NearSide(box, alongX, forward);
-                bool tall = layout.Rooms.Any(room => !room.Outdoor && layout.StoreyOf(room) == storey && room.Contains(nearSide.x, nearSide.z));
+                bool inside = box.center.x >= area.min.x && box.center.x <= area.max.x && box.center.z >= area.min.z && box.center.z <= area.max.z;
+                bool tall;
+                if (inside && storey == focus) tall = Vector3.Dot(box.center - area.center, forward) > 0f;
+                else
+                {
+                    var nearSide = NearSide(box, alongX, forward);
+                    tall = layout.Rooms.Any(room => !room.Outdoor && layout.StoreyOf(room) == storey && room.Contains(nearSide.x, nearSide.z));
+                }
                 wall.Apply(tall);
                 float rise = wall.VisualHeight(tall);
                 walls.Add(new Partition { Box = box, Top = wall.FloorY + rise, Storey = storey, AlongX = alongX, Lowered = rise <= TallWall.Low });
@@ -263,6 +434,35 @@ namespace Wreckabulary.EditorTools
             }
         }
 
+        static int Section(Transform root, Transform geometry, HouseLayout layout, Vector3 forward)
+        {
+            if (geometry)
+                foreach (var wall in geometry.GetComponentsInChildren<TallWall>(true)) wall.Apply(true);
+            var indoor = layout.Rooms.Where(room => !room.Outdoor).ToList();
+            if (indoor.Count == 0) indoor = layout.Rooms.ToList();
+            var toward = -new Vector3(forward.x, 0f, forward.z).normalized;
+            float face = indoor.Max(room => Mathf.Max(
+                Mathf.Max(Vector3.Dot(new Vector3(room.MinX, 0f, room.MinZ), toward), Vector3.Dot(new Vector3(room.MaxX, 0f, room.MinZ), toward)),
+                Mathf.Max(Vector3.Dot(new Vector3(room.MinX, 0f, room.MaxZ), toward), Vector3.Dot(new Vector3(room.MaxX, 0f, room.MaxZ), toward))));
+            int cut = 0;
+            foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+            {
+                var box = renderer.bounds;
+                float thickness = Mathf.Abs(toward.x) * box.size.x + Mathf.Abs(toward.z) * box.size.z;
+                float at = Vector3.Dot(new Vector3(box.center.x, 0f, box.center.z), toward);
+                if (thickness > SectionThin || Mathf.Abs(at - face) > SectionBand || renderer.forceRenderingOff) continue;
+                renderer.forceRenderingOff = true;
+                cut++;
+            }
+            return cut;
+        }
+
+        static void HideOutlying(Transform root, Bounds yard)
+        {
+            foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+                if (Outlying(renderer.bounds, yard)) renderer.forceRenderingOff = true;
+        }
+
         static bool AboveWall(Bounds detail, int storey, List<Partition> walls, List<float> floors)
         {
             float top = float.MaxValue; bool lowered = true;
@@ -291,52 +491,121 @@ namespace Wreckabulary.EditorTools
             return storey;
         }
 
-        static List<Vector3> Silhouette(Transform root, Bounds? region)
+        static (Color32[] pixels, string framing, Guard guard) Shoot(PreviewRenderUtility preview, Bounds focus, View view, float fieldOfView, float fill, UniversalRenderPipelineAsset pipeline)
         {
-            var points = new List<Vector3>();
-            foreach (var renderer in root.GetComponentsInChildren<Renderer>(false))
-            {
-                if (renderer is not (MeshRenderer or SkinnedMeshRenderer) || !renderer.enabled || renderer.forceRenderingOff
-                    || renderer.shadowCastingMode == ShadowCastingMode.ShadowsOnly) continue;
-                var box = renderer.bounds;
-                if (box.size.y > TallestPart) continue;
-                if (region is { } area && (box.max.x < area.min.x || box.min.x > area.max.x || box.max.z < area.min.z || box.min.z > area.max.z
-                    || box.max.y < area.min.y - LevelStep || box.size.x > area.size.x + Oversize || box.size.z > area.size.z + Oversize)) continue;
-                points.AddRange(Corners(box));
-            }
-            return points;
+            var (position, nearest, farthest) = Frame(focus, view, fieldOfView, fill);
+            return ShootAt(preview, position, view, fieldOfView, Mathf.Max(MinimumNear, nearest - NearSlack), farthest + FarSlack, pipeline);
         }
 
-        static void AddRectangle(List<Vector3> points, float minX, float maxX, float minZ, float maxZ, float y)
+        static void Aim(PreviewRenderUtility preview, Vector3 position, View view, float fieldOfView, float near, float far, UniversalRenderPipelineAsset pipeline)
         {
-            points.Add(new Vector3(minX, y, minZ)); points.Add(new Vector3(maxX, y, minZ));
-            points.Add(new Vector3(minX, y, maxZ)); points.Add(new Vector3(maxX, y, maxZ));
-        }
-
-        static (Color32[] pixels, string framing) Shoot(PreviewRenderUtility preview, List<Vector3> points, View view, UniversalRenderPipelineAsset pipeline)
-        {
-            if (points.Count == 0) throw new InvalidOperationException("Nothing visible to frame.");
-            var rotation = view.Rotation;
-            var (position, nearest, farthest) = Fit(points, rotation, FieldOfView, Width / (float)Height);
-            pipeline.shadowDistance = Mathf.Min(MaximumShadowDistance, Mathf.Max(pipeline.shadowDistance, farthest + ShadowReach));
+            pipeline.shadowDistance = Mathf.Min(MaximumShadowDistance, Mathf.Max(pipeline.shadowDistance, Mathf.Min(far, MaximumShadowDistance)));
             var camera = preview.camera;
-            camera.orthographic = false; camera.fieldOfView = FieldOfView; camera.aspect = Width / (float)Height;
-            camera.nearClipPlane = Mathf.Max(MinimumNear, nearest - NearSlack); camera.farClipPlane = farthest + FarSlack; camera.cullingMask = ~0;
+            camera.orthographic = false; camera.fieldOfView = fieldOfView; camera.aspect = Width / (float)Height;
+            camera.nearClipPlane = near; camera.farClipPlane = far; camera.cullingMask = ~0;
             camera.clearFlags = CameraClearFlags.SolidColor; camera.allowHDR = false; camera.allowMSAA = true;
-            camera.transform.SetPositionAndRotation(position, rotation);
+            camera.transform.SetPositionAndRotation(position, view.Rotation);
             Illuminate(preview, view);
-            bool outlined = Compose(Render(preview, Color.white), Render(preview, Color.black), out var pixels, out float cover, out float gain);
-            if (!outlined) pixels = Render(preview, PaperCentre);
+        }
+
+        static (Color32[] pixels, string framing, Guard guard) ShootAt(PreviewRenderUtility preview, Vector3 position, View view, float fieldOfView, float near, float far,
+            UniversalRenderPipelineAsset pipeline, HashSet<Renderer> scenery = null)
+        {
+            Aim(preview, position, view, fieldOfView, near, far, pipeline);
+            bool composed = Compose(Render(preview, Color.white), Render(preview, Color.black), out var pixels, out float cover, out float gain);
+            if (!composed) pixels = Render(preview, PaperCentre);
             RequireVaried(pixels);
-            return (pixels, "yaw " + view.Yaw.ToString("F0") + ", camera " + nearest.ToString("F1") + " to " + farthest.ToString("F1") + " m, "
-                + (outlined ? "fills " + Mathf.RoundToInt(cover * 100f) + "% of the frame, gain " + gain.ToString("F2")
-                    : "NO OUTLINE (" + Mathf.RoundToInt(cover * 100f) + "% covered), plain paper background without shadow or grade"));
+            var guard = Measure(preview.camera, pixels, scenery);
+            return (pixels, "camera at " + position.x.ToString("F1") + "," + position.y.ToString("F1") + "," + position.z.ToString("F1") + ", clip " +
+                near.ToString("F1") + " to " + far.ToString("F0") + " m, " +
+                (composed ? "scene covers " + Mathf.RoundToInt(cover * 100f) + "% over the sky, gain " + gain.ToString("F2") : "NEARLY EMPTY (" + Mathf.RoundToInt(cover * 100f) + "% covered)"), guard);
+        }
+
+        static Guard Probe(PreviewRenderUtility preview, Vector3 position, View view, float fieldOfView, float near, float far, UniversalRenderPipelineAsset pipeline, HashSet<Renderer> scenery)
+        {
+            Aim(preview, position, view, fieldOfView, near, far, pipeline);
+            Texture2D image = null; bool begun = false; var active = RenderTexture.active;
+            try
+            {
+                preview.camera.backgroundColor = PaperCentre;
+                preview.BeginStaticPreview(new Rect(0, 0, ProbeWidth, ProbeHeight)); begun = true;
+                SetSsao(false); preview.Render(true, false);
+                image = preview.EndStaticPreview(); begun = false;
+                if (!image) throw new InvalidOperationException("The probe render returned no image.");
+                return Measure(preview.camera, image.GetPixels32(), scenery);
+            }
+            finally
+            {
+                if (begun) { var pending = preview.EndStaticPreview(); if (pending) Object.DestroyImmediate(pending); }
+                if (image) Object.DestroyImmediate(image);
+                RenderTexture.active = active;
+            }
+        }
+
+        static Guard Measure(Camera camera, Color32[] pixels, HashSet<Renderer> scenery)
+        {
+            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+            int props = 0; float share = 0f;
+            foreach (var root in camera.gameObject.scene.GetRootGameObjects())
+                foreach (var renderer in root.GetComponentsInChildren<Renderer>(false))
+                {
+                    if (renderer is not (MeshRenderer or SkinnedMeshRenderer) || !renderer.enabled || renderer.forceRenderingOff ||
+                        renderer.shadowCastingMode == ShadowCastingMode.ShadowsOnly || scenery != null && scenery.Contains(renderer)) continue;
+                    var box = renderer.bounds;
+                    if (box.size.y > PropHeight || box.size.x > PropSpan || box.size.z > PropSpan || !GeometryUtility.TestPlanesAABB(planes, box)) continue;
+                    props++;
+                    share += ScreenShare(camera, box);
+                }
+            return new Guard(Flatness(pixels), props, Mathf.Min(1f, share));
+        }
+
+        static float ScreenShare(Camera camera, Bounds box)
+        {
+            float minX = 1f, minY = 1f, maxX = 0f, maxY = 0f;
+            foreach (var corner in Corners(box))
+            {
+                var at = camera.WorldToViewportPoint(corner);
+                if (at.z <= 0f) return 0f;
+                minX = Mathf.Min(minX, at.x); maxX = Mathf.Max(maxX, at.x); minY = Mathf.Min(minY, at.y); maxY = Mathf.Max(maxY, at.y);
+            }
+            return Mathf.Max(0f, Mathf.Min(1f, maxX) - Mathf.Max(0f, minX)) * Mathf.Max(0f, Mathf.Min(1f, maxY) - Mathf.Max(0f, minY));
+        }
+
+        static float Flatness(Color32[] pixels)
+        {
+            int shift = 8 - FlatBits, levels = 1 << FlatBits;
+            var counts = new int[levels * levels * levels];
+            foreach (var c in pixels) counts[(c.r >> shift) * levels * levels + (c.g >> shift) * levels + (c.b >> shift)]++;
+            int modal = 0;
+            for (int i = 1; i < counts.Length; i++) if (counts[i] > counts[modal]) modal = i;
+            long r = 0, g = 0, b = 0; int members = 0;
+            foreach (var c in pixels)
+            {
+                if ((c.r >> shift) * levels * levels + (c.g >> shift) * levels + (c.b >> shift) != modal) continue;
+                r += c.r; g += c.g; b += c.b; members++;
+            }
+            if (members == 0) return 0f;
+            int mr = (int)(r / members), mg = (int)(g / members), mb = (int)(b / members), near = 0;
+            foreach (var c in pixels)
+                if (Mathf.Abs(c.r - mr) <= FlatReach && Mathf.Abs(c.g - mg) <= FlatReach && Mathf.Abs(c.b - mb) <= FlatReach) near++;
+            return near / (float)pixels.Length;
+        }
+
+        static (Vector3 position, float nearest, float farthest) Frame(Bounds focus, View view, float fieldOfView, float fill)
+        {
+            var points = Corners(focus).ToList();
+            var rotation = view.Rotation;
+            var (position, nearest, farthest) = Fit(points, rotation, fieldOfView, Width / (float)Height);
+            float scale = 1f / Mathf.Max(.25f, fill);
+            var moved = focus.center + (position - focus.center) * scale;
+            float shift = Vector3.Dot(position - moved, rotation * Vector3.forward);
+            return (moved, nearest + shift, farthest + shift);
         }
 
         static (Vector3 position, float nearest, float farthest) Fit(List<Vector3> points, Quaternion rotation, float fieldOfView, float aspect)
         {
             var right = rotation * Vector3.right; var up = rotation * Vector3.up; var forward = rotation * Vector3.forward;
-            float tan = Mathf.Tan(fieldOfView * .5f * Mathf.Deg2Rad), across = tan * aspect * FillAcross, above = tan * FillAbove, below = tan * FillBelow;
+            float tan = Mathf.Tan(fieldOfView * .5f * Mathf.Deg2Rad), across = tan * aspect, above = tan, below = tan;
             float leftLimit = float.MaxValue, rightLimit = float.MinValue, lowLimit = float.MaxValue, highLimit = float.MinValue;
             float front = float.MaxValue, back = float.MinValue;
             foreach (var point in points)
@@ -374,7 +643,7 @@ namespace Wreckabulary.EditorTools
             preview.ambientColor = Ambient;
         }
 
-        static (Color32[] pixels, string source, string note) Course(string id, UniversalRenderPipelineAsset pipeline)
+        static (Color32[] pixels, string source, string note, Guard guard) Course(MapHeroShot hero, UniversalRenderPipelineAsset pipeline)
         {
             var stageType = Type.GetType(StageType); var settingsType = Type.GetType(SettingsType);
             if (stageType == null || settingsType == null) throw new InvalidOperationException("The Solo preview stage is not compiled in this editor; the card keeps its play-layout preview.");
@@ -388,10 +657,10 @@ namespace Wreckabulary.EditorTools
             {
                 settings = Object.Instantiate(saved);
                 settings.hideFlags = HideFlags.HideAndDontSave;
-                string anchor = Anchor(settingsType, settings, id);
-                stage = (IDisposable)create.Invoke(new object[] { settings, id });
-                var (pixels, note) = Diorama(stageType, stage, pipeline);
-                return (pixels, "installed Solo content, overview", note + anchor);
+                string anchor = Anchor(settingsType, settings, hero.Id);
+                stage = (IDisposable)create.Invoke(new object[] { settings, hero.Id });
+                var (pixels, note, guard) = Diorama(stageType, stage, hero, pipeline);
+                return (pixels, "installed Solo content", note + anchor, guard);
             }
             finally
             {
@@ -400,7 +669,7 @@ namespace Wreckabulary.EditorTools
             }
         }
 
-        static (Color32[] pixels, string source, string note) Arena(UniversalRenderPipelineAsset pipeline)
+        static (Color32[] pixels, string source, string note, Guard guard) Arena(MapHeroShot hero, UniversalRenderPipelineAsset pipeline)
         {
             var stageType = Type.GetType(StageType); var poseType = Type.GetType(PoseType);
             var contentType = Type.GetType(ContentType); var launchType = Type.GetType(LaunchType);
@@ -424,29 +693,166 @@ namespace Wreckabulary.EditorTools
             {
                 stage = (IDisposable)create.Invoke(new[] { course.GetValue(content), geometry.GetValue(content), items.GetValue(content),
                     profile.GetValue(launch), pose, ArenaLabel });
-                var (pixels, note) = Diorama(stageType, stage, pipeline);
-                return (pixels, "installed online arena, overview", note);
+                var (pixels, note, guard) = Diorama(stageType, stage, hero, pipeline);
+                return (pixels, "installed online arena", note, guard);
             }
             finally { stage?.Dispose(); }
         }
 
-        static (Color32[] pixels, string note) Diorama(Type stageType, object stage, UniversalRenderPipelineAsset pipeline)
+        static (Color32[] pixels, string note, Guard guard) Diorama(Type stageType, object stage, MapHeroShot hero, UniversalRenderPipelineAsset pipeline)
         {
             var previewField = stageType.GetField("Preview", Members);
             var worldField = stageType.GetField("World", Members);
             if (previewField == null || worldField == null) throw new MissingMemberException("WordboundSoloPreviewStage changed; review MapSnapshotCapture.Diorama.");
             var preview = previewField.GetValue(stage) as PreviewRenderUtility ?? throw new InvalidOperationException("The Solo preview stage has no preview renderer.");
             var world = worldField.GetValue(stage) as WordboundCourseWorld ?? throw new InvalidOperationException("The Solo preview stage has no course world.");
-            var (level, floors, spawn) = Overview(world);
-            CutAbove(world.transform.root, level + ShownHeight);
-            var footprint = floors[0];
-            foreach (var floor in floors) footprint.Encapsulate(floor);
-            var view = Choose(footprint, forward => spawn.HasValue ? -Vector3.Dot(spawn.Value - footprint.center, forward) : 0f);
-            int hidden = HideNearWalls(world, floors, view.Forward);
-            var region = footprint;
-            region.Expand(new Vector3(CourseMargin, 0f, CourseMargin) * 2f);
-            var (pixels, framing) = Shoot(preview, Silhouette(world.transform.root, region), view, pipeline);
-            return (pixels, "level at " + level.ToString("F1") + " m shown, higher levels cut away, " + hidden + " near walls hidden, " + framing);
+            var owned = new List<Mesh>();
+            GameObject backdrop = null;
+            try
+            {
+                string skyline = "no skyline";
+                float heading = 0f;
+                try
+                {
+                    var kit = CourseBackdropKit.Load();
+                    if (kit && WordboundCourseBackdrop.Supported)
+                    {
+                        backdrop = WordboundCourseBackdrop.Build(world, kit, false, owned, out var layout);
+                        foreach (var part in backdrop.GetComponentsInChildren<Transform>(true)) part.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                        if (layout.Skyline.Headings.Count > 0) heading = layout.Skyline.Headings[0];
+                        skyline = "town and skyline built (" + backdrop.GetComponentsInChildren<Renderer>(true).Length + " renderers), downtown heading " + heading.ToString("F0");
+                    }
+                }
+                catch (Exception error) { skyline = "skyline skipped (" + error.Message + ")"; }
+                var scenery = backdrop ? new HashSet<Renderer>(backdrop.GetComponentsInChildren<Renderer>(true)) : null;
+                var candidates = new List<Candidate>();
+                var missing = new List<string>();
+                foreach (var (module, turn) in Poses(hero).Take(hero.Locked ? 1 : int.MaxValue))
+                {
+                    var changed = new List<Renderer>();
+                    try
+                    {
+                        var (floors, level, found) = ModuleFloors(world, module);
+                        if (!found) { if (!missing.Contains(module)) missing.Add(module); continue; }
+                        var view = EyeView(world.transform, heading + hero.Yaw + turn, hero.Pitch);
+                        Stage(world, level, view, changed);
+                        var props = PropCentre(world, floors, level, scenery);
+                        var points = new List<(string name, Vector3 eye)> { ("back edge", EyePoint(floors, level, view.Forward, hero.Eye, hero.Back)) };
+                        if (!hero.Locked && props is Vector3 centre)
+                        {
+                            points.Add(("near props", StandAt(floors, level, centre - view.Forward * NearProps, hero.Eye)));
+                            points.Add(("before props", StandAt(floors, level, centre - view.Forward * FarProps, hero.Eye)));
+                        }
+                        foreach (var (name, eye) in points)
+                        {
+                            var candidate = new Candidate { Name = (module.Length == 0 ? "spawn level" : module) + " turn " + turn.ToString("F0") + " " + name,
+                                Module = module, Eye = eye, View = view };
+                            candidate.Score = Probe(preview, eye, view, hero.FieldOfView, EyeNear, EyeFar, pipeline, scenery);
+                            candidates.Add(candidate);
+                        }
+                    }
+                    finally { foreach (var renderer in changed) if (renderer) renderer.forceRenderingOff = false; }
+                }
+                if (candidates.Count == 0) throw new InvalidOperationException("No hero pose found a floor: " + string.Join(" / ", missing));
+                var chosen = Choose(candidates, 0f);
+                var shotChanged = new List<Renderer>();
+                try
+                {
+                    var (_, chosenLevel, _) = ModuleFloors(world, chosen.Module);
+                    int hidden = Stage(world, chosenLevel, chosen.View, shotChanged);
+                    var (pixels, framing, guard) = ShootAt(preview, chosen.Eye, chosen.View, hero.FieldOfView, EyeNear, EyeFar, pipeline, scenery);
+                    return (pixels, "subject " + hero.Subject + ", chose " + chosen.Name + " of " + candidates.Count + " (" + Scores(candidates) + ")" +
+                        (missing.Count > 0 ? ", not found: " + string.Join("/", missing) : "") + ", level " + chosenLevel.ToString("F1") + " m, eye " + hero.Eye.ToString("F1") +
+                        " m, " + hidden + " near walls hidden, " + skyline + ", " + framing, guard);
+                }
+                finally { foreach (var renderer in shotChanged) if (renderer) renderer.forceRenderingOff = false; }
+            }
+            finally
+            {
+                if (backdrop) Object.DestroyImmediate(backdrop);
+                foreach (var mesh in owned) if (mesh) Object.DestroyImmediate(mesh);
+            }
+        }
+
+        static IEnumerable<(string module, float turn)> Poses(MapHeroShot hero)
+        {
+            foreach (string module in hero.Modules.DefaultIfEmpty(""))
+                foreach (float turn in new[] { 0f, CourseTurn, -CourseTurn })
+                    yield return (module ?? "", turn);
+        }
+
+        static int Stage(WordboundCourseWorld world, float level, View view, List<Renderer> changed)
+        {
+            CutAbove(world.transform.root, level + CeilingRoom, changed);
+            var standing = Floors(world).Where(floor => floor.max.y <= level + LevelStep).ToList();
+            return HideNearWalls(world, standing, view.Forward, changed);
+        }
+
+        static Vector3? PropCentre(WordboundCourseWorld world, List<Bounds> floors, float level, HashSet<Renderer> scenery)
+        {
+            var sum = Vector3.zero; int count = 0;
+            foreach (var renderer in world.transform.root.GetComponentsInChildren<Renderer>(false))
+            {
+                if (renderer.forceRenderingOff || scenery != null && scenery.Contains(renderer)) continue;
+                var box = renderer.bounds;
+                if (box.size.y > PropHeight || box.size.x > PropSpan || box.size.z > PropSpan || box.min.y < level - LevelStep || box.min.y > level + PropHeight) continue;
+                if (!floors.Any(floor => box.center.x >= floor.min.x && box.center.x <= floor.max.x && box.center.z >= floor.min.z && box.center.z <= floor.max.z)) continue;
+                sum += box.center; count++;
+            }
+            return count == 0 ? (Vector3?)null : sum / count;
+        }
+
+        static Vector3 StandAt(List<Bounds> floors, float level, Vector3 wanted, float eye)
+        {
+            var best = wanted; float closest = float.MaxValue;
+            foreach (var floor in floors)
+            {
+                float marginX = Mathf.Min(EdgeMargin, floor.extents.x), marginZ = Mathf.Min(EdgeMargin, floor.extents.z);
+                var inside = new Vector3(Mathf.Clamp(wanted.x, floor.min.x + marginX, floor.max.x - marginX), 0f, Mathf.Clamp(wanted.z, floor.min.z + marginZ, floor.max.z - marginZ));
+                float distance = (new Vector3(wanted.x, 0f, wanted.z) - inside).sqrMagnitude;
+                if (distance < closest) { closest = distance; best = inside; }
+            }
+            return new Vector3(best.x, level + eye, best.z);
+        }
+
+        static View EyeView(Transform course, float heading, float pitch)
+        {
+            var direction = course.TransformDirection(Quaternion.Euler(0f, heading, 0f) * Vector3.forward);
+            return new View(Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg, pitch);
+        }
+
+        static Vector3 EyePoint(List<Bounds> floors, float level, Vector3 forward, float eye, float back)
+        {
+            var union = floors[0];
+            foreach (var floor in floors) union.Encapsulate(floor);
+            float half = Mathf.Abs(forward.x) * union.extents.x + Mathf.Abs(forward.z) * union.extents.z;
+            return StandAt(floors, level, union.center - forward * half * Mathf.Clamp01(back), eye);
+        }
+
+        static List<Bounds> Floors(WordboundCourseWorld world) => world.GetComponentsInChildren<WordboundCourseNode>(true)
+            .Where(node => node.Kind == WordboundCourseNodeKind.Floor).Select(node => node.GetComponent<Renderer>()).Where(renderer => renderer)
+            .Select(renderer => renderer.bounds).ToList();
+
+        static (List<Bounds> floors, float level, bool found) ModuleFloors(WordboundCourseWorld world, string module)
+        {
+            var nodes = world.GetComponentsInChildren<WordboundCourseNode>(true);
+            var all = Floors(world);
+            if (all.Count == 0) throw new InvalidOperationException("The course has no floors to frame.");
+            List<Bounds> floors;
+            if (module.Length > 0)
+            {
+                floors = nodes.Where(node => node.Kind == WordboundCourseNodeKind.Floor && node.ModuleId == module)
+                    .Select(node => node.GetComponent<Renderer>()).Where(renderer => renderer).Select(renderer => renderer.bounds).ToList();
+                if (floors.Count == 0) return (floors, 0f, false);
+                float top = floors.Max(bounds => bounds.max.y);
+                return (floors.Where(bounds => bounds.max.y >= top - LevelStep).ToList(), top, true);
+            }
+            var spawn = nodes.FirstOrDefault(node => node.Kind == WordboundCourseNodeKind.Spawn);
+            var levels = all.GroupBy(bounds => Mathf.RoundToInt(bounds.max.y / LevelStep)).ToList();
+            var chosen = spawn ? levels.Where(group => group.Key * LevelStep <= spawn.transform.position.y + LevelStep).OrderByDescending(group => group.Key).FirstOrDefault() : null;
+            chosen ??= levels.OrderByDescending(group => group.Sum(bounds => bounds.size.x * bounds.size.z)).First();
+            floors = chosen.ToList();
+            return (floors, floors.Max(bounds => bounds.max.y), true);
         }
 
         static string Anchor(Type settingsType, Object settings, string id)
@@ -459,26 +865,13 @@ namespace Wreckabulary.EditorTools
             return ", anchored on the default Depot module";
         }
 
-        static (float level, List<Bounds> floors, Vector3? spawn) Overview(WordboundCourseWorld world)
-        {
-            var nodes = world.GetComponentsInChildren<WordboundCourseNode>(true);
-            var floors = nodes.Where(node => node.Kind == WordboundCourseNodeKind.Floor)
-                .Select(node => node.GetComponent<Renderer>()).Where(renderer => renderer).Select(renderer => renderer.bounds).ToList();
-            if (floors.Count == 0) throw new InvalidOperationException("The course has no floors to frame.");
-            var levels = floors.GroupBy(bounds => Mathf.RoundToInt(bounds.max.y / LevelStep)).ToList();
-            var spawn = nodes.FirstOrDefault(node => node.Kind == WordboundCourseNodeKind.Spawn);
-            var chosen = spawn ? levels.Where(level => level.Key * LevelStep <= spawn.transform.position.y + LevelStep).OrderByDescending(level => level.Key).FirstOrDefault() : null;
-            chosen ??= levels.OrderByDescending(level => level.Sum(bounds => bounds.size.x * bounds.size.z)).ThenBy(level => level.Key).First();
-            return (chosen.Max(bounds => bounds.max.y), chosen.ToList(), spawn ? spawn.transform.position : (Vector3?)null);
-        }
-
-        static void CutAbove(Transform root, float height)
+        static void CutAbove(Transform root, float height, List<Renderer> changed)
         {
             foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
-                if (renderer.bounds.min.y > height) renderer.forceRenderingOff = true;
+                if (!renderer.forceRenderingOff && renderer.bounds.min.y > height) { renderer.forceRenderingOff = true; changed.Add(renderer); }
         }
 
-        static int HideNearWalls(WordboundCourseWorld world, List<Bounds> floors, Vector3 forward)
+        static int HideNearWalls(WordboundCourseWorld world, List<Bounds> floors, Vector3 forward, List<Renderer> changed)
         {
             int hidden = 0;
             foreach (var node in world.GetComponentsInChildren<WordboundCourseNode>(true))
@@ -488,6 +881,7 @@ namespace Wreckabulary.EditorTools
                 var nearSide = NearSide(box, box.size.x >= box.size.z, forward);
                 if (floors.Any(floor => nearSide.x >= floor.min.x && nearSide.x <= floor.max.x && nearSide.z >= floor.min.z && nearSide.z <= floor.max.z)) continue;
                 renderer.forceRenderingOff = true;
+                changed.Add(renderer);
                 hidden++;
             }
             return hidden;
@@ -555,22 +949,24 @@ namespace Wreckabulary.EditorTools
                 solid++;
             }
             share = solid / (float)count;
-            if (share < EmptyShare || share > FullShare) return false;
+            if (share < EmptyShare) return false;
             gain = Gain(histogram, solid);
-            var shade = Soften(cover);
             result = new Color32[count];
-            var tint = new Vector3(PaperShade.r, PaperShade.g, PaperShade.b);
             for (int y = 0; y < Height; y++)
                 for (int x = 0; x < Width; x++)
                 {
                     int i = y * Width + x;
-                    var paper = Paper(x, y);
-                    float shadow = Mathf.Clamp01(shade[Mathf.Min(Height - 1, y + ShadowDrop) * Width + x] * PaperShadow);
-                    var ground = Vector3.Lerp(paper, Vector3.Scale(paper, tint), shadow);
-                    var mixed = Vector3.Lerp(ground, Grade(colour[i] * gain), cover[i]);
+                    var mixed = Vector3.Lerp(Sky(y), Grade(colour[i] * gain), cover[i]);
                     result[i] = new Color(Mathf.Clamp01(mixed.x), Mathf.Clamp01(mixed.y), Mathf.Clamp01(mixed.z), 1f);
                 }
             return true;
+        }
+
+        static Vector3 Sky(int y)
+        {
+            float t = (y + .5f) / Height;
+            var c = t < .5f ? Color.Lerp(SkyLow, SkyMid, t * 2f) : Color.Lerp(SkyMid, SkyHigh, (t - .5f) * 2f);
+            return new Vector3(c.r, c.g, c.b);
         }
 
         static float Luma(Vector3 v) => v.x * .2126f + v.y * .7152f + v.z * .0722f;
@@ -594,41 +990,6 @@ namespace Wreckabulary.EditorTools
             v = Vector3.LerpUnclamped(new Vector3(luma, luma, luma), v, Saturation);
             v = (v - Vector3.one * .5f) * Contrast + Vector3.one * .5f;
             return new Vector3(Mathf.Clamp01(v.x), Mathf.Clamp01(v.y), Mathf.Clamp01(v.z));
-        }
-
-        static Vector3 Paper(int x, int y)
-        {
-            float u = (x + .5f) / Width * 2f - 1f, v = (y + .5f) / Height * 2f - 1f;
-            var c = Color.Lerp(PaperCentre, PaperEdge, Mathf.SmoothStep(0f, 1f, Mathf.Sqrt((u * u + v * v) * .5f)));
-            return new Vector3(c.r, c.g, c.b);
-        }
-
-        static float[] Soften(float[] source)
-        {
-            var a = (float[])source.Clone(); var b = new float[a.Length];
-            for (int pass = 0; pass < ShadowPasses; pass++)
-            {
-                Smear(a, b, Width, Height, 1, Width);
-                Smear(b, a, Height, Width, Width, 1);
-            }
-            return a;
-        }
-
-        static void Smear(float[] from, float[] to, int length, int lines, int step, int stride)
-        {
-            float window = 2 * ShadowBlur + 1;
-            for (int line = 0; line < lines; line++)
-            {
-                int start = line * stride; float sum = 0f;
-                for (int i = 0; i <= ShadowBlur && i < length; i++) sum += from[start + i * step];
-                for (int i = 0; i < length; i++)
-                {
-                    to[start + i * step] = sum / window;
-                    int enter = i + ShadowBlur + 1, leave = i - ShadowBlur;
-                    if (enter < length) sum += from[start + enter * step];
-                    if (leave >= 0) sum -= from[start + leave * step];
-                }
-            }
         }
 
         static void RequireVaried(Color32[] pixels)
@@ -660,7 +1021,7 @@ namespace Wreckabulary.EditorTools
             try
             {
                 int rows = (shots.Count + SheetColumns - 1) / SheetColumns, smallRows = (shots.Count + SmallColumns - 1) / SmallColumns;
-                int width = SheetColumns * CellWidth + (SheetColumns + 1) * SheetGap;
+                int width = Mathf.Max(SheetColumns * CellWidth + (SheetColumns + 1) * SheetGap, SmallColumns * SmallWidth + (SmallColumns + 1) * SheetGap);
                 int height = SheetGap + rows * (LabelRoom + CellHeight + SheetGap) + 2 * smallRows * (LabelRoom + SmallHeight + SheetGap);
                 var sheet = new CaptureSheet(width, height, PaperCentre);
                 Color32 ink = LobbyParcel.Ink;
@@ -668,14 +1029,16 @@ namespace Wreckabulary.EditorTools
                 for (int i = 0; i < shots.Count; i++)
                 {
                     int left = SheetGap + i % SheetColumns * (CellWidth + SheetGap), at = top + i / SheetColumns * (LabelRoom + CellHeight + SheetGap);
-                    sheet.Label(shots[i].id, left, at + 2, LabelScale, ink);
+                    sheet.Label(shots[i].id + "  " + shots[i].guard, left, at + 2, LabelScale, ink);
                     sheet.Paste(CaptureSheet.Resize(shots[i].pixels, Width, Height, CellWidth, CellHeight), CellWidth, CellHeight, left, at + LabelRoom);
                 }
                 top += rows * (LabelRoom + CellHeight + SheetGap);
                 Strip(sheet, shots, top, "NEW AT CARD SIZE", ink, shot => shot.pixels == null ? null : CaptureSheet.Resize(shot.pixels, Width, Height, SmallWidth, SmallHeight));
                 top += smallRows * (LabelRoom + SmallHeight + SheetGap);
                 Strip(sheet, shots, top, "BEFORE", ink, Before);
-                sheet.Save(Full(SheetPath));
+                string file = Full(SheetPath);
+                Directory.CreateDirectory(Path.GetDirectoryName(file));
+                sheet.Save(file);
                 return SheetPath;
             }
             catch (Exception error)

@@ -451,12 +451,16 @@ namespace Wreckabulary.Tests
 
                 foreach (Transform card in cards)
                 {
-                    Assert.GreaterOrEqual(((RectTransform)card.Find("Picture")).rect.width, 112f);
+                    var picture = (RectTransform)card.Find("Picture");
+                    Assert.GreaterOrEqual(picture.rect.width, 112f, card.name + " keeps its full-size picture");
+                    AssertRectInside((RectTransform)card, picture);
                     foreach (var text in card.GetComponentsInChildren<TMPro.TMP_Text>())
                     {
-                        Assert.GreaterOrEqual(text.fontSize, 23f, card.name);
+                        bool letter = text.name == "Letter";
+                        Assert.GreaterOrEqual(text.fontSize, letter ? 23f : 15f, card.name + " " + text.transform.parent.name);
                         AssertRectInside((RectTransform)card, (RectTransform)text.transform.parent);
                     }
+                    AssertCardRowsApart(card, picture);
                 }
                 scroll.verticalNormalizedPosition = 0f;
                 Canvas.ForceUpdateCanvases();
@@ -465,6 +469,25 @@ namespace Wreckabulary.Tests
             }
             Object.Destroy(hud.gameObject);
             Object.Destroy(player.gameObject);
+        }
+
+        static Rect WorldRect(Transform part)
+        {
+            var corners = new Vector3[4];
+            ((RectTransform)part).GetWorldCorners(corners);
+            return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
+        }
+
+        static void AssertCardRowsApart(Transform card, RectTransform picture)
+        {
+            var rows = new[] { "Fact ", "Tile ", "Bar " }
+                .Select(prefix => card.Cast<Transform>().Where(c => c.name.StartsWith(prefix)).Select(WorldRect).ToList())
+                .Prepend(new System.Collections.Generic.List<Rect> { WorldRect(picture) }).ToList();
+            for (int a = 0; a < rows.Count; a++)
+                for (int b = a + 1; b < rows.Count; b++)
+                    foreach (var upper in rows[a])
+                        foreach (var lower in rows[b])
+                            Assert.IsFalse(upper.Overlaps(lower), $"{card.name}: picture, effects, letters and stat bars sit in separate rows");
         }
 
         static void AssertRectInside(RectTransform outer, RectTransform inner)

@@ -20,9 +20,12 @@ namespace Wreckabulary.Rules.Surroundings
         const float NeedleShaft = 7f, NeedleUpper = 3.2f, PodLimit = 20f, PodFlare = 3.2f, PodSkirt = 6f, PodGlass = 5f, PodBand = 1.2f, PodRoof = 3f, MastBands = 3;
         const float CraneRise = 22f, CraneMast = 1.6f, CraneBeam = 1.2f, CraneLine = 12f, SkeletonColumn = .8f, SkeletonSlab = .3f;
         const float LedgeShade = 1.05f, PierShade = 1.03f, ParapetShade = .92f, DoorShade = .55f, BalconyShade = 1.06f;
-        const int SkeletonStoreys = 3, MostBalconyRows = 16;
+        const float ShedBand = .3f, ShedTop = .4f, ShedSpacing = 3.6f, ShedWidth = .7f, ShedHeight = .55f, ShedMargin = 1.5f, ShedDoor = 4f, ShedDoorHeight = 4.5f;
+        const float RidgeLift = 1.12f, RidgeTaper = .6f, RidgeHeight = 2.4f, StackSize = 3f, StackTaper = .7f, StackRise = 16f, StackEdge = 2.5f, VentSize = .9f, VentHeight = 1.2f, VentShift = 1.6f;
+        const int SkeletonStoreys = 3, MostBalconyRows = 16, NearVents = 2;
 
         readonly CourseSkylineSpec spec;
+        readonly CourseDistrictSpec district;
         readonly CourseSkylineLot lot;
         readonly float ground;
         readonly bool full, rich;
@@ -34,9 +37,10 @@ namespace Wreckabulary.Rules.Surroundings
         uint wall, trim, plinth, ledge, cap, plant;
         SkylineWindows body, shop;
 
-        public CourseTowerShape(CourseSkylineSpec spec, CourseSkylineLot lot, float ground, bool full, bool rich)
+        public CourseTowerShape(CourseSkylineSpec spec, CourseDistrictSpec district, CourseSkylineLot lot, float ground, bool full, bool rich)
         {
             this.spec = spec;
+            this.district = district;
             this.lot = lot;
             this.ground = ground;
             this.full = full;
@@ -96,6 +100,7 @@ namespace Wreckabulary.Rules.Surroundings
                 case CourseSkylineTypes.Supertall: Supertall(); break;
                 case CourseSkylineTypes.Needle: Needle(); break;
                 case CourseSkylineTypes.Clock: Clock(); break;
+                case CourseSkylineTypes.Shed: Shed(); break;
                 default: Block(); break;
             }
             return boxes;
@@ -281,6 +286,44 @@ namespace Wreckabulary.Rules.Surroundings
                 Add("plant", spot.x, spot.z + (k == 2 ? AcDepth * 1.4f : 0), y, AcWidth, AcDepth, AcHeight, plant, true);
             }
             if (R(21) < .6f) Add("duct", ox, quads[2].z, y, Math.Min(w * .5f, 8f), DuctWidth, DuctHeight, plant, true);
+            Vents(quads, y);
+        }
+
+        void Vents(List<(float x, float z)> quads, float y)
+        {
+            if (!rich || lot.Distance > spec.Streets.Reach) return;
+            for (int k = 0; k < NearVents; k++)
+                Add("vent", quads[k + 1].x + (k == 0 ? VentShift : -VentShift), quads[k + 1].z - VentShift, y, VentSize, VentSize, VentHeight, CourseSkyline.Shade(plant, .9f), true);
+        }
+
+        void Shed()
+        {
+            float w = (float)lot.Width, d = (float)lot.Depth, h = Math.Max(CourseSkylineSpec.MinHeight - RoofSlab, H - RoofSlab), band = h * ShedBand;
+            var clerestory = new SkylineWindows
+            {
+                Spacing = Q(ShedSpacing + R(2)), Storey = Q(band - .01f), Width = ShedWidth, Height = ShedHeight, Margin = ShedMargin,
+                Bottom = Q(h - band - ShedTop), Top = ShedTop, Glass = lot.Pane, Lit = 0, Seed = Q(R(6)),
+            };
+            Plaza();
+            Add("body", 0, 0, ground, w, d, h, wall, false, 4, 1, clerestory);
+            if (full) Add("cornice", 0, 0, ground + h - CorniceHeight * .6f, w + 2 * ParapetOut, d + 2 * ParapetOut, CorniceHeight * .6f, trim, false);
+            Add("roof", 0, 0, ground + h, w, d, RoofSlab, lot.Roof, true);
+            int ridges = 3 + (int)(R(25) * 2);
+            float pitch = d / ridges;
+            for (int k = 0; k < ridges; k++)
+                Add("ridge", 0, -d * .5f + pitch * (k + .5f), ground + h + RoofSlab, w * .97f, pitch * .9f, Math.Min(RidgeHeight, pitch * .35f), CourseSkyline.Shade(lot.Roof, RidgeLift), true, 4, RidgeTaper);
+            if (rich)
+            {
+                int doors = 2 + (int)(R(40) * 2);
+                for (int k = 0; k < doors; k++)
+                    Add("door", -w * .5f + w * (k + .5f) / doors, -(d * .5f + DoorDepth * .5f), ground, ShedDoor, DoorDepth, Math.Min(ShedDoorHeight, h * .6f), CourseSkyline.Shade(wall, DoorShade), true);
+                Vents(Quadrants(0, 0, w, d), ground + h + RoofSlab);
+            }
+            if (R(26) < district.Chimneys)
+            {
+                float sx = R(27) < .5f ? -1 : 1, sz = R(29) < .5f ? -1 : 1;
+                Add("stack", sx * (w * .5f - StackEdge), sz * (d * .5f - StackEdge), ground, StackSize, StackSize, h + StackRise + StackRise * R(28), spec.Stack, false, 8, StackTaper);
+            }
         }
 
         void Tank(float x, float z, float y)

@@ -225,6 +225,7 @@ namespace Wreckabulary.Tests
             Assert.Throws<System.ArgumentException>(() => Session.SceneForMode("Nope"));
             Assert.IsTrue(HouseModeDirectors.Has(HouseModes.FreeForAll) && HouseModeDirectors.Has(HouseModes.War));
             Assert.IsTrue(HouseModeDirectors.Has(HouseModes.Escape) && HouseModeDirectors.Has(HouseModes.MovingOut));
+            Assert.IsTrue(HouseModeDirectors.Has(HouseModes.BossFight));
             Assert.IsFalse(HouseModeDirectors.Has(HouseModes.Dibs), "Dibs! and Duos keep the round manager's own rounds.");
         }
 

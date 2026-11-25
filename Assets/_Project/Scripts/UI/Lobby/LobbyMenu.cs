@@ -934,7 +934,7 @@ namespace Wreckabulary
 
         public string Blocked => Queue == Matchmaking
             ? "House modes are played on this screen. For online matches, choose Online."
-            : null;
+            : PlayPage.Refusal(this);
 
         public void Go()
         {
@@ -1078,6 +1078,7 @@ namespace Wreckabulary
             return mode switch
             {
                 HouseModes.Escape => "",
+                HouseModes.BossFight => "solo",
                 HouseModes.Duos => humans switch
                 {
                     1 => "you and a bot vs 2 bots",

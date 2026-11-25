@@ -60,6 +60,8 @@ namespace Wreckabulary
         public const float BookKeyTop = BookTitleTop + BookTitleHeight + BookKeyGap, BookCardsTop = BookKeyTop + BookKeyHeight + BookCardsGap;
         public const float BookCloseSize = 40f, BookCloseInset = 4f, BookCloseGap = 8f;
         const float BookGlyphCentre = 21f, BookKeyStar = 18f, BookKeyFont = 20f, BookKeyMinFont = 15f;
+        public const float BookCardHeight = 220f, BookPicture = 112f, BookPictureTop = 16f, BookTileY = 26f, BookFactY = 64f;
+        const float BookBarY = 4f, BookBarCaption = 52f, BookBarTrack = 30f, BookFactFont = 16f, BookBarFont = 15f;
         const int ChipsPerRow = 6;
         public const string FreeSpelling = "Free spelling", FreeBookLine = "Warm-up: every recipe is free";
 
@@ -89,6 +91,8 @@ namespace Wreckabulary
         TextMeshProUGUI effects, interactPrompt;
         VitalsView soloVitals;
         readonly List<Image> crosshairTicks = new();
+        GameObject drawMeter;
+        RectTransform drawFill;
         TextMeshProUGUI aliveText, hintText, bagPanelCount, touchToggle, spellKey, bagKey;
         TextMeshProUGUI craftStatus, buildLabel, spellHint;
         long spellHintKey = long.MinValue;
@@ -533,6 +537,13 @@ namespace Wreckabulary
             Tick("Right", new Vector2(16f, 10f), new Vector2(6f, 2f));
             interactPrompt = Text("Interaction key", root, new Vector2(.5f, 0f), new Vector2(0f, -22f), new Vector2(260f, 30f), 22f, Hex(0x9ff8d3), TextAlignmentOptions.Center);
             OnGameText(interactPrompt);
+            var meter = CreateImage("Draw meter", root, new Vector2(.5f, 1f), new Vector2(0f, 12f), new Vector2(46f, 6f), Hex(0x10292b, .6f)).rectTransform;
+            meter.pivot = new Vector2(.5f, 0f);
+            drawFill = CreateImage("Drawn", meter, Vector2.zero, Vector2.zero, Vector2.zero, Hex(0x9ff8d3)).rectTransform;
+            drawFill.anchorMin = Vector2.zero; drawFill.anchorMax = new Vector2(0f, 1f); drawFill.pivot = Vector2.zero;
+            drawFill.offsetMin = new Vector2(1f, 1f); drawFill.offsetMax = new Vector2(-1f, -1f);
+            drawMeter = meter.gameObject;
+            drawMeter.SetActive(false);
             crosshair = root.gameObject;
             crosshair.SetActive(false);
         }
@@ -648,7 +659,7 @@ namespace Wreckabulary
             var cardsRoot = Rect("Cards", view, new Vector2(.5f, 1f), Vector2.zero, Vector2.zero);
             cardsRoot.anchorMin = new Vector2(0f, 1f); cardsRoot.anchorMax = Vector2.one; cardsRoot.pivot = new Vector2(.5f, 1f); cardsRoot.offsetMin = cardsRoot.offsetMax = Vector2.zero;
             var grid = recipeGrid = cardsRoot.gameObject.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(199f, 200f); grid.spacing = new Vector2(12f, 12f); grid.padding = new RectOffset(4, 4, 4, 4);
+            grid.cellSize = new Vector2(199f, BookCardHeight); grid.spacing = new Vector2(12f, 12f); grid.padding = new RectOffset(4, 4, 4, 4);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount; grid.constraintCount = 4;
             cardsRoot.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var scroll = view.gameObject.AddComponent<ScrollRect>();
@@ -734,7 +745,7 @@ namespace Wreckabulary
             var colours = card.button.colors; colours.disabledColor = Color.white; card.button.colors = colours;
             card.button.onClick.AddListener(() => SpellFromBook(word));
             root.gameObject.AddComponent<BookCardFocus>().Changed = on => ShowBookLine(on ? word : null);
-            var icon = Rect("Picture", root, new Vector2(.5f, 1f), new Vector2(0f, -16f), new Vector2(112f, 112f)).gameObject.AddComponent<RawImage>();
+            var icon = Rect("Picture", root, new Vector2(.5f, 1f), new Vector2(0f, -BookPictureTop), new Vector2(BookPicture, BookPicture)).gameObject.AddComponent<RawImage>();
             ((RectTransform)icon.transform).pivot = new Vector2(.5f, 1f); icon.raycastTarget = false;
             Wreckabulary.UI.ItemArt.Apply(icon, word);
             var tier = RecipeDifficulty.TierOf(word);
@@ -750,15 +761,68 @@ namespace Wreckabulary
             card.rims = new Image[word.Length];
             for (int i = 0; i < word.Length; i++)
             {
-                var t = Panel($"Tile {i + 1}", root, new Vector2(.5f, 0f), new Vector2(x0 + i * step, 20f), new Vector2(tile, 32f), Vector2.zero, Color.clear);
+                var t = Panel($"Tile {i + 1}", root, new Vector2(.5f, 0f), new Vector2(x0 + i * step, BookTileY), new Vector2(tile, 32f), Vector2.zero, Color.clear);
                 card.tiles[i] = t.GetComponent<Image>(); card.tiles[i].pixelsPerUnitMultiplier = 11f / 3.75f;
                 var rim = card.rims[i] = CreateImage("Rim", t, Vector2.zero, Vector2.zero, Vector2.zero, TileRim);
                 Stretch(rim.rectTransform); rim.sprite = tileRing; rim.type = Image.Type.Sliced; rim.pixelsPerUnitMultiplier = card.tiles[i].pixelsPerUnitMultiplier;
                 card.letters[i] = Text("Letter", t, new Vector2(.5f, .5f), Vector2.zero, new Vector2(tile, 32f), 23f, TileMissingInk);
                 card.letters[i].text = word[i].ToString();
             }
+            AddCardFacts(root, word);
             return card;
         }
+
+        void AddCardFacts(RectTransform root, string word)
+        {
+            var config = GameConfig.Current;
+            if (!config.Items.TryGet(word, out var item)) return;
+            var chips = RecipeFacts.Chips(item, config.Tuning);
+            var sized = new List<(RecipeChip chip, float width)>();
+            float total = 0f;
+            foreach (var chip in chips)
+            {
+                float measured = FactProbe().GetPreferredValues(chip.Label, 999f, 22f).x;
+                float width = Mathf.Ceil(measured > 1f ? measured : chip.Label.Length * 8.5f) + 16f;
+                sized.Add((chip, width)); total += width;
+            }
+            total += Mathf.Max(0, sized.Count - 1) * 6f;
+            float x = -total * .5f;
+            foreach (var (chip, width) in sized)
+            {
+                bool role = chip.Kind == FactKind.Role;
+                var pill = Panel("Fact " + chip.Label, root, new Vector2(.5f, 0f), new Vector2(x, BookFactY), new Vector2(width, 22f), Vector2.zero, role ? Hex(0xffffff, .12f) : FactColour(chip.Kind));
+                pill.GetComponent<Image>().pixelsPerUnitMultiplier = 11f / 11f;
+                Text("Label", pill, new Vector2(.5f, .5f), new Vector2(0f, 1f), new Vector2(width, 22f), BookFactFont, role ? BagInk : Hex(0x17393a)).text = chip.Label;
+                x += width + 6f;
+            }
+            var bars = RecipeFacts.Bars(item, config.Items.All, config.Tuning);
+            for (int i = 0; i < bars.Count; i++)
+            {
+                float left = i == 0 ? -88f : 4f;
+                var caption = Text("Bar " + bars[i].Label, root, new Vector2(.5f, 0f), new Vector2(left, BookBarY), new Vector2(BookBarCaption, 18f), BookBarFont, Hex(0xfff4e2, .75f), TextAlignmentOptions.MidlineLeft);
+                caption.rectTransform.pivot = Vector2.zero; caption.text = bars[i].Label;
+                var track = Panel("Track", root, new Vector2(.5f, 0f), new Vector2(left + BookBarCaption, BookBarY + 6f), new Vector2(BookBarTrack, 6f), Vector2.zero, Hex(0xffffff, .16f));
+                track.GetComponent<Image>().pixelsPerUnitMultiplier = 11f / 2.5f;
+                var fill = Panel("Fill", track, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, BagInk);
+                fill.anchorMax = new Vector2(Mathf.Max(.06f, bars[i].Fill), 1f); fill.offsetMin = fill.offsetMax = Vector2.zero;
+                fill.GetComponent<Image>().pixelsPerUnitMultiplier = 11f / 2.5f;
+            }
+        }
+
+        TextMeshProUGUI factProbe;
+        TextMeshProUGUI FactProbe()
+        {
+            if (factProbe) return factProbe;
+            factProbe = Text("Fact probe", safe, Vector2.zero, new Vector2(-9999f, -9999f), new Vector2(10f, 10f), BookFactFont, Color.clear);
+            factProbe.gameObject.SetActive(false);
+            return factProbe;
+        }
+
+        static Color FactColour(FactKind kind) => kind switch
+        {
+            FactKind.Heavy => Hex(0x8cc8ff), FactKind.Daze => Hex(0xcdb4ff), FactKind.Bleed => Hex(0xff9a8a),
+            FactKind.Crush => Hex(0xffc568), FactKind.Guard or FactKind.Swift => Hex(0x9ff8d3), _ => Hex(0xe2dccd),
+        };
 
         static Color TierColour(RecipeTier tier) => tier switch
         {
@@ -935,6 +999,7 @@ namespace Wreckabulary
             bool aiming = rig && rig.isActiveAndEnabled && rig.IsThirdPerson && !NeedsPointer;
             bool crossed = aiming && !rig.Looking;
             if (crosshair && crosshair.activeSelf != crossed) crosshair.SetActive(crossed);
+            RefreshDrawMeter();
             bool thirdPerson = rig && rig.isActiveAndEnabled && rig.IsThirdPerson;
             if (thirdPerson != trayAside) { trayAside = thirdPerson; ApplySafeArea(); }
             LearnTips(thirdPerson); FadeTip();
@@ -974,13 +1039,32 @@ namespace Wreckabulary
             float width = Mathf.Clamp(key.GetPreferredValues(label, 999f, 32f).x + 16f, 32f, 78f);
             key.rectTransform.sizeDelta = cap.sizeDelta = new Vector2(width, 32f);
         }
+        void RefreshDrawMeter()
+        {
+            if (!drawMeter) return;
+            var bow = LocalPlayer && LocalPlayer.Combat ? LocalPlayer.Combat.Weapon : null;
+            bool drawing = bow && bow.IsDrawing;
+            if (drawMeter.activeSelf != drawing) drawMeter.SetActive(drawing);
+            if (!drawing) return;
+            float power = bow.DrawPower;
+            drawFill.anchorMax = new Vector2(power, 1f);
+            drawFill.GetComponent<Image>().color = power >= 1f ? Hex(0xffd166) : Hex(0x9ff8d3);
+        }
+
         void RefreshInteraction(bool aiming)
         {
             bool available = aiming && LocalPlayer && LocalPlayer.CanAct && !LocalPlayer.Combat.IsChanneling &&
                 (LocalPlayer.Combat.GrabTarget() || LocalPlayer.Combat.DownedTeammateNearby());
             var color = available ? Hex(0x9ff8d3) : Hex(0xfff8e8);
             foreach (var tick in crosshairTicks) tick.color = color;
-            if (interactPrompt) interactPrompt.text = available ? interactLabel : "";
+            if (interactPrompt) interactPrompt.text = available ? interactLabel + StashVerb() : "";
+        }
+
+        string StashVerb()
+        {
+            var target = LocalPlayer.Combat.GrabTarget();
+            if (!target || !target.TryGetComponent(out LetterStash stash) || !stash.CanOpen(LocalPlayer) || !stash.WantsExchange(LocalPlayer)) return "";
+            return LocalPlayer.Inventory.IsEmpty ? $" · TAKE {stash.Count}" : " · BANK";
         }
 
         public void Follow(PlayerController player)
@@ -1344,7 +1428,7 @@ namespace Wreckabulary
             bagBook.offsetMax = new Vector2(-BagSide, -BagTop);
             int columns = Mathf.Clamp(Mathf.FloorToInt((bookWidth - 8f + 12f) / 200f), 1, 4);
             recipeGrid.constraintCount = columns;
-            recipeGrid.cellSize = new Vector2((bookWidth - 8f - (columns - 1) * 12f) / columns, 200f);
+            recipeGrid.cellSize = new Vector2((bookWidth - 8f - (columns - 1) * 12f) / columns, BookCardHeight);
             bagColumn.anchorMin = bagColumn.anchorMax = compact ? new Vector2(0f, 1f) : new Vector2(0f, .5f);
             bagColumn.pivot = compact ? new Vector2(0f, 1f) : new Vector2(0f, .5f);
             bagColumn.anchoredPosition = compact ? new Vector2(BagSide, -BagTop) : new Vector2(BagSide, (BagBottom - BagTop) * .5f);

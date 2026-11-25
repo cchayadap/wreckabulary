@@ -96,7 +96,8 @@ namespace Wreckabulary
         }
 
         public static string ResolveMap(string mode, string mapId) =>
-            mapId == LobbyRandomMap || (mode == Rules.HouseModes.Escape && string.IsNullOrEmpty(mapId)) ? RandomHouseId() : mapId;
+            mode == Rules.HouseModes.BossFight ? Rules.BossFightTuning.Map
+            : mapId == LobbyRandomMap || (mode == Rules.HouseModes.Escape && string.IsNullOrEmpty(mapId)) ? RandomHouseId() : mapId;
 
         public static void SelectMap(string mapId)
         {

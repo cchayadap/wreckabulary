@@ -100,6 +100,40 @@ namespace Wreckabulary.Online.Tests
             Draw(f, pixelsWide, pixelsHigh, (drawn, size) => CheckStrip(drawn, size, 8, 40f));
         }
 
+        [TestCase(1280, 720), TestCase(1920, 1080), TestCase(1248, 576)]
+        public void TheLeadingSideGetsASmallTrophyInsideTheClockBlock(int pixelsWide, int pixelsHigh)
+        {
+            using var f = new WordboundRecipeContextFixture("TeamRace", flagship: true);
+            var me = new MatchActorState(Player, 100, 100);
+            f.Grid.Set("healthMax", 100f);
+            f.Grid.Set("actor", me);
+            f.Grid.Set("frame", WithActors(Frame(f), me, new MatchActorState(Rival, 100, 100)));
+            f.Grid.Call("PreparePanels");
+            f.Grid.Call("RefreshScore");
+            var hud = f.Grid.Hud;
+            Get<GUIContent>(hud, "scoreMine").text = "2/6";
+            Get<GUIContent>(hud, "scoreTheirs").text = "1/6";
+            f.Grid.Set("scoreSidesShown", true);
+            foreach (int lead in new[] { ScoreLine.Left, ScoreLine.Right, ScoreLine.NoLead })
+            {
+                f.Grid.Set("scoreLead", lead);
+                Draw(f, pixelsWide, pixelsHigh, (drawn, size) =>
+                {
+                    var centre = Get<Rect>(drawn, "seatCentreRect");
+                    var mark = Get<Rect>(drawn, "seatLeadRect");
+                    if (lead == ScoreLine.NoLead) { Assert.AreEqual(default(Rect), mark, "A tie shows no trophy."); return; }
+                    Assert.AreEqual(14f, mark.width, .5f); Assert.AreEqual(14f, mark.height, .5f, "The trophy is small and square.");
+                    Assert.GreaterOrEqual(mark.xMin, centre.xMin + Outline - .5f, "The trophy stays inside the clock block.");
+                    Assert.LessOrEqual(mark.xMax, centre.xMax - Outline + .5f);
+                    Assert.GreaterOrEqual(mark.yMin, centre.yMin + Outline - .5f);
+                    Assert.LessOrEqual(mark.yMax, centre.yMax - Outline + .5f);
+                    Assert.Greater(mark.yMin, centre.center.y - .5f, "The trophy sits on the score row under the clock.");
+                    if (lead == ScoreLine.Left) Assert.Less(mark.xMax, centre.center.x, "My lead marks my count on the left.");
+                    else Assert.Greater(mark.xMin, centre.center.x, "The rival lead marks their count on the right.");
+                });
+            }
+        }
+
         [Test]
         public void AKnockedOutSeatGoesGreyWithAnEmptyBar()
         {

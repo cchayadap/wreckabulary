@@ -34,6 +34,7 @@ namespace Wreckabulary
         public abstract string Id { get; }
         public virtual bool CanLook => false;
         public virtual bool ReadsMouse => false;
+        public virtual bool HoldingAttackRaisesShield => true;
         public abstract void Read(ref PlayerCommands c);
         public abstract bool JoinPressed();
         public abstract bool StartPressed();
@@ -78,6 +79,7 @@ namespace Wreckabulary
         }
 
         public override string Id => id;
+        public override bool HoldingAttackRaisesShield => false;
 
         static float Axis(KeyControl positive, KeyControl negative) =>
             (positive.isPressed ? 1f : 0f) - (negative.isPressed ? 1f : 0f);
@@ -94,6 +96,7 @@ namespace Wreckabulary
                 c.grab = kb.spaceKey.wasPressedThisFrame;
                 c.grabHeld = kb.spaceKey.isPressed;
                 c.attack = kb.jKey.wasPressedThisFrame;
+                c.attackHeld = kb.jKey.isPressed;
                 c.jump = kb.uKey.wasPressedThisFrame;
                 c.dodge = kb.leftShiftKey.wasPressedThisFrame;
                 c.blockHeld = kb.lKey.isPressed;
@@ -112,6 +115,7 @@ namespace Wreckabulary
                 c.grab = kb.periodKey.wasPressedThisFrame || kb.numpad1Key.wasPressedThisFrame;
                 c.grabHeld = kb.periodKey.isPressed || kb.numpad1Key.isPressed;
                 c.attack = kb.slashKey.wasPressedThisFrame || kb.numpad2Key.wasPressedThisFrame;
+                c.attackHeld = kb.slashKey.isPressed || kb.numpad2Key.isPressed;
                 c.jump = kb.commaKey.wasPressedThisFrame || kb.numpad0Key.wasPressedThisFrame;
                 c.dodge = kb.rightCtrlKey.wasPressedThisFrame || kb.numpad5Key.wasPressedThisFrame;
                 c.blockHeld = kb.semicolonKey.isPressed || kb.numpad4Key.isPressed;
@@ -173,6 +177,7 @@ namespace Wreckabulary
             }
         }
         public override bool CanLook => true;
+        public override bool HoldingAttackRaisesShield => false;
         public bool BagHeld => !KeyBindings.GameplayBlocked && Pad != null && Pad.added && Pad.rightShoulder.isPressed;
 
         public override void Read(ref PlayerCommands c)
@@ -196,6 +201,7 @@ namespace Wreckabulary
             c.grab = Pad.rightTrigger.wasPressedThisFrame;
             c.grabHeld = Pad.rightTrigger.isPressed;
             c.attack = Pad.buttonWest.wasPressedThisFrame;
+            c.attackHeld = Pad.buttonWest.isPressed;
             c.jump = Pad.buttonSouth.wasPressedThisFrame;
             c.dodge = Pad.buttonEast.wasPressedThisFrame;
             c.blockHeld = Pad.leftTrigger.isPressed;

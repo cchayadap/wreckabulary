@@ -15,13 +15,15 @@ Harder words make better items. A plain word like BAT is an honest hit; harder w
 | Effect | How it lands | Examples |
 |---|---|---|
 | None | — | BAT, PAN, POT, BALL |
-| Heavy | every hit pushes further | LAMP, BROOM, BARREL |
-| Daze | by chance, or on every 3rd hit | SPEAR, TOASTER, PILLOW, RACK |
+| Heavy | every hit pushes further | LAMP, BROOM, BARREL, BOOK |
+| Daze | by chance, or on every 3rd hit | SPEAR, TOASTER, PILLOW, RACK, VASE, BOOK |
 | Bleed | over time; repeated cuts deepen | ARROW, BLADE |
 | Crush | every 3rd hit lands extra hard | HAMMER |
 | Guard / Swift | constant while held | MIRROR, SHIELD / PLATE |
 
-Bare hands barely hurt. The recipe book says what each item does when you point at it.
+Bare hands barely hurt. Every recipe card shows its effects and how its damage and reach compare.
+
+A BOW fires further and harder the longer you hold attack; a meter under the crosshair shows the draw. Place a CHEST and interact with it to bank your letters (or take them back with an empty bag); only your team can open it, and it spills everything if an enemy grabs or breaks it.
 
 ## Modes
 
@@ -31,6 +33,7 @@ Bare hands barely hurt. The recipe book says what each item does when you point 
 | Battle | Dibs! (last one standing), Duos (2v2 with revives), Free-for-All (respawns; first to 10 knockouts), War (two teams of up to 4 share 12 lives; hold the middle room for more) | 1–4 on one PC, bots fill seats (War plays 4v4) |
 | Co-op | Moving Out (escape with the keepsakes), Moving Day (finish the checklist), Escape | 1–4 on one PC |
 | Word games | Shopping List (everyone builds the same items in a new random order each round), Riddle Rush (solve the riddle, spell the answer first) | 1–4 on one PC, bots fill seats |
+| Boss Fight | Spell the three parts of the Calculator's name to break its shield, then knock it out (Pinwheel House) | 1 on one PC |
 | Courses | Time Trial, Freeplay on Parcel Depot, The Lost Address or Parcel Hall | 1 on one PC |
 | Online courses | Time Trial, Team Relay, Brawl Relay (teams of 1, 2 or 4), Free-for-All (first to 10 knockouts), Freeplay | Matchmaking or a private party |
 

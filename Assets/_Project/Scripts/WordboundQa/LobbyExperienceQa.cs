@@ -159,11 +159,14 @@ namespace Wreckabulary.Qa
                     var howTo = Page().GetComponentsInChildren<LobbyPlaySpare>().SingleOrDefault();
                     Require(howTo && howTo.name == PlayPage.GuideStrip, "Every Same screen mode must build its how-to-play strip: " + mode);
                     if (howTo.Shown) foreach (var text in howTo.GetComponentsInChildren<TMP_Text>()) TextFits(text);
-                    Require(Find(Page(), "GO").interactable, "The selected local mode cannot start.");
+                    bool mapLocked = HouseModes.Find(mode).Maps.Length > 0;
+                    string refusal = PlayPage.Refusal(menu);
+                    Require(mapLocked ? Find(Page(), "GO").interactable == (refusal == null) && (refusal == null || detail.text == refusal) : Find(Page(), "GO").interactable,
+                        "The selected local mode cannot start, or a map-locked mode hides why: " + mode);
                     context.Note("local_" + mode, new Dictionary<string, object> { ["summary"] = detail.text, ["goal"] = goal.text, ["access"] = access.text, ["map"] = menu.Map,
                         ["humans"] = menu.PartySize, ["selected"] = EventSystem.current.currentSelectedGameObject.name, ["maps"] = maps,
                         ["ticked"] = menu.Maps.Ticked.ToArray(), ["guide"] = guide.Length == 1, ["how_to_play"] = howTo.Shown });
-                    if (mode is HouseModes.Dibs or HouseModes.Duos or HouseModes.Escape or HouseModes.War)
+                    if (mode is HouseModes.Dibs or HouseModes.Duos or HouseModes.Escape or HouseModes.War or HouseModes.BossFight)
                         yield return Capture(context, "lobby_local_" + mode.ToLowerInvariant());
                 }
                 yield return SoloFamilies(context);
@@ -255,14 +258,21 @@ namespace Wreckabulary.Qa
 
         static void StackFits(Transform section, Rect area)
         {
-            float above = float.NaN;
+            Rect? previous = null;
             foreach (Transform child in section)
             {
                 var rect = ScreenRect((RectTransform)child);
-                Require(Mathf.Abs(rect.xMin - area.xMin) <= 2 && Mathf.Abs(rect.xMax - area.xMax) <= 2, child.name + " must fill its column in " + section.name + ".");
-                Require(child.GetSiblingIndex() == 0 ? child.name == LobbyPlayModeFamilies.Caption : rect.yMax <= above + 2,
-                    child.name + " must stack under the row before it in " + section.name + ".");
-                above = rect.yMin;
+                if (child.GetSiblingIndex() == 0)
+                {
+                    Require(child.name == LobbyPlayModeFamilies.Caption, "The caption must lead " + section.name + ".");
+                    continue;
+                }
+                Require(Inside(rect, area), child.name + " must stay inside " + section.name + ".");
+                if (previous is Rect last)
+                    Require(Mathf.Abs(rect.width - last.width) <= 2 && Mathf.Abs(rect.height - last.height) <= 2
+                        && (Mathf.Abs(rect.yMax - last.yMax) <= 2 ? rect.xMin >= last.xMax : rect.yMax <= last.yMin + 2),
+                        child.name + " must follow the tile before it in " + section.name + ".");
+                previous = rect;
                 if (!child.TryGetComponent(out Button button)) continue;
                 var label = button.GetComponentInChildren<TMP_Text>();
                 TextFits(label);
@@ -579,9 +589,13 @@ namespace Wreckabulary.Qa
                     context.Note("solo_access_" + selected, access.text);
                     yield return Capture(context, "lobby_solo_" + selected.ToLowerInvariant());
                 }
+                yield return Pick(HouseModes.BossFight);
+                Require(menu.Mode == HouseModes.BossFight && PlayPage.Refusal(menu) == null && Find(Page(), "GO").interactable,
+                    "Boss Fight must be ready to play with one local human.");
                 menu.Join(second);
                 yield return Settle();
                 Require(menu.PartySize == 2 && ReferenceEquals(menu.Party.Single(), second), "Only the fixture-owned extra seat may be present.");
+                yield return BossFightTwoSeats(context);
                 Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Solo map ") || button.name == "Solo GO"),
                     "Course maps and GO must be hidden with two local humans.");
                 Require(ModeCards().SequenceEqual(AllHouseModes()), "Every house mode must stay available with extra seats.");
@@ -610,6 +624,28 @@ namespace Wreckabulary.Qa
                 WordboundSoloEntry.Select(solo);
                 if (menu) { menu.Page<PlayPage>().WordboundSolo = false; menu.Open(LobbyMenu.Play); }
             }
+        }
+
+        IEnumerator BossFightTwoSeats(QaContext context)
+        {
+            string id = PlayPage.ModeButton(HouseModes.BossFight);
+            var tile = Find(Page(), id);
+            var go = Find(Page(), "GO");
+            var detail = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Mode detail");
+            string tooMany = PlayPage.TooMany(HouseModes.BossFight);
+            Require(menu.Mode == HouseModes.BossFight && !go.interactable && PlayPage.Refusal(menu) == tooMany && detail.text == tooMany,
+                "With two local humans Boss Fight must keep its choice, disable Play and say why.");
+            Require(tile.TryGetComponent(out CanvasGroup group) && group.alpha < 1f && tile.IsInteractable(),
+                "With two local humans the Boss Fight tile must stay in place, dimmed and focusable.");
+            TextFits(detail);
+            EventSystem.current.SetSelectedGameObject(tile.gameObject);
+            yield return Settle();
+            var reason = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GoalLine);
+            Require(reason.text == tooMany, "Focus on the dimmed Boss Fight tile must say why it is closed.");
+            TextFits(reason);
+            context.Note("bossfight_two_seats", new Dictionary<string, object> { ["mode"] = menu.Mode, ["humans"] = menu.PartySize,
+                ["play_enabled"] = go.interactable, ["detail"] = detail.text, ["focused_reason"] = reason.text, ["tile_alpha"] = group.alpha });
+            yield return Capture(context, "lobby_bossfight_two_seats");
         }
 
         IEnumerator Create(QaContext context)

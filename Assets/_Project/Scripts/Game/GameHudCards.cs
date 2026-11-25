@@ -1119,6 +1119,7 @@ namespace Wreckabulary
         {
             if (!LocalPlayer || string.IsNullOrEmpty(word)) return null;
             var recipe = LocalPlayer.Summoner.Recipe(word);
+            if (recipe != null && LocalPlayer.Summoner.IsSignalWord(recipe.word)) return recipe;
             return recipe != null && GameConfig.Current.Items.TryGet(recipe.word, out var item) && item.Enabled ? recipe : null;
         }
 
@@ -1144,13 +1145,15 @@ namespace Wreckabulary
             var summoner = player.Summoner;
             string word = composerText;
             var recipe = EnabledRecipe(word);
-            bool furniture = player.Combat.IsHolding && !player.Combat.Weapon;
+            bool signal = recipe != null && summoner.IsSignalWord(recipe.word);
+            bool fits = recipe != null && (signal || SummonEffects.CanApply(player, recipe));
+            bool furniture = !signal && player.Combat.IsHolding && !player.Combat.Weapon;
             string error = !player.CanAct || player.IsDodging ? "Wait until you can act again."
                 : recipe == null ? "That recipe is not available."
-                : furniture && !SummonEffects.CanApply(player, recipe) ? "Set down the furniture first."
+                : furniture && !fits ? "Set down the furniture first."
                 : player.Combat.IsChanneling ? "Finish your current action first."
                 : summoner.IsCrafting ? "Finish your current word first."
-                : !SummonEffects.CanApply(player, recipe) ? "Both hands are full. Drop some gear first."
+                : !fits ? "Both hands are full. Drop some gear first."
                 : MissingLetters(word).Length > 0 ? "You still need some letters."
                 : null;
             if (error == null && summoner.BeginCraft(recipe))
@@ -1178,7 +1181,7 @@ namespace Wreckabulary
                 string missing = MissingLetters(word);
                 if (missing.Length > 0) return $"{word} needs {Spread(missing)}. Smash more furniture.";
                 if (player.Summoner.IsCrafting) return "Already spelling something. Hang on.";
-                if (!SummonEffects.CanApply(player, recipe))
+                if (!player.Summoner.IsSignalWord(recipe.word) && !SummonEffects.CanApply(player, recipe))
                     return player.Combat.IsHolding && !player.Combat.Weapon ? "Set down the furniture first." : "Both hands are full. Drop something first.";
                 state = 1;
                 return $"{word} is ready. Press Enter!";

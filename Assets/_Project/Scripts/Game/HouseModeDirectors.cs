@@ -67,6 +67,11 @@ namespace Wreckabulary
             });
             Register(HouseModes.FreeForAll, c => c.Host.AddComponent<FreeForAllDirector>().Configure(c));
             Register(HouseModes.War, c => c.Host.AddComponent<WarDirector>().Configure(c));
+            Register(HouseModes.BossFight, c =>
+            {
+                c.Host.AddComponent<BossFight.BossFightDirector>().Configure(c);
+                c.Rounds.enabled = false;
+            });
         }
 
         public static void Register(string modeId, Action<HouseModeContext> attach)

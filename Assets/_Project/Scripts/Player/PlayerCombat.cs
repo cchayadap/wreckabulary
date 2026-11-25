@@ -43,10 +43,21 @@ namespace Wreckabulary
         readonly Dictionary<Rigidbody, CarryState> carriedStates = new();
         Vector3 carryLocal, carryCentre, holdGrip;
         Quaternion holdTurn = Quaternion.identity, holdBase = Quaternion.identity, holdWritten = Quaternion.identity;
-        float carryRadius;
+        float carryRadius, carryHalfWidth, bodyRadius = .42f;
+        Vector3 carryAxis = Vector3.right;
+        Rigidbody lastTarget;
         public float GrabDistance => grabReach + grabRadius;
 
         const float PointBlank = 0.25f;
+        const float ChestHeight = .8f;
+        const float GrabArc = 110f;
+        const float HeavyCarryMass = 2.5f;
+        const float MinCarryRadius = .08f, MaxCarryRadius = 1.1f;
+        const float PlayerFitShrink = .9f, PlayerSpotGap = .1f, PlayerSweepRadius = .3f;
+        const int DepenetratePasses = 3;
+        const float DeployReach = 1.6f;
+        static int CarryMask => World.GroundMask & Physics.DefaultRaycastLayers;
+        static int SpaceMask => World.TileLayer >= 0 ? Physics.DefaultRaycastLayers & ~(1 << World.TileLayer) : Physics.DefaultRaycastLayers;
 
         public event System.Action<Rigidbody> Thrown;
 
@@ -66,10 +77,16 @@ namespace Wreckabulary
         public bool HasFreeGearSlot => (Weapon ? 1 : 0) + (storedGear ? 1 : 0)
             + (controller.Summoner && controller.Summoner.IsCrafting ? 1 : 0) < controller.Health.Rules.MaxCarried;
         public bool IsBlocking => controller.Health.RaisedShield != null;
+        public bool AttackHeld => controller.Commands.attackHeld;
         public bool IsReviving => reviving;
         public PlayerController Reviving => reviving;
 
-        void Awake() => controller = GetComponent<PlayerController>();
+        void Awake()
+        {
+            controller = GetComponent<PlayerController>();
+            if (TryGetComponent(out CapsuleCollider capsule)) bodyRadius = capsule.radius * Mathf.Abs(transform.lossyScale.x);
+            if (!GetComponent<CarryTargetMarker>()) gameObject.AddComponent<CarryTargetMarker>().Initialize(controller);
+        }
 
         void Start()
         {
@@ -104,13 +121,15 @@ namespace Wreckabulary
         {
             if (Time.timeScale <= 0f) return;
             if (held == null && (heldPlayer || weapon)) ClearHeld();
+            if (heldPlayer && !heldPlayer.IsHeld) ClearHeld();
             if (heldPlayer && Time.time - heldSince > struggleTime) Drop();
 
             var c = controller.Commands;
             bool free = controller.CanAct && !controller.IsDodging && !deploying && !(controller.Summoner && (controller.Summoner.IsSpelling || controller.Summoner.IsCrafting));
             UpdateRevive(free && c.grabHeld);
             bool shieldInHand = Weapon && Weapon.Shield != null;
-            UpdateBlock(free && (c.blockHeld || (c.attackHeld && shieldInHand)) && !reviving);
+            bool attackRaises = c.attackHeld && shieldInHand && (controller.Binding == null || controller.Binding.HoldingAttackRaisesShield);
+            UpdateBlock(free && (c.blockHeld || attackRaises) && !reviving);
             if (!free || reviving) return;
 
             if (c.drop) Drop();
@@ -204,7 +223,7 @@ namespace Wreckabulary
             {
                 nextAttack = Time.time + Weapon.Cooldown;
                 var job = Weapon.Definition;
-                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null))
+                if (job == null || (job.Use == null && job.Thrown == null && job.Deploy == null && job.Ranged == null))
                     controller.PlayPunch(!Audio.ImpactAudioBridge.VoicesSwing(Weapon));
                 Weapon.Use(this);
                 return;
@@ -339,6 +358,8 @@ namespace Wreckabulary
             if (held && !Weapon) return false;
             var best = GrabTarget();
             if (!best) return false;
+            if (best.TryGetComponent(out LetterStash stash) && stash.CanOpen(controller))
+                return stash.TryExchange(controller) || (stash.IsEmpty && best.TryGetComponent(out HeldWeapon emptyChest) && HasFreeGearSlot && TryEquip(emptyChest));
             if (best.TryGetComponent(out HeldWeapon pickedGear)) return TryEquip(pickedGear);
             if (Weapon)
             {
@@ -356,6 +377,8 @@ namespace Wreckabulary
         {
             if (!rb || rb == controller.Body || rb == held || rb.GetComponent<LetterTile>()) return false;
             if (rb.TryGetComponent(out PlayerController player)) return !player.IsHeld && !player.IsEliminated;
+            if (rb.TryGetComponent(out LetterStash stash) && stash.CanOpen(controller))
+                return stash.WantsExchange(controller) || (stash.IsEmpty && HasFreeGearSlot && rb.TryGetComponent(out HeldWeapon chest) && !chest.IsHeld && !chest.IsSpent);
             if (rb.TryGetComponent(out HeldWeapon gear)) return !gear.IsSpent && !gear.IsHeld && HasFreeGearSlot;
             return !rb.isKinematic && rb.mass <= maxCarryMass;
         }
@@ -366,8 +389,8 @@ namespace Wreckabulary
             var chest = transform.position + Vector3.up * .8f;
             if (InteractionAim.TryRay(controller, out var ray))
             {
-                if (!InteractionAim.Trace(controller, ray, out var hit) || !Grabbable(hit.rigidbody)) return null;
-                return Vector3.Distance(chest, hit.point) <= GrabDistance && HasClearInteractionPath(hit.rigidbody, hit.point)
+                if (!InteractionAim.Trace(controller, ray, out var hit) || !Grabbable(hit.rigidbody)) return lastTarget = null;
+                return lastTarget = Vector3.Distance(chest, hit.point) <= GrabDistance && HasClearInteractionPath(hit.rigidbody, hit.point)
                     ? hit.rigidbody : null;
             }
             var centre = transform.position + Vector3.up * 0.6f + controller.Facing * grabReach;
@@ -376,7 +399,8 @@ namespace Wreckabulary
             var hits = overlaps;
             if (n == hits.Length) { hits = Physics.OverlapSphere(centre, grabRadius, mask, QueryTriggerInteraction.Ignore); n = hits.Length; }
             Rigidbody best = null;
-            float bestSq = float.MaxValue;
+            float bestScore = float.MaxValue;
+            var facing = controller.Facing;
 
             for (int i = 0; i < n; i++)
             {
@@ -385,12 +409,15 @@ namespace Wreckabulary
                 var point = ClosestPoint(hits[i], chest);
                 var to = point - chest;
                 float d = to.sqrMagnitude;
-                if (d > GrabDistance * GrabDistance || (World.Flat(to).sqrMagnitude > PointBlank * PointBlank &&
-                    !Geometry.InFrontArc(controller.Facing.x, controller.Facing.z, to.x, to.z, 110f))) continue;
-                if (!HasClearInteractionPath(rb, point)) continue;
-                if (d < bestSq) { bestSq = d; best = rb; }
+                var flat = World.Flat(to);
+                bool pointBlank = flat.sqrMagnitude <= PointBlank * PointBlank;
+                if (d > GrabDistance * GrabDistance || (!pointBlank && !Geometry.InFrontArc(facing.x, facing.z, to.x, to.z, GrabArc))) continue;
+                float score = CarryRules.AimScore(Mathf.Sqrt(d), pointBlank ? 0f : Vector3.Angle(facing, flat), rb == lastTarget);
+                if (score >= bestScore || !HasClearInteractionPath(rb, point)) continue;
+                bestScore = score;
+                best = rb;
             }
-            return best;
+            return lastTarget = best;
         }
 
         public void Equip(HeldWeapon w) => TryEquip(w);
@@ -447,6 +474,7 @@ namespace Wreckabulary
         void Pick(Rigidbody rb)
         {
             if (rb.TryGetComponent(out ReleasedBodyCollision grace)) grace.Restore();
+            CarryFlight.End(rb);
             held = rb;
             heldSince = Time.time;
             heldHomeParent = rb.transform.parent;
@@ -456,6 +484,7 @@ namespace Wreckabulary
             {
                 heldPlayer = other;
                 other.SetHeld(true, controller.overheadPoint);
+                CacheCarryShape();
                 return;
             }
 
@@ -484,7 +513,7 @@ namespace Wreckabulary
                 return;
             }
 
-            var point = rb.mass > 2.5f ? controller.overheadPoint : controller.holdPoint;
+            var point = rb.mass > HeavyCarryMass ? controller.overheadPoint : controller.holdPoint;
             rb.transform.rotation = Quaternion.LookRotation(controller.Facing);
             var offset = rb.transform.position - BoundsCentre(rb);
             rb.transform.position = point.position + offset;
@@ -495,6 +524,15 @@ namespace Wreckabulary
         void CacheCarryShape()
         {
             carryLocal = held.transform.localPosition;
+            if (heldPlayer && held.TryGetComponent(out CapsuleCollider capsule))
+            {
+                float scale = Mathf.Abs(held.transform.lossyScale.y);
+                carryCentre = capsule.center;
+                carryRadius = Mathf.Clamp(capsule.radius * scale, MinCarryRadius, MaxCarryRadius);
+                carryHalfWidth = Mathf.Max(capsule.height * .5f * scale, carryRadius);
+                carryAxis = capsule.direction == 0 ? Vector3.right : capsule.direction == 2 ? Vector3.forward : Vector3.up;
+                return;
+            }
             var renderers = held.GetComponentsInChildren<Renderer>();
             var bounds = new Bounds(held.position, Vector3.one * .2f);
             if (renderers.Length > 0)
@@ -503,14 +541,25 @@ namespace Wreckabulary
                 foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
             }
             carryCentre = held.transform.InverseTransformPoint(bounds.center);
-            carryRadius = Mathf.Clamp(Mathf.Min(bounds.extents.x, bounds.extents.z), .08f, 1.1f);
+            carryRadius = Mathf.Clamp(Mathf.Min(bounds.extents.x, bounds.extents.z), MinCarryRadius, MaxCarryRadius);
+            var side = Vector3.Cross(Vector3.up, controller.Facing).normalized;
+            carryHalfWidth = Mathf.Abs(side.x) * bounds.extents.x + Mathf.Abs(side.z) * bounds.extents.z;
+            carryAxis = held.transform.InverseTransformDirection(side);
         }
 
         void LateUpdate() => ConstrainCarry();
 
         void ConstrainCarry()
         {
-            if (!held || heldPlayer || !held.transform.parent) return;
+            if (heldPlayer && !heldPlayer.IsHeld) ClearHeld();
+            if (!held || !held.transform.parent) return;
+            if (heldPlayer)
+            {
+                held.transform.SetLocalPositionAndRotation(PlayerController.HeldOffset, PlayerController.HeldTurn);
+                SweepCarry();
+                FitCarrySideways();
+                return;
+            }
             var local = carryLocal;
             if (weapon && weapon.Definition != null)
             {
@@ -522,17 +571,50 @@ namespace Wreckabulary
                 local = -(held.transform.localRotation * holdGrip) * weapon.Definition.HeldScale;
             }
             held.transform.localPosition = local;
+            SweepCarry();
+            FitCarrySideways();
+        }
+
+        void FitCarrySideways()
+        {
+            float radius = Mathf.Min(carryRadius, CarryRules.SideProbeRadius);
+            if (carryHalfWidth <= radius + CarryRules.FitSkin) return;
+            var axis = World.Flat(held.transform.TransformDirection(carryAxis));
+            if (axis.sqrMagnitude < .01f) return;
+            axis.Normalize();
+            var centre = held.transform.TransformPoint(carryCentre);
+            float shift = CarryRules.SideShift(carryHalfWidth, SideRoom(centre, axis, radius), SideRoom(centre, -axis, radius));
+            if (Mathf.Abs(shift) > .001f) held.transform.position += axis * shift;
+        }
+
+        float SideRoom(Vector3 centre, Vector3 direction, float radius)
+        {
+            float room = carryHalfWidth;
+            int count = Physics.SphereCastNonAlloc(centre, radius, direction, obstructions, carryHalfWidth - radius,
+                CarryMask, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+            {
+                var collider = obstructions[i].collider;
+                if (InteractionAim.Ignored(controller, collider) || (heldPlayer && collider.transform.IsChildOf(heldPlayer.transform))) continue;
+                room = Mathf.Min(room, obstructions[i].distance + radius - CarryRules.FitSkin);
+            }
+            return Mathf.Max(0f, room);
+        }
+
+        void SweepCarry()
+        {
             var centre = held.transform.TransformPoint(carryCentre);
             var origin = transform.position + Vector3.up * .8f;
             var delta = centre - origin;
             float distance = delta.magnitude;
             if (distance < .001f) return;
-            int count = Physics.SphereCastNonAlloc(origin, carryRadius, delta / distance, obstructions, distance,
+            float sweep = heldPlayer ? Mathf.Min(carryRadius, PlayerSweepRadius) : carryRadius;
+            int count = Physics.SphereCastNonAlloc(origin, sweep, delta / distance, obstructions, distance,
                 World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
             var hits = obstructions;
             if (count == hits.Length)
             {
-                hits = Physics.SphereCastAll(origin, carryRadius, delta / distance, distance,
+                hits = Physics.SphereCastAll(origin, sweep, delta / distance, distance,
                     World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
                 count = hits.Length;
             }
@@ -549,7 +631,7 @@ namespace Wreckabulary
                 count = hits.Length;
             }
             for (int i = 0; i < count; i++)
-                if (!InteractionAim.Ignored(controller, hits[i].collider)) allowed = Mathf.Min(allowed, hits[i].distance - carryRadius - .03f);
+                if (!InteractionAim.Ignored(controller, hits[i].collider)) allowed = Mathf.Min(allowed, hits[i].distance - sweep - .03f);
             if (allowed < distance) held.transform.position -= delta / distance * (distance - allowed);
         }
 
@@ -560,6 +642,7 @@ namespace Wreckabulary
             controller.PlayPunch();
             var gear = Weapon;
             ConstrainCarry();
+            if (!held) return;
             var thrownStats = gear ? gear.Definition?.Thrown : null;
             float speed = thrownStats != null ? thrownStats.Speed : throwSpeed * Mathf.Lerp(1f, 0.65f, Mathf.Clamp01(held.mass / maxCarryMass));
             var velocity = controller.Facing * speed + Vector3.up * (thrownStats != null && !thrownStats.Lob ? 0.3f : 4f) + World.Flat(controller.Body.linearVelocity) * 0.5f;
@@ -568,11 +651,12 @@ namespace Wreckabulary
                 var target = InteractionAim.Trace(controller, aimRay, out var hit) ? hit.point : aimRay.GetPoint(12f);
                 velocity = InteractionAim.LaunchVelocity(target - held.transform.TransformPoint(held.centerOfMass), speed, held.useGravity);
             }
+            velocity = CappedThrow(velocity);
 
             if (heldPlayer)
             {
                 var victim = heldPlayer;
-                Release(velocity);
+                Release(velocity, false, true);
                 victim.Health.ApplyDamage(Hits.Of(controller, controller.Facing, HitSource.Thrown, thrownPlayerDamage, 0f, hitStun: 0.35f));
                 victim.Body.linearVelocity = velocity;
                 ThrowTracker.Attach(victim.gameObject, controller, 1.2f);
@@ -580,7 +664,7 @@ namespace Wreckabulary
                 return;
             }
             var rb = held;
-            Release(velocity, gear != null);
+            Release(velocity, gear != null, true);
             if (gear && thrownStats != null) ThrownGear.Attach(gear, controller);
             else ThrowTracker.Attach(rb.gameObject, controller, 1.5f);
             Thrown?.Invoke(rb);
@@ -625,11 +709,13 @@ namespace Wreckabulary
             var item = gear.Definition;
             var body = held;
             Release(Vector3.zero);
-            var placedAt = transform.position + controller.Facing * 1.6f;
+            var handSpot = body.position;
+            var placedAt = transform.position + controller.Facing * DeployReach;
             var placedFacing = Quaternion.LookRotation(controller.Facing);
             body.transform.SetPositionAndRotation(placedAt, placedFacing);
             body.position = placedAt;
             body.rotation = placedFacing;
+            SettleReleasedBody(body, false, false, handSpot);
             if (item.Thrown != null)
             {
                 DeployedGear.Register(gear.gameObject, controller);
@@ -665,6 +751,8 @@ namespace Wreckabulary
             var body = gear.GetComponent<Rigidbody>();
             body.isKinematic = false;
             RestoreCarry(body);
+            body.position = gear.transform.position;
+            SettleReleasedBody(body, false, false, body.position);
             body.linearVelocity = Vector3.zero;
         }
 
@@ -690,19 +778,31 @@ namespace Wreckabulary
             ClearHeld();
         }
 
-        void Release(Vector3 velocity, bool thrown = false)
+        static Vector3 CappedThrow(Vector3 velocity)
+        {
+            float x = velocity.x, y = velocity.y, z = velocity.z;
+            CarryRules.ClampSpeed(ref x, ref y, ref z, CarryRules.MaxThrowSpeed);
+            return new Vector3(x, y, z);
+        }
+
+        void Release(Vector3 velocity, bool thrown = false, bool launched = false)
         {
             ConstrainCarry();
+            if (!held) return;
             var rb = held;
             var p = heldPlayer;
             var origin = rb.transform.position;
             var rotation = rb.transform.rotation;
+            var carriedCentre = rb.transform.TransformPoint(carryCentre);
+            bool overhead = rb.transform.parent == controller.overheadPoint;
             ClearHeld();
 
             if (p)
             {
                 p.SetHeld(false);
+                PlaceReleasedPlayer(p, carriedCentre, launched);
                 p.Body.linearVelocity = velocity;
+                if (launched) CarryFlight.Attach(p.Body, CarryRules.FlightSeconds);
                 ReleasedBodyCollision.Attach(p.Body, controller);
                 return;
             }
@@ -718,47 +818,172 @@ namespace Wreckabulary
             rb.rotation = rb.transform.rotation;
             rb.isKinematic = false;
             RestoreCarry(rb);
-            if (!thrown) SeparateReleasedBody(rb);
+            if (!thrown) SettleReleasedBody(rb, overhead && !launched && !released);
             rb.linearVelocity = velocity;
-            rb.angularVelocity = Random.insideUnitSphere * 3f;
+            rb.angularVelocity = Random.insideUnitSphere * (launched ? CarryRules.ThrowSpin : CarryRules.DropSpin);
+            if (launched) CarryFlight.Attach(rb, CarryRules.FlightSeconds);
             ReleasedBodyCollision.Attach(rb, controller);
         }
 
-        void SeparateReleasedBody(Rigidbody body)
+        Vector3 Chest => transform.position + Vector3.up * ChestHeight;
+
+        void PlaceReleasedPlayer(PlayerController p, Vector3 carriedCentre, bool launched)
+        {
+            if (!p.TryGetComponent(out CapsuleCollider capsule)) return;
+            Physics.SyncTransforms();
+            var lift = Vector3.up * (capsule.center.y * Mathf.Abs(p.transform.lossyScale.y));
+            var ground = transform.position + controller.Facing * (bodyRadius + carryRadius + PlayerSpotGap) + Vector3.up * CarryRules.SetDownLift;
+            if (launched && TryPlayerSpots(p, capsule, carriedCentre - lift, lift)) return;
+            if (TryPlayerSpots(p, capsule, ground, lift)) return;
+            MovePlayer(p, transform.position);
+        }
+
+        bool TryPlayerSpots(PlayerController p, CapsuleCollider capsule, Vector3 first, Vector3 lift)
+        {
+            var facing = controller.Facing;
+            float step = Mathf.Max(CarryRules.SpotStep, carryRadius * 2f);
+            for (int i = 0; i < CarryRules.SpotCount; i++)
+            {
+                CarryRules.Spot(i, facing.x, facing.z, step, out float x, out float z);
+                var feet = first + new Vector3(x, 0f, z);
+                if (!PlayerFits(p, capsule, feet) || !Reachable(Chest, feet + lift, p.transform)) continue;
+                MovePlayer(p, feet);
+                return true;
+            }
+            return false;
+        }
+
+        bool PlayerFits(PlayerController p, CapsuleCollider capsule, Vector3 feet)
+        {
+            float scale = Mathf.Abs(p.transform.lossyScale.y);
+            float radius = capsule.radius * scale;
+            float half = Mathf.Max(0f, capsule.height * .5f * scale - radius);
+            var centre = feet + Vector3.up * (capsule.center.y * scale);
+            int count = Physics.OverlapCapsuleNonAlloc(centre - Vector3.up * half, centre + Vector3.up * half, radius * PlayerFitShrink,
+                overlaps, SpaceMask, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+            {
+                var other = overlaps[i];
+                if (!other || other.transform.IsChildOf(p.transform)) continue;
+                var body = other.attachedRigidbody;
+                if (body && (body.TryGetComponent(out LetterTile _) || (!body.isKinematic && body.mass <= maxCarryMass && !body.TryGetComponent(out PlayerController _)))) continue;
+                return false;
+            }
+            return true;
+        }
+
+        static void MovePlayer(PlayerController p, Vector3 feet)
+        {
+            p.transform.position = feet;
+            p.Body.position = feet;
+            Physics.SyncTransforms();
+        }
+
+        bool Reachable(Vector3 from, Vector3 to, Transform ignore)
+        {
+            var delta = to - from;
+            float distance = delta.magnitude;
+            if (distance < .001f) return true;
+            int count = Physics.RaycastNonAlloc(from, delta / distance, obstructions, distance, CarryMask, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+            {
+                var collider = obstructions[i].collider;
+                if (InteractionAim.Ignored(controller, collider) || (ignore && collider.transform.IsChildOf(ignore))) continue;
+                var body = collider.attachedRigidbody;
+                if (body && !body.isKinematic) continue;
+                return false;
+            }
+            return true;
+        }
+
+        void SettleReleasedBody(Rigidbody body, bool setDown) =>
+            SettleReleasedBody(body, setDown, !setDown, body.position);
+
+        void SettleReleasedBody(Rigidbody body, bool setDown, bool trustFirst, Vector3 fallback)
         {
             Physics.SyncTransforms();
             var shapes = body.GetComponentsInChildren<Collider>();
-            for (int pass = 0; pass < 3; pass++)
+            if (setDown) MoveBody(body, body.position + SetDownShift(ShapeBounds(shapes, body)));
+            var first = body.position;
+            var bounds = ShapeBounds(shapes, body);
+            float step = Mathf.Max(CarryRules.SpotStep, Mathf.Max(bounds.extents.x, bounds.extents.z));
+            var facing = controller.Facing;
+            for (int i = 0; i < CarryRules.SpotCount; i++)
             {
-                bool moved = false;
-                foreach (var shape in shapes)
+                if (i > 0)
                 {
-                    if (!shape.enabled || shape.isTrigger || shape.attachedRigidbody != body) continue;
-                    var bounds = shape.bounds;
-                    int count = Physics.OverlapSphereNonAlloc(bounds.center, bounds.extents.magnitude + .05f,
-                        overlaps, World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-                    var nearby = overlaps;
-                    if (count == nearby.Length)
-                    {
-                        nearby = Physics.OverlapSphere(bounds.center, bounds.extents.magnitude + .05f,
-                            World.GroundMask & Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-                        count = nearby.Length;
-                    }
-                    for (int i = 0; i < count; i++)
-                    {
-                        var obstacle = nearby[i];
-                        if (!obstacle || obstacle.attachedRigidbody == body || InteractionAim.Ignored(controller, obstacle)) continue;
-                        if (obstacle.attachedRigidbody && !obstacle.attachedRigidbody.isKinematic) continue;
-                        if (!Physics.ComputePenetration(shape, shape.transform.position, shape.transform.rotation,
-                            obstacle, obstacle.transform.position, obstacle.transform.rotation, out var direction, out float distance)) continue;
-                        body.transform.position += direction * (distance + .015f);
-                        body.position = body.transform.position;
-                        moved = true;
-                    }
+                    CarryRules.Spot(i, facing.x, facing.z, step, out float x, out float z);
+                    MoveBody(body, first + new Vector3(x, 0f, z));
                 }
-                if (!moved) break;
+                Depenetrate(body, shapes);
+                if (Overlapping(body, shapes, false)) continue;
+                if ((i == 0 && trustFirst) || Reachable(Chest, ShapeBounds(shapes, body).center, body.transform)) return;
+            }
+            MoveBody(body, fallback);
+            Depenetrate(body, shapes);
+        }
+
+        Vector3 SetDownShift(Bounds bounds)
+        {
+            var facing = controller.Facing;
+            float along = Mathf.Abs(facing.x) * bounds.extents.x + Mathf.Abs(facing.z) * bounds.extents.z;
+            var target = transform.position + facing * (bodyRadius + along + CarryRules.SetDownGap);
+            return new Vector3(target.x - bounds.center.x, transform.position.y + CarryRules.SetDownLift - bounds.min.y, target.z - bounds.center.z);
+        }
+
+        static Bounds ShapeBounds(Collider[] shapes, Rigidbody body)
+        {
+            var bounds = new Bounds(body.position, Vector3.zero);
+            bool any = false;
+            foreach (var shape in shapes)
+            {
+                if (!shape || !shape.enabled || shape.isTrigger || shape.attachedRigidbody != body) continue;
+                if (any) bounds.Encapsulate(shape.bounds);
+                else { bounds = shape.bounds; any = true; }
+            }
+            return bounds;
+        }
+
+        static void MoveBody(Rigidbody body, Vector3 position)
+        {
+            body.transform.position = position;
+            body.position = position;
+            Physics.SyncTransforms();
+        }
+
+        void Depenetrate(Rigidbody body, Collider[] shapes)
+        {
+            for (int pass = 0; pass < DepenetratePasses; pass++)
+            {
+                if (!Overlapping(body, shapes, true)) break;
                 Physics.SyncTransforms();
             }
+        }
+
+        bool Overlapping(Rigidbody body, Collider[] shapes, bool push)
+        {
+            bool found = false;
+            foreach (var shape in shapes)
+            {
+                if (!shape || !shape.enabled || shape.isTrigger || shape.attachedRigidbody != body) continue;
+                var bounds = shape.bounds;
+                int count = Physics.OverlapSphereNonAlloc(bounds.center, bounds.extents.magnitude + .05f, overlaps, SpaceMask, QueryTriggerInteraction.Ignore);
+                for (int i = 0; i < count; i++)
+                {
+                    var obstacle = overlaps[i];
+                    if (!obstacle || obstacle.attachedRigidbody == body || InteractionAim.Ignored(controller, obstacle)) continue;
+                    var other = obstacle.attachedRigidbody;
+                    if (other && other.TryGetComponent(out LetterTile _)) continue;
+                    if (!Physics.ComputePenetration(shape, shape.transform.position, shape.transform.rotation,
+                        obstacle, obstacle.transform.position, obstacle.transform.rotation, out var direction, out float distance)) continue;
+                    if (distance <= (push ? 0f : CarryRules.EmbedTolerance)) continue;
+                    found = true;
+                    if (!push) return true;
+                    body.transform.position += direction * (distance + .015f);
+                    body.position = body.transform.position;
+                }
+            }
+            return found;
         }
 
         void RestoreCarry(Rigidbody body)

@@ -18,7 +18,7 @@ namespace Wreckabulary.Tests
         const string LastKey = Wreckabulary.Rules.LastPlayChoice.StorageKey;
         static readonly string[] Keys = { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, QuickPlayChoices.StorageKey, FriendRooms.StorageKey, LastKey };
         static readonly Vector2 Wide = new Vector2(1868, 968), Short = new Vector2(900, 580);
-        const float SmallestLabel = 15f, SmallestTarget = 44f, ModeRow = 52f;
+        const float SmallestLabel = 15f, SmallestTarget = 44f;
         const int HousesInARow = 5;
         string[] saved;
         float volume, delay;
@@ -525,6 +525,9 @@ namespace Wreckabulary.Tests
             var scroll = strip.GetComponentInParent<ScrollRect>();
             Assert.AreSame(PageScroll, scroll, "the modes ride the page's own scroll");
             Assert.IsTrue(scroll.vertical, "which moves up and down"); Assert.IsFalse(scroll.horizontal, "and never sideways");
+            var tiles = ModeTargets;
+            Assert.IsNotEmpty(tiles);
+            var size = InPage((RectTransform)tiles[0].transform).size;
             Rect? before = null;
             foreach (var family in HouseModes.Families)
             {
@@ -535,11 +538,11 @@ namespace Wreckabulary.Tests
                 if (before is Rect last)
                 {
                     bool beside = area.xMin > last.xMax && Mathf.Abs(area.yMax - last.yMax) <= .5f;
-                    if (wide) Assert.IsTrue(beside, section.name + " is the next column to the right, level with the one before it");
-                    else Assert.IsTrue(beside || area.yMax <= last.yMin + .5f, section.name + " sits right of or under the section before it");
+                    if (wide) Assert.IsTrue(beside, section.name + " is the next group to the right, level with the one before it");
+                    else Assert.IsTrue(beside || area.yMax <= last.yMin + .5f, section.name + " sits right of or under the group before it");
                 }
                 before = area;
-                AssertStacked(section, area);
+                AssertTiled(section, area, size);
             }
             foreach (var text in strip.GetComponentsInChildren<TMP_Text>())
             {
@@ -548,20 +551,36 @@ namespace Wreckabulary.Tests
             }
         }
 
-        static void AssertStacked(RectTransform section, Rect area)
+        static void AssertTiled(RectTransform section, Rect area, Vector2 size)
         {
-            float above = float.NaN;
+            Rect? previous = null;
             foreach (Transform child in section)
             {
                 var at = InPage((RectTransform)child);
-                Assert.That(at.xMin, Is.EqualTo(area.xMin).Within(.5f), child.name + " starts at its column's left edge");
-                Assert.That(at.xMax, Is.EqualTo(area.xMax).Within(.5f), child.name + " is as wide as its column");
-                if (child.GetSiblingIndex() == 0) Assert.AreEqual(LobbyPlayModeFamilies.Caption, child.name, "the caption leads its column");
-                else Assert.LessOrEqual(at.yMax, above + .5f, child.name + " sits under the row before it");
-                above = at.yMin;
-                if (!child.TryGetComponent(out Button button)) continue;
+                if (child.GetSiblingIndex() == 0)
+                {
+                    Assert.AreEqual(LobbyPlayModeFamilies.Caption, child.name, "the caption leads its group");
+                    Assert.That(at.xMin, Is.EqualTo(area.xMin).Within(.5f), section.name + " caption starts at the group's left edge");
+                    continue;
+                }
+                var button = child.GetComponent<Button>();
+                Assert.IsNotNull(button, child.name);
+                Assert.That(at.width, Is.EqualTo(size.x).Within(.5f), button.name + " has the one tile width");
+                Assert.That(at.height, Is.EqualTo(size.y).Within(.5f), button.name + " has the one tile height");
                 Assert.GreaterOrEqual(at.height, SmallestTarget - .01f, button.name);
-                Assert.That(at.height, Is.EqualTo(ModeRow).Within(.5f), button.name + " is one 52-unit row");
+                Assert.GreaterOrEqual(at.xMin, area.xMin - .5f, button.name); Assert.LessOrEqual(at.xMax, area.xMax + .5f, button.name);
+                Assert.GreaterOrEqual(at.yMin, area.yMin - .5f, button.name); Assert.LessOrEqual(at.yMax, area.yMax + .5f, button.name);
+                if (previous is Rect last)
+                {
+                    bool sameRow = Mathf.Abs(at.yMax - last.yMax) <= .5f;
+                    if (sameRow) Assert.That(at.xMin, Is.EqualTo(last.xMax + LobbyPlayModeFamilies.Gutter).Within(.5f), button.name + " follows the tile before it on one gutter");
+                    else
+                    {
+                        Assert.That(at.yMax, Is.EqualTo(last.yMin - LobbyPlayModeFamilies.Gutter).Within(.5f), button.name + " starts the next row one gutter lower");
+                        Assert.That(at.xMin, Is.EqualTo(area.xMin).Within(.5f), button.name + " starts its row at the group's left edge");
+                    }
+                }
+                previous = at;
                 var label = button.GetComponentInChildren<TMP_Text>();
                 label.ForceMeshUpdate();
                 Assert.GreaterOrEqual(label.fontSize, SmallestLabel, button.name + " keeps a readable label");
@@ -598,19 +617,28 @@ namespace Wreckabulary.Tests
 
         static void AssertColumnNavigation()
         {
-            var columns = HouseModes.Families.Select(family => HouseModes.ModesIn(family).Select(PlayPage.ModeButton).ToArray()).ToArray();
-            foreach (var column in columns)
-                for (int row = 0; row + 1 < column.Length; row++)
-                {
-                    Assert.AreSame(Find(column[row + 1]), Find(column[row]).FindSelectableOnDown(), "down from " + column[row]);
-                    Assert.AreSame(Find(column[row]), Find(column[row + 1]).FindSelectableOnUp(), "up from " + column[row + 1]);
-                }
-            for (int at = 0; at + 1 < columns.Length; at++)
-                for (int row = 0; row < Mathf.Min(columns[at].Length, columns[at + 1].Length); row++)
-                {
-                    Assert.AreSame(Find(columns[at + 1][row]), Find(columns[at][row]).FindSelectableOnRight(), "right from " + columns[at][row]);
-                    Assert.AreSame(Find(columns[at][row]), Find(columns[at + 1][row]).FindSelectableOnLeft(), "left from " + columns[at + 1][row]);
-                }
+            foreach (var family in HouseModes.Families)
+            {
+                var tiles = Section(family).GetComponentsInChildren<Button>();
+                var at = tiles.Select(tile => InPage((RectTransform)tile.transform)).ToArray();
+                for (int i = 0; i < tiles.Length; i++)
+                    for (int j = 0; j < tiles.Length; j++)
+                    {
+                        if (i == j) continue;
+                        bool right = Mathf.Abs(at[j].yMax - at[i].yMax) <= .5f && Mathf.Abs(at[j].xMin - at[i].xMax - LobbyPlayModeFamilies.Gutter) <= .5f;
+                        bool below = Mathf.Abs(at[j].xMin - at[i].xMin) <= .5f && Mathf.Abs(at[i].yMin - at[j].yMax - LobbyPlayModeFamilies.Gutter) <= .5f;
+                        if (right)
+                        {
+                            Assert.AreSame(tiles[j], tiles[i].FindSelectableOnRight(), "right from " + tiles[i].name);
+                            Assert.AreSame(tiles[i], tiles[j].FindSelectableOnLeft(), "left from " + tiles[j].name);
+                        }
+                        if (below)
+                        {
+                            Assert.AreSame(tiles[j], tiles[i].FindSelectableOnDown(), "down from " + tiles[i].name);
+                            Assert.AreSame(tiles[i], tiles[j].FindSelectableOnUp(), "up from " + tiles[j].name);
+                        }
+                    }
+            }
         }
 
         static void AssertFullHousePanel()
@@ -777,12 +805,15 @@ namespace Wreckabulary.Tests
                 foreach (string mode in HouseModes.ModesIn(family))
                 {
                     var button = Find(PlayPage.ModeButton(mode));
-                    Assert.AreEqual(1, button.GetComponentsInChildren<TMP_Text>().Length, "one concise mode label: " + button.name);
+                    var labels = button.GetComponentsInChildren<TMP_Text>().Where(text => text.transform.parent.parent == null || text.transform.parent.parent.name != PlayPage.TagRow).ToArray();
+                    Assert.AreEqual(1, labels.Length, "one concise mode label: " + button.name);
                     Assert.AreEqual(LobbyPlayModeLabels.Name(mode), button.GetComponentInChildren<TMP_Text>().text);
                     CollectionAssert.AreEqual(new[] { PlayPage.ModeEmblem }, button.GetComponentsInChildren<RawImage>().Select(image => image.name).ToArray(),
                         "each mode name carries one small emblem: " + button.name);
                     var emblem = InPage(button.GetComponentsInChildren<RawImage>().Single().rectTransform);
-                    Assert.LessOrEqual(emblem.xMax, InPage(button.GetComponentInChildren<TMP_Text>().rectTransform).xMin + .5f, button.name + ": the emblem leads the name");
+                    var name = InPage(labels[0].rectTransform);
+                    Assert.GreaterOrEqual(emblem.yMin, name.yMax - .5f, button.name + ": the emblem sits above the name, never over it");
+                    Assert.That(emblem.center.x, Is.EqualTo(name.center.x).Within(.5f), button.name + ": the emblem is centred over the name");
                 }
             }
             Pick("Dibs");
@@ -908,9 +939,9 @@ namespace Wreckabulary.Tests
             yield return null; yield return null;
             Canvas.ForceUpdateCanvases();
             CollectionAssert.AreEqual(HouseModes.Families.Select(HouseModes.FamilyName).ToArray(), Sections, "Classic, Co-op, Arcade, then Training");
-            CollectionAssert.AreEqual(new[] { "CLASSIC", "CO-OP", "ARCADE", "TRAINING" }, Captions);
-            CollectionAssert.AreEqual(new[] { 4, 3, 3, 2 }, HouseModes.Families.Select(family => Section(family).GetComponentsInChildren<Button>().Length).ToArray(),
-                "four, three, three and two modes");
+            CollectionAssert.AreEqual(HouseModes.Families.Select(family => LobbyKit.Upper(HouseModes.FamilyName(family))).ToArray(), Captions);
+            CollectionAssert.AreEqual(HouseModes.Families.Select(family => HouseModes.ModesIn(family).Count).ToArray(),
+                HouseModes.Families.Select(family => Section(family).GetComponentsInChildren<Button>().Length).ToArray(), "one tile per mode in the data");
             foreach (var family in HouseModes.Families)
                 CollectionAssert.AreEqual(HouseModes.ModesIn(family).Select(PlayPage.ModeButton).ToArray(),
                     Section(family).GetComponentsInChildren<Button>().Select(button => button.name).ToArray(), family + " top to bottom");
@@ -1332,13 +1363,14 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(GameConfig.Current.Houses.Count, cards.Length);
             Assert.AreEqual(HousesInARow, Resources.Load<LobbyPlayLayout>(LobbyPlayLayout.ResourcePath).MapColumns,
                 "Resources/UI/LobbyPlayLayout.asset keeps MapColumns at five");
-            Assert.AreEqual(grid.GetComponent<LobbyPlayCardGrid>().MaximumColumns, grid.constraintCount, "A wide page fills the house row.");
-            Assert.GreaterOrEqual(grid.constraintCount, cards.Length, "every house sits in one row");
+            Assert.AreEqual(cards.Length, grid.constraintCount, "A wide page puts every house in one full row with no empty slot.");
             Assert.That(grid.cellSize.x, Is.InRange(grid.GetComponent<LobbyPlayCardGrid>().MinimumWidth, LobbyPlayCardGrid.PreferredWidth),
                 "Five columns stay between the smallest and the steady card width.");
             var first = InPage((RectTransform)cards[0].transform);
             Assert.That(first.xMin, Is.EqualTo(row.xMin).Within(.5f), "Cards start at the left edge.");
             Assert.LessOrEqual(cards.Max(card => InPage((RectTransform)card.transform).xMax), row.xMax + .5f, "The row of houses fits the page.");
+            if (grid.cellSize.x < LobbyPlayCardGrid.PreferredWidth - .5f)
+                Assert.That(cards.Max(card => InPage((RectTransform)card.transform).xMax), Is.EqualTo(row.xMax).Within(1f), "The houses fill the row to its right edge.");
             foreach (var card in cards.Take(HousesInARow))
                 Assert.That(InPage((RectTransform)card.transform).yMax, Is.EqualTo(first.yMax).Within(.5f), card.name + " shares the one row");
             foreach (var card in cards)
@@ -1355,7 +1387,10 @@ namespace Wreckabulary.Tests
                 var title = card.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Map title");
                 var detail = card.GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Map detail");
                 Assert.AreEqual(layout.Name, title.text);
-                Assert.AreEqual(Wreckabulary.Rules.MapCardText.HouseLine(layout), detail.text);
+                Assert.AreEqual(LobbyMapSnapshots.HouseCaption(id, layout), detail.text);
+                Assert.IsNotEmpty(LobbyMapSnapshots.Trait(id), id + " has a short trait line");
+                StringAssert.StartsWith(LobbyMapSnapshots.Trait(id), detail.text, id);
+                StringAssert.Contains(Wreckabulary.Rules.MapCardText.HouseLine(layout), card.GetComponent<LobbyHint>().Text, id + ": the full facts stay in the hint");
                 AssertNameOnPicture(card, shape, id);
                 Assert.AreEqual(LobbyMapSnapshots.For(id) != null, picture.name == "Map preview", id);
                 foreach (var text in new[] { title, detail }) { text.ForceMeshUpdate(); Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, text.text); }
@@ -1517,28 +1552,29 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator EverySelectedModeShowsItsGoalBesideTheColumnsOrUnderThemWhenNarrow()
+        public IEnumerator EverySelectedModeShowsItsGoalUnderTheTilesInOneFixedPlace()
         {
             var menu = LobbyMenu.Instance;
             menu.Choose(LobbyMenu.Practice, "Dibs", "pinwheel"); menu.Open(LobbyMenu.Play);
             Page.anchorMin = Page.anchorMax = Vector2.zero; Page.sizeDelta = Wide;
             yield return null;
+            Rect? place = null;
             foreach (string mode in LobbyMenu.PracticeModes)
             {
                 Pick(mode); yield return null; yield return null;
                 Canvas.ForceUpdateCanvases();
                 var bounds = AssertGoal(LobbyPlayModeLabels.Line(mode));
                 StringAssert.Contains(Wreckabulary.Rules.HouseModes.Goal(mode), LobbyPlayModeLabels.Line(mode));
-                Assert.IsTrue(Strip.GetComponent<LobbyPlayModeBoard>().Beside, "a wide page has room beside the columns");
-                Assert.GreaterOrEqual(bounds.xMin, InPage(Columns).xMax, mode + ": the goal sits right of the last column");
-                Assert.GreaterOrEqual(bounds.yMin, InPage(Columns).yMin - .5f, mode + ": and does not add a row under the columns");
-                Assert.That(InPage(Strip).height, Is.EqualTo(InPage(Columns).height).Within(.5f), mode + ": so the maps keep their place");
-                var access = AssertAccess(mode, bounds);
-                Assert.GreaterOrEqual(access.xMin, InPage(Columns).xMax, mode + ": who can play sits right of the last column too");
+                Assert.LessOrEqual(bounds.yMax, InPage(Columns).yMin + .5f, mode + ": the goal sits under the tiles");
+                Assert.That(bounds.xMin, Is.EqualTo(InPage(Strip).xMin).Within(.5f), mode + ": starting at the mode block's left edge");
+                if (place is Rect fixedPlace) Assert.That(bounds.yMax, Is.EqualTo(fixedPlace.yMax).Within(.5f), mode + ": in the same place for every mode");
+                place = bounds;
+                AssertAccess(mode, bounds);
                 Assert.AreEqual(HouseModes.BotSeats(mode) > 0 && HouseModes.Has(mode), AccessText.ToLowerInvariant().Contains("bot"), mode + ": bots are claimed only where bots play");
                 Assert.IsFalse(Page.GetComponentsInChildren<Button>().Any(button => button.name == PlayPage.PlayOnline), mode + " plays on this screen only");
                 AssertNoScrollingNeeded();
                 Assert.AreSame(Find("Mode " + mode).gameObject, EventSystem.current.currentSelectedGameObject);
+                Assert.IsTrue(Underlined("Mode " + mode), mode + " is marked as the chosen tile");
             }
             Pick("TimeRun"); yield return null; yield return null;
             Canvas.ForceUpdateCanvases();
@@ -1548,11 +1584,9 @@ namespace Wreckabulary.Tests
             yield return null; yield return null;
             Canvas.ForceUpdateCanvases();
             var under = AssertGoal(LobbyPlayModeLabels.Line("TimeRun"));
-            Assert.IsFalse(Strip.GetComponent<LobbyPlayModeBoard>().Beside, "a narrow page has no room beside the columns");
-            Assert.LessOrEqual(under.yMax, InPage(Columns).yMin + .5f, "The goal sits under the columns.");
-            Assert.That(under.center.x, Is.EqualTo(InPage(Strip).center.x).Within(.5f), "centred under them");
-            var below = AssertAccess("TimeRun", under);
-            Assert.That(below.center.x, Is.EqualTo(InPage(Strip).center.x).Within(.5f), "who can play is centred under the goal");
+            Assert.LessOrEqual(under.yMax, InPage(Columns).yMin + .5f, "The goal sits under the tiles on a narrow page too.");
+            Assert.That(under.xMin, Is.EqualTo(InPage(Strip).xMin).Within(.5f));
+            AssertAccess("TimeRun", under);
             AssertPlayOnlineTarget();
         }
 
@@ -1674,7 +1708,11 @@ namespace Wreckabulary.Tests
             Assert.That(at.height, Is.InRange(strip.MinimumHeight - .5f, strip.MaximumHeight + .5f), where);
             foreach (var card in Page.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Map ") || button.name.StartsWith("Solo map ")))
                 Assert.LessOrEqual(at.yMax, InPage((RectTransform)card.transform).yMin + .5f, where + ": under " + card.name);
-            Assert.AreEqual(LobbyPlayDetail.GuideWord, strip.GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GuideStripTitle).text, where);
+            var head = strip.GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GuideStripTitle);
+            Assert.AreEqual(LobbyPlayDetail.GuideWord, head.text, where);
+            head.ForceMeshUpdate();
+            Assert.IsFalse(head.isTextTruncated || head.isTextOverflowing, where + ": the title keeps its whole row");
+            Assert.GreaterOrEqual(head.rectTransform.rect.height + .5f, head.GetPreferredValues(head.text).y, where + ": the title row fits the title");
             var cards = strip.GetComponentsInChildren<RectTransform>().Where(rect => rect.name.StartsWith(PlayPage.GuideStep)).ToArray();
             Assert.AreEqual(guide.Steps.Count, cards.Length, where + ": one card per guide step");
             var first = InPage(cards[0]);
@@ -1687,6 +1725,7 @@ namespace Wreckabulary.Tests
                 Assert.Greater(card.xMin, right, where + ": steps run left to right without overlap");
                 Assert.GreaterOrEqual(card.xMin, at.xMin - .5f, where); Assert.LessOrEqual(card.xMax, at.xMax + .5f, where);
                 Assert.GreaterOrEqual(card.yMin, at.yMin - .5f, where);
+                Assert.LessOrEqual(card.yMax, InPage(head.rectTransform).yMin + .5f, where + ": steps sit under the title");
                 right = card.xMax;
                 var title = cards[i].GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GuideStepTitle);
                 Assert.AreEqual((i + 1) + LobbyPlayDetail.StepSeparator + guide.Steps[i].Title, title.text, where);
@@ -1752,12 +1791,16 @@ namespace Wreckabulary.Tests
             var wide = LobbyPlayCardGrid.Layout(1820, 12, 264, 3, 640);
             Assert.AreEqual(3, wide.columns);
             Assert.AreEqual(LobbyPlayCardGrid.PreferredWidth, wide.cell.x);
+            var few = LobbyPlayCardGrid.Layout(1820, 12, 264, 6, 640, 3, HousesInARow);
+            Assert.AreEqual(3, few.columns, "three courses sit on the first three house columns");
+            Assert.AreEqual(LobbyPlayCardGrid.Layout(1820, 12, 264, 6, 640, HousesInARow, HousesInARow).cell, few.cell, "with the house card footprint");
             Assert.That((wide.cell.x - LobbyPlayCardGrid.Inset * 2) / (wide.cell.y - LobbyPlayCardGrid.CaptionHeight - LobbyPlayCardGrid.Inset), Is.EqualTo(16f / 9f).Within(.001f));
             var narrow = LobbyPlayCardGrid.Layout(840, 12, 264, 3, 0);
             Assert.AreEqual(3, narrow.columns);
             Assert.That(narrow.cell.x, Is.EqualTo((840 - 24) / 3f).Within(.01f));
             var low = LobbyPlayCardGrid.Layout(1820, 12, 264, 3, 200);
             Assert.That(low.cell.y, Is.EqualTo(200 - LobbyPlayCardGrid.ViewportMargin).Within(.01f), "A short viewport still shows a whole card.");
+            Assert.That(low.cell.x, Is.EqualTo(LobbyPlayCardGrid.WidthFor(low.cell.y)).Within(.01f), "and narrows the card so the picture stays a full 16:9.");
             Assert.AreEqual(1, LobbyPlayCardGrid.Layout(200, 12, 264, 3, 0).columns);
             var five = LobbyPlayCardGrid.Layout(1838, 12, 264, HousesInARow, 782);
             Assert.AreEqual(HousesInARow, five.columns);
@@ -1835,18 +1878,46 @@ namespace Wreckabulary.Tests
         }
 
         [Test]
-        public void ModeFamiliesBalanceIntoAsFewLinesAsFit()
+        public void ModeTilesShareOneSizeAndFillAsFewRowsAsFit()
         {
-            CollectionAssert.AreEqual(new[] { 5 }, LobbyPlayModeFamilies.Lines(new[] { 108f, 478f, 372f, 302f, 242f }, 28, 1800, .8f));
-            CollectionAssert.AreEqual(new[] { 2, 3 }, LobbyPlayModeFamilies.Lines(new[] { 108f, 478f, 372f, 302f, 242f }, 28, 840, .8f));
-            CollectionAssert.AreEqual(new[] { 1, 1 }, LobbyPlayModeFamilies.Lines(new[] { 900f, 900f }, 28, 600, .8f));
-            var columns = new[] { 248f, 245f, 257f, 263f };
-            CollectionAssert.AreEqual(new[] { 2, 2 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f), "without heights the narrower lines win");
-            CollectionAssert.AreEqual(new[] { 2, 2 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f, new[] { 74f, 74f, 74f, 74f }), "equal heights keep that balance");
-            CollectionAssert.AreEqual(new[] { 3, 1 }, LobbyPlayModeFamilies.Lines(columns, 28, 842, .8f, new[] { 230f, 178f, 178f, 126f }),
-                "stacked columns of four, three, three and two rows take the shorter block");
-            CollectionAssert.IsEmpty(LobbyPlayModeFamilies.Lines(new float[0], 28, 600, .8f));
+            var today = new[] { 4, 3, 3, 2 };
+            var wide = LobbyPlayModeFamilies.Layout(today, 1838);
+            Assert.AreEqual(1, wide.Rows, "every mode on one row of tiles on a 1280x720 page");
+            Assert.GreaterOrEqual(wide.Width, LobbyPlayModeFamilies.MinimumTile);
+            var more = LobbyPlayModeFamilies.Layout(new[] { 5, 3, 3, 2 }, 1838);
+            var fewer = LobbyPlayModeFamilies.Layout(new[] { 3, 3, 3, 2 }, 1838);
+            foreach (var (plan, counts) in new[] { (wide, today), (more, new[] { 5, 3, 3, 2 }), (fewer, new[] { 3, 3, 3, 2 }),
+                (LobbyPlayModeFamilies.Layout(today, 1382), today), (LobbyPlayModeFamilies.Layout(today, 860), today), (LobbyPlayModeFamilies.Layout(today, 400), today) })
+            {
+                float right = 0f;
+                for (int group = 0; group < counts.Length; group++)
+                {
+                    Assert.GreaterOrEqual(plan.Columns[group], 1);
+                    Assert.LessOrEqual(plan.Columns[group], counts[group], "never an empty column in a group");
+                    int rows = plan.RowsOf(group, counts[group]);
+                    int last = counts[group] - (rows - 1) * plan.Columns[group];
+                    Assert.Greater(last, 0);
+                    Assert.LessOrEqual(rows, plan.Rows, "a group never has more rows than the band");
+                    for (int entry = 0; entry < counts[group]; entry++)
+                    {
+                        var at = plan.Position(group, entry);
+                        Assert.GreaterOrEqual(at.x, plan.Left[group] - .01f);
+                        right = Mathf.Max(right, at.x + plan.Width);
+                    }
+                    if (group > 0 && plan.Line[group] == plan.Line[group - 1])
+                        Assert.That(plan.Left[group], Is.EqualTo(plan.Left[group - 1] + plan.GroupWidth(group - 1) + LobbyPlayModeFamilies.GroupGap).Within(.01f), "groups sit one group gap apart");
+                }
+                Assert.LessOrEqual(plan.Width, LobbyPlayModeFamilies.MaximumTile + .01f);
+                Assert.AreEqual(LobbyPlayModeFamilies.TileHeight, plan.Height, "one tile height everywhere");
+            }
+            Assert.LessOrEqual(Right(wide, today), 1838 + .5f);
+            Assert.AreEqual(2, LobbyPlayModeFamilies.Layout(today, 1382).Rows, "a 4:3 page takes two rows of tiles");
+            CollectionAssert.AreEqual(new[] { 2, 2, 2, 1 }, LobbyPlayModeFamilies.Layout(today, 1382).Columns);
+            Assert.IsEmpty(LobbyPlayModeFamilies.Layout(new int[0], 1838).Columns);
         }
+
+        static float Right(LobbyPlayTilePlan plan, int[] counts) =>
+            Enumerable.Range(0, counts.Length).Max(group => plan.Left[group] + plan.GroupWidth(group));
 
         [UnityTest]
         public IEnumerator MatchmakingTabStaysInTheLobbyWithPlaylistCardsAndFindMatch()

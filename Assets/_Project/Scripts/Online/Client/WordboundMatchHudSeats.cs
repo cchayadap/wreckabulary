@@ -9,7 +9,7 @@ namespace Wreckabulary.Online
     public sealed partial class WordboundMatchHud
     {
         const float SeatTile = 46f, SeatSnugTile = 40f, SeatBarHeight = 18f, SeatNumberPad = 3f, SeatOutline = 2f, SeatYou = 2f,
-            CentrePad = 10f, CentreScoreGap = 6f, CentreClockShare = .55f;
+            CentrePad = 10f, CentreScoreGap = 6f, CentreClockShare = .55f, CentreMark = 14f, CentreMarkGap = 3f;
         const int SeatLabelFont = 20, SeatNumberFont = 16, CentreClockFont = 22, CentreScoreFont = 18;
         static readonly Color HudOutSeat = KitHex(0x6d7472), HudOutShade = KitHex(0x0b1515, .55f);
         static readonly string[] SeatNumbers = { "1", "2", "3", "4", "5", "6", "7", "8" };
@@ -27,7 +27,7 @@ namespace Wreckabulary.Online
         Color[] seatColour = Array.Empty<Color>(), seatTeamColour = Array.Empty<Color>();
         GUIContent[] seatLabel = Array.Empty<GUIContent>(), seatNumber = Array.Empty<GUIContent>();
         Rect[] seatTileRects = Array.Empty<Rect>();
-        Rect seatStripRect, seatCentreRect;
+        Rect seatStripRect, seatCentreRect, seatLeadRect;
 
         bool SeatStripShown => GuidanceVisible && PlayerBar.Visible(frame.Binding.Seats.Count);
 
@@ -202,7 +202,7 @@ namespace Wreckabulary.Online
         float CentreWidth()
         {
             float clock = scoreClockShown ? Mathf.Max(kitCentreClock.CalcSize(scoreClock).x, kitCentreClock.CalcSize(scoreClockWidest).x) : 0f;
-            float score = scoreSidesShown ? kitCentreScore.CalcSize(scoreSeparator).x + 2f * (CentreScoreGap +
+            float score = scoreSidesShown ? kitCentreScore.CalcSize(scoreSeparator).x + 2f * (CentreScoreGap + CentreMarkGap + CentreMark +
                 Mathf.Max(kitCentreScore.CalcSize(scoreMine).x, kitCentreScore.CalcSize(scoreTheirs).x)) : 0f;
             float inner = Mathf.Max(clock, score);
             return inner > 0f ? Mathf.Ceil(inner + CentrePad * 2f) : 0f;
@@ -214,6 +214,7 @@ namespace Wreckabulary.Online
             KitFrame(area, SeatOutline, HudGlassEdge);
             var inner = new Rect(area.x, area.y + SeatOutline, area.width, area.height - SeatOutline * 2f);
             bool both = scoreClockShown && scoreSidesShown;
+            if (Painting) seatLeadRect = default;
             float split = both ? Mathf.Round(inner.height * CentreClockShare) : inner.height;
             if (scoreClockShown) KitPlain(new Rect(inner.x, inner.y, inner.width, split), scoreClock, kitCentreClock, EyeInk);
             if (!scoreSidesShown) return;
@@ -222,7 +223,18 @@ namespace Wreckabulary.Online
             float mine = kitCentreScore.CalcSize(scoreMine).x, theirs = kitCentreScore.CalcSize(scoreTheirs).x;
             KitPlain(new Rect(middle - separator * .5f - CentreScoreGap - mine, row.y, mine, row.height), scoreMine, kitCentreScore, scoreMineColour);
             KitPlain(new Rect(middle - separator * .5f, row.y, separator, row.height), scoreSeparator, kitCentreScore, EyeInk);
-            KitPlain(new Rect(middle + separator * .5f + CentreScoreGap, row.y, theirs, row.height), scoreTheirs, kitCentreScore, scoreTheirsColour);
+            var theirsRect = new Rect(middle + separator * .5f + CentreScoreGap, row.y, theirs, row.height);
+            KitPlain(theirsRect, scoreTheirs, kitCentreScore, scoreTheirsColour);
+            if (scoreLead == ScoreLine.Left) PaintCentreMark(middle - separator * .5f - CentreScoreGap - mine - CentreMarkGap - CentreMark, row.center.y);
+            else if (scoreLead == ScoreLine.Right) PaintCentreMark(theirsRect.xMax + CentreMarkGap, row.center.y);
+        }
+
+        void PaintCentreMark(float x, float middle)
+        {
+            if (!scoreTrophy) scoreTrophy = LobbyIcons.Get(LobbyIcons.Trophy).texture;
+            var at = new Rect(Mathf.Round(x), Mathf.Round(middle - CentreMark * .5f), CentreMark, CentreMark);
+            KitImage(at, scoreTrophy, ArrowTint);
+            if (Painting) seatLeadRect = at;
         }
     }
 }

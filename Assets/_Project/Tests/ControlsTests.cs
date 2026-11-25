@@ -227,6 +227,37 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("PLATE", p.Combat.Weapon.word, "and the plate stays in hand");
         }
 
+        sealed class PadSeat : ScriptedBinding
+        {
+            public override bool HoldingAttackRaisesShield => false;
+        }
+
+        [UnityTest]
+        public IEnumerator HeldAttackOnAPadStillPunchesWithAPlateAndBlockStaysOnItsOwnButton()
+        {
+            var input = new PadSeat();
+            var p = Object.Instantiate(GameAssets.I.playerPrefab, Vector3.zero, Quaternion.identity);
+            p.Setup(0, input);
+            p.Respawn(Vector3.zero);
+            var opponent = SpawnPlayer(1, new Vector3(0f, 0f, 1.1f), out _);
+            yield return Frames(3);
+            EquipPlate(p);
+            Assert.IsFalse(new GamepadBinding(null).HoldingAttackRaisesShield);
+            Assert.IsFalse(new KeyboardBinding(KeyboardBinding.Side.Left).HoldingAttackRaisesShield);
+            Assert.IsFalse(TouchBinding.Shared.HoldingAttackRaisesShield);
+
+            input.Next.attack = true;
+            input.Next.attackHeld = true;
+            yield return TestScenes.WaitUntil(() => opponent.Health.Current < 100f, 1f, "pad punch damage window");
+            Assert.AreEqual(100f - Fist, opponent.Health.Current, "a pad's attack button punches past the plate even while held");
+            Assert.IsFalse(p.Combat.IsBlocking, "holding attack on a pad never raises the plate");
+
+            input.Next.attackHeld = false;
+            input.Next.blockHeld = true;
+            yield return new WaitForSeconds(0.25f);
+            Assert.IsTrue(p.Combat.IsBlocking, "the block button still raises it");
+        }
+
         [UnityTest]
         public IEnumerator PlateWornThroughBreaksIntoLetters()
         {

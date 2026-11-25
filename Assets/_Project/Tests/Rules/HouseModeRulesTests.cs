@@ -24,7 +24,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var book = Layered();
             Assert.IsEmpty(book.Validate());
-            CollectionAssert.AreEquivalent(new[] { "Deathmatch", "War", "ShoppingList", "RiddleRush" }, book.LayeredModes);
+            CollectionAssert.AreEquivalent(new[] { "Deathmatch", "War", "ShoppingList", "RiddleRush", "BossFight" }, book.LayeredModes);
             foreach (var mode in HouseModes.All)
                 Assert.IsTrue(book.Modes.Contains(mode.Id), $"{mode.Id} needs rules in rules.json or modes_house.json");
         }
@@ -55,6 +55,20 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(4, r.TeamSize);
             Assert.IsFalse(r.FriendlyFire);
             Assert.IsFalse(r.DownedEnabled);
+            Assert.IsFalse(r.ClearOutEnabled);
+        }
+
+        [Test]
+        public void BossFightIsOneTeamWithoutReviveOrMovers()
+        {
+            var r = Layered().For(HouseModes.BossFight);
+            Assert.AreEqual(4, r.TeamSize);
+            Assert.IsFalse(r.DownedEnabled);
+            Assert.IsFalse(r.FriendlyFire);
+            Assert.AreEqual(3f, r.RespawnSeconds);
+            Assert.AreEqual(300f, r.RoundTimeLimitSeconds);
+            Assert.AreEqual(16, r.MaxLetters);
+            Assert.AreEqual(1, r.RoundsToWin);
             Assert.IsFalse(r.ClearOutEnabled);
         }
 
