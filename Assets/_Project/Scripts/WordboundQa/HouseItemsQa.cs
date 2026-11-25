@@ -15,7 +15,7 @@ namespace Wreckabulary.Qa
     public sealed class HouseItemsQa : IQaScenario
     {
         public const string Scenario = "house_items";
-        public const int MaxItems = 20, Parts = 3;
+        public const int MaxItems = 20, Parts = 4;
         const float Wound = 30f, ShotSeconds = 3f, ShotGap = 3f;
         public string Name => ScenarioFor(part);
         static readonly Vector3 Lane = new Vector3(-5.5f, 0f, -2.6f);

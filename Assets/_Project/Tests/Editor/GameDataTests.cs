@@ -22,7 +22,8 @@ namespace Wreckabulary.EditorTests
             "PILLOW", "RACK", "MIRROR", "SPEAKER", "BENCH", "TOASTER", "BEAR", "MUG", "VASE", "BOOK", "BOX", "BOW", "CHEST",
             "RAKE", "TEAPOT", "LID", "TOMATO", "ROCKET", "MARBLE", "LADDER", "PADDLE", "CHILI", "DISC",
             "HELMET", "LEMON", "TORCH", "CARPET", "SLIME", "SPOON", "TENT", "PEAR", "SOCK", "HOSE",
-            "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT" };
+            "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT",
+            "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB" };
 
         [OneTimeSetUp]
         public void Load()

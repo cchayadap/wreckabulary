@@ -1940,6 +1940,373 @@
         "breakPower": 1
       },
       "notes": "A rubber boot to throw. Pick it up again where it lands."
+    },
+    {
+      "id": "ANCHOR",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/ANCHOR",
+      "heldScale": 0.6,
+      "grip": [
+        0.0,
+        0.477,
+        -0.0015
+      ],
+      "size": [
+        0.5126,
+        0.7552,
+        0.091
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 16,
+      "melee": {
+        "damage": 26,
+        "reach": 1.4,
+        "arc": 100,
+        "windup": 0.4,
+        "active": 0.12,
+        "recovery": 0.73,
+        "knockback": 9,
+        "breakPower": 2.0,
+        "hitStun": 0.4
+      },
+      "notes": "A heavy toy anchor: slow swings that knock players far, and every third hit on the same player crushes."
+    },
+    {
+      "id": "POTION",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/POTION",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.083,
+        0.0
+      ],
+      "size": [
+        0.17,
+        0.2631,
+        0.1737
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Buff",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Bubble",
+        "amount": 30,
+        "seconds": 8,
+        "channel": 0.3
+      },
+      "notes": "A bubbling potion: a 30-point shield bubble for 8 seconds, quicker to drink than FOAM."
+    },
+    {
+      "id": "FENCE",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/FENCE",
+      "heldScale": 0.42,
+      "grip": [
+        0.0,
+        0.123,
+        -0.022
+      ],
+      "size": [
+        1.026,
+        0.5371,
+        0.18
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 1,
+      "durability": 90,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.5,
+        "footprint": [
+          1.026,
+          0.18
+        ]
+      },
+      "notes": "Plant a little picket fence: wide, low cover you carry in one hand."
+    },
+    {
+      "id": "CAMERA",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CAMERA",
+      "heldScale": 1.0,
+      "grip": [
+        0.108,
+        0.075,
+        0.026
+      ],
+      "size": [
+        0.292,
+        0.222,
+        0.1704
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 38,
+      "melee": {
+        "damage": 13,
+        "reach": 1.4,
+        "arc": 100,
+        "windup": 0.14,
+        "active": 0.1,
+        "recovery": 0.28,
+        "knockback": 4,
+        "breakPower": 0.8,
+        "hitStun": 0.25
+      },
+      "notes": "A toy camera: quick bops whose flash dazes on every hit, and you move a little quicker while you carry it."
+    },
+    {
+      "id": "LATTE",
+      "category": "Consumables",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/LATTE",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.12,
+        0.0
+      ],
+      "size": [
+        0.184,
+        0.2561,
+        0.184
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Buff",
+      "hands": 1,
+      "durability": 0,
+      "use": {
+        "effect": "Speed",
+        "amount": 1.2,
+        "seconds": 5,
+        "channel": 0.3
+      },
+      "notes": "A frothy latte: run 20% faster for 5 seconds."
+    },
+    {
+      "id": "PLANE",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/PLANE",
+      "heldScale": 0.8,
+      "grip": [
+        0.0,
+        0.039,
+        0.0
+      ],
+      "size": [
+        0.464,
+        0.111,
+        0.4008
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 13,
+        "speed": 26,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 3,
+        "breakPower": 0.6
+      },
+      "notes": "A toy glider that flies fast and flat, may daze, and can be picked up again."
+    },
+    {
+      "id": "PAINT",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/PAINT",
+      "heldScale": 1.0,
+      "grip": [
+        0.034,
+        0.065,
+        -0.034
+      ],
+      "size": [
+        0.3452,
+        0.167,
+        0.2755
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 0,
+      "deploy": {
+        "effect": "SlipZone",
+        "place": 0.4,
+        "radius": 2.6,
+        "lifetime": 9,
+        "footprint": [
+          0.3452,
+          0.2755
+        ]
+      },
+      "notes": "Spill a tin of wet paint: a slippery patch a little bigger and longer than SOAP's."
+    },
+    {
+      "id": "CASTLE",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CASTLE",
+      "heldScale": 0.6,
+      "grip": [
+        0.0,
+        0.08,
+        0.0
+      ],
+      "size": [
+        0.502,
+        0.6,
+        0.402
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 110,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.8,
+        "footprint": [
+          0.502,
+          0.402
+        ]
+      },
+      "notes": "Set down a toy castle: tall, sturdy cover with four towers."
+    },
+    {
+      "id": "MALLET",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/MALLET",
+      "heldScale": 0.7,
+      "grip": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "size": [
+        0.298,
+        0.583,
+        0.166
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 18,
+      "melee": {
+        "damage": 20,
+        "reach": 1.5,
+        "arc": 110,
+        "windup": 0.3,
+        "active": 0.12,
+        "recovery": 0.68,
+        "knockback": 8,
+        "breakPower": 1.6,
+        "hitStun": 0.35
+      },
+      "notes": "A squeaky toy mallet: slow, solid bonks, and every second hit on the same player crushes."
+    },
+    {
+      "id": "CRAB",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CRAB",
+      "heldScale": 0.8,
+      "grip": [
+        0.0,
+        0.068,
+        0.007
+      ],
+      "size": [
+        0.4778,
+        0.2905,
+        0.2286
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 40,
+      "thrown": {
+        "damage": 13,
+        "speed": 14,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 4,
+        "breakPower": 0.6
+      },
+      "notes": "A plush crab whose claws pinch where it lands. Pick it up again."
     }
   ],
   "tuning": {
@@ -2327,6 +2694,60 @@
           {
             "kind": "Swift",
             "amount": 1.05
+          }
+        ]
+      },
+      "ANCHOR": {
+        "traits": [
+          {
+            "kind": "Heavy",
+            "amount": 1.5
+          },
+          {
+            "kind": "Crush",
+            "amount": 1.75,
+            "every": 3
+          }
+        ]
+      },
+      "CAMERA": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.75,
+            "seconds": 1.0
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.05
+          }
+        ]
+      },
+      "PLANE": {
+        "traits": [
+          {
+            "kind": "Daze",
+            "amount": 0.7,
+            "seconds": 1.2,
+            "chance": 0.3
+          }
+        ]
+      },
+      "MALLET": {
+        "traits": [
+          {
+            "kind": "Crush",
+            "amount": 1.5,
+            "every": 2
+          }
+        ]
+      },
+      "CRAB": {
+        "traits": [
+          {
+            "kind": "Bleed",
+            "amount": 1,
+            "seconds": 2
           }
         ]
       }

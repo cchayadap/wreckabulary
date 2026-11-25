@@ -24,6 +24,7 @@ namespace Wreckabulary
         public readonly InputActionMap Map = new("Desktop");
         public readonly InputAction Move, Attack, Aim, LookAround, Jump, Dodge, Interact, Spell, SpellBox, Drop, PushToTalk, Hand1, Hand2, Bag, Pause, Up, Down, Start, Point, Look;
         HoldToFire dropHold;
+        bool hudPress;
         readonly List<RaycastResult> uiHits = new();
         PointerEventData uiPointer;
         EventSystem uiEvents;
@@ -82,7 +83,10 @@ namespace Wreckabulary
         public override void ReadHouse(ref PlayerCommands c)
         {
             Read(ref c);
+            bool pressedNow = Attack.WasPressedThisFrame();
+            hudPress = Rules.DesktopScheme.HudOwnsPress(pressedNow, Attack.IsPressed(), pressedNow && PointerOnHud(), hudPress);
             if (Blocked) return;
+            if (hudPress) { c.attack = c.attackHeld = c.aimAtPointer = false; c.pointer = default; }
             c.aimHeld = false;
             c.spellHeld = SpellBox.IsPressed();
             c.spellDown = SpellBox.WasPressedThisFrame();
@@ -130,6 +134,9 @@ namespace Wreckabulary
             c.pointer = Point.ReadValue<Vector2>();
             c.aimAtPointer = c.pointer.x >= 0f && c.pointer.y >= 0f && c.pointer.x <= Screen.width && c.pointer.y <= Screen.height;
         }
+
+        bool PointerOnHud() => Cursor.lockState != CursorLockMode.Locked && EventSystem.current
+            && (EventSystem.current.IsPointerOverGameObject() || HitsUiNow());
 
         bool HitsUiNow()
         {

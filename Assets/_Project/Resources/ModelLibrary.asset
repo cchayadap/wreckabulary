@@ -96,6 +96,9 @@ MonoBehaviour:
   - key: Environment/Window_Frame
     model: {fileID: -927199367670048503, guid: 4a8cff9239095a02e8794f569bceef8f, type: 3}
     clips: []
+  - key: Items/ANCHOR
+    model: {fileID: 8511797564268079359, guid: 300e76ff88cab8149bbca0f59b114fff, type: 3}
+    clips: []
   - key: Items/APPLE
     model: {fileID: -927199367670048503, guid: 18ad6296ef03a38064b274528e573c12, type: 3}
     clips: []
@@ -150,8 +153,14 @@ MonoBehaviour:
   - key: Items/CAKE
     model: {fileID: -927199367670048503, guid: a871746c74ea9e0eb302827e649fa51f, type: 3}
     clips: []
+  - key: Items/CAMERA
+    model: {fileID: 581474985966527747, guid: fbfa59e35ce182e4d83c57634daf581a, type: 3}
+    clips: []
   - key: Items/CARPET
     model: {fileID: 352158430598814127, guid: a2291c222d76869448764fbbea7da0cb, type: 3}
+    clips: []
+  - key: Items/CASTLE
+    model: {fileID: 3610176508427555493, guid: 1eb35e2e43cea304cab163866a4688a8, type: 3}
     clips: []
   - key: Items/CHAIR
     model: {fileID: -927199367670048503, guid: ab062eda6a3c02eb5a464286c37ccd78, type: 3}
@@ -164,6 +173,9 @@ MonoBehaviour:
     clips: []
   - key: Items/CLOCK
     model: {fileID: -927199367670048503, guid: f226f1e7443f920f89f90cbe91b13781, type: 3}
+    clips: []
+  - key: Items/CRAB
+    model: {fileID: 2093041501280403191, guid: a40d2414dfa88c84ba923bf1e6b856c4, type: 3}
     clips: []
   - key: Items/CRATE
     model: {fileID: -927199367670048503, guid: 70fb82325959c7020a96451b765d61c7, type: 3}
@@ -179,6 +191,9 @@ MonoBehaviour:
     clips: []
   - key: Items/FAN
     model: {fileID: -927199367670048503, guid: 60c1e153d12018dea6561bbffc72af69, type: 3}
+    clips: []
+  - key: Items/FENCE
+    model: {fileID: 465974351734385322, guid: bfc6609967a86c648b955c981b0b2260, type: 3}
     clips: []
   - key: Items/FOAM
     model: {fileID: -927199367670048503, guid: 617603142d322fdcb271d92af4941f66, type: 3}
@@ -198,11 +213,17 @@ MonoBehaviour:
   - key: Items/LAMP
     model: {fileID: -927199367670048503, guid: aefc6801afee9ec5d6042c732c221e4c, type: 3}
     clips: []
+  - key: Items/LATTE
+    model: {fileID: 2636016535116035845, guid: 93ed0ef7665b92847b9b3867a1057043, type: 3}
+    clips: []
   - key: Items/LEMON
     model: {fileID: 7359990963263365562, guid: 6c1a23f6510311449b3dc3d7948140d0, type: 3}
     clips: []
   - key: Items/LID
     model: {fileID: 2081179334046441325, guid: b8c245b85a276924f9306eb07f4e497b, type: 3}
+    clips: []
+  - key: Items/MALLET
+    model: {fileID: 5845269706807454322, guid: 1477df3a753a916468afae62d5e3fb4e, type: 3}
     clips: []
   - key: Items/MARBLE
     model: {fileID: 2315161257389040890, guid: 62ddc251c8a29e2489de0578c73ab50b, type: 3}
@@ -225,6 +246,9 @@ MonoBehaviour:
   - key: Items/PADDLE
     model: {fileID: 6600441464181374153, guid: 384b9e5c2191f4f48a8a813069738be9, type: 3}
     clips: []
+  - key: Items/PAINT
+    model: {fileID: 2439732808750336457, guid: 2098117ec84df474bb1cb37c7a0d3ed1, type: 3}
+    clips: []
   - key: Items/PAN
     model: {fileID: -927199367670048503, guid: ebeef2e8c3ed36fbf9bb92a313c0cc6c, type: 3}
     clips: []
@@ -243,6 +267,9 @@ MonoBehaviour:
   - key: Items/PILLOW
     model: {fileID: 5064040776180941163, guid: 51c73a5433688384a8a5e665548443d1, type: 3}
     clips: []
+  - key: Items/PLANE
+    model: {fileID: 8681056260262627996, guid: 4914ec49765cc73428de6500303ddd00, type: 3}
+    clips: []
   - key: Items/PLANT
     model: {fileID: -927199367670048503, guid: 91028c49cccf66be59755f093532dafe, type: 3}
     clips: []
@@ -251,6 +278,9 @@ MonoBehaviour:
     clips: []
   - key: Items/POT
     model: {fileID: -927199367670048503, guid: af67cfe4a0aabfc26cfbfe9cd7635898, type: 3}
+    clips: []
+  - key: Items/POTION
+    model: {fileID: 5099804895934995927, guid: 9e68e43a93321ed43aa145602e6c87a0, type: 3}
     clips: []
   - key: Items/RACK
     model: {fileID: 5875664085743950737, guid: 4fd345aa1d670d144aba7119a39df585, type: 3}

@@ -75,6 +75,18 @@ namespace Wreckabulary.Rules
             return BagMove.Back;
         }
 
+        public static (BagSpot spot, int index) TraySpot(int letter, int item, bool inBlock)
+        {
+            if (letter >= 0) return (BagSpot.Letter, letter);
+            if (item >= 0) return (BagSpot.Item, item);
+            return inBlock ? (BagSpot.None, -1) : (BagSpot.Drop, -1);
+        }
+
+        public static bool TrayAccepts(bool bagOpen, bool playing, bool cardShown, bool spellBoxOpen, bool cursorLocked, bool pointerSeat) =>
+            !bagOpen && playing && !cardShown && !spellBoxOpen && !cursorLocked && pointerSeat;
+
+        public static bool ShowsBin(BagSpot spot, bool canDrop) => spot == BagSpot.Drop && canDrop;
+
         public static bool Arrange(List<char> order, IReadOnlyList<char> letters, bool arranged, List<char> spare)
         {
             spare.Clear();

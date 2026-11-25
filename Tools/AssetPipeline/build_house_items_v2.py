@@ -11,7 +11,8 @@ from mathutils import Matrix, Vector
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from house_item_shapes import (banded, box, box_of, box_uv, cylinder, densify, ellipse, ellipsoid, fit, gathered, interpolate, join, lathe,
-                               lobed, mesh_bounds, move, preview, prism, pumpkin, reset, rounded_rect, slab, spline, star, stats, taper, torus, tube)
+                               fan_badge, lobed, mesh_bounds, move, preview, prism, pumpkin, reset, rounded_rect, slab, spline, star, stats, taper, torus,
+                               tube)
 
 REPO = Path(__file__).resolve().parents[2]
 MODELS = REPO / "Assets/_Project/Art/Collections/HouseItemsV2/Models"
@@ -19,11 +20,13 @@ MANIFEST = REPO / "ArtSource/Collections/HouseItemsV2/manifest.json"
 SCRIPT = "Tools/AssetPipeline/build_house_items_v2.py"
 WORDS = ("RAKE", "TEAPOT", "LID", "TOMATO", "ROCKET", "MARBLE", "LADDER", "PADDLE", "CHILI", "DISC",
          "HELMET", "LEMON", "TORCH", "CARPET", "SLIME", "SPOON", "TENT", "PEAR", "SOCK", "HOSE",
-         "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT")
+         "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT",
+         "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB")
 FIT_WARNING = 0.05
 FIT_LIMIT = 0.12
 BOUNDS_TOLERANCE = 2e-4
 TURN = Matrix.Identity(4)
+LATTE_ART_FACING = 218.0
 GROW = {"LEMON": 1.35, "PEAR": 1.3, "TONIC": 1.3, "TOMATO": 1.3}
 
 
@@ -585,12 +588,324 @@ def build_boot(size):
     move(prism("star", tab, star(5, 0.022, 0.0095), 0.042, 0.0495, bevel=(0.001, 1)), (-math.pi / 2, 0, 0), (x0, 0, 0.2))
 
 
+def heart(width, steps=36):
+    k = width / 32.0
+    points = [(k * 16 * math.sin(t) ** 3, k * (13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)))
+              for t in (2 * math.pi * i / steps for i in range(steps))]
+    middle = (max(v for _, v in points) + min(v for _, v in points)) / 2
+    return [(u, v - middle) for u, v in points]
+
+
+def heart_centre(width):
+    return (0.0, -0.1 * width)
+
+
+def helix(centre, radius, turns, count, z0, z1):
+    cx, cy = centre
+    return [(cx + radius * math.cos(2 * math.pi * turns * i / count), cy + radius * math.sin(2 * math.pi * turns * i / count), z0 + (z1 - z0) * i / count)
+            for i in range(count + 1)]
+
+
+def front_decal(name, mat, outline, y0, y1, at, bevel=(0.001, 1)):
+    return move(prism(name, mat, [(x, -z) for x, z in outline], y0, y1, bevel=bevel), (-math.pi / 2, 0, 0), at)
+
+
+def build_anchor(size):
+    body, accent, rope, tip, mark = "cobalt_Classic", "yellow_Classic", "wood_light_Classic", "scarlet_Classic", "white_Classic"
+    arc = spline([(-0.2, 0, 0.2), (-0.196, 0, 0.13), (-0.155, 0, 0.065), (-0.085, 0, 0.026), (0, 0, 0.014), (0.085, 0, 0.026), (0.155, 0, 0.065),
+                  (0.196, 0, 0.13), (0.2, 0, 0.2)], 3)
+    taper("arms", body, arc, interpolate([0.019, 0.023, 0.027, 0.03, 0.032, 0.03, 0.027, 0.023, 0.019], len(arc)), 14, Vector((0, 1, 0)))
+    ellipsoid("crown", body, (0, 0, 0.04), (0.05, 0.044, 0.046), 20, 10)
+    front_decal("star", mark, star(5, 0.027, 0.0115), 0.04, 0.0495, (0, 0, 0.042))
+    spade = [(0, 0.095), (0.024, 0.07), (0.052, 0.022), (0.038, -0.012), (0.012, 0.004), (0, -0.004), (-0.012, 0.004), (-0.038, -0.012), (-0.052, 0.022), (-0.024, 0.07)]
+    for side in (-1, 1):
+        move(slab("fluke", accent, spade, -0.015, 0.015, bevel=(0.005, 2)), (0, side * 0.32, 0), (side * 0.2, 0, 0.175))
+    cylinder("shank", body, 0.027, 0.56, (0, 0, 0.31), "Z", 20, bevel=0.004)
+    torus("shank_band", accent, 0.028, 0.006, (0, 0, 0.095), "Z", 20, 5)
+    for z in (0.395, 0.525):
+        torus("grip_band", tip, 0.029, 0.006, (0, 0, z), "Z", 20, 4)
+    tube("grip_wrap", tip, helix((0, 0), 0.0292, 6, 60, 0.4, 0.52), 0.0045, 4)
+    cylinder("collar", body, 0.036, 0.04, (0, 0, 0.56), "Z", 20, bevel=0.005)
+    cylinder("stock", accent, 0.017, 0.3, (0, 0, 0.56), "X", 16, bevel=0.003)
+    for side in (-1, 1):
+        ellipsoid("stock_end", tip, (side * 0.163, 0, 0.56), (0.028, 0.028, 0.028), 14, 7)
+    cylinder("eye", body, 0.03, 0.032, (0, 0, 0.607), "Y", 20, bevel=0.005)
+    centre, major, minor = 0.665, 0.058, 0.015
+    torus("rope", rope, major, minor, (0, 0, centre), "Y", 32, 8)
+    count, twists, inset = 100, 10, 0.0128
+    strand = []
+    for i in range(count):
+        a = 2 * math.pi * i / count
+        b = twists * a
+        reach = major + inset * math.cos(b)
+        strand.append((reach * math.cos(a), inset * math.sin(b), centre + reach * math.sin(a)))
+    tube("strand", mark, strand, 0.0055, 4, closed=True)
+
+
+def build_potion(size):
+    liquid, glass, cork, label, shine = "magenta_Classic", "glass_Classic", "wood_light_Classic", "yellow_Classic", "white_Classic"
+    r, cz = 0.085, 0.09
+    bulb = [(0, cz - r * math.cos(0.34))] + [(r * math.sin(t), cz - r * math.cos(t)) for t in (0.34 + (2.76 - 0.34) * k / 12 for k in range(13))]
+    lathe("bulb", liquid, bulb + [(0.026, bulb[-1][1] + 0.004), (0, bulb[-1][1] + 0.004)], segments=32, sharp=60)
+    torus("foot", liquid, 0.03, 0.005, (0, 0, cz - r * math.cos(0.34) + 0.002), "Z", 16, 4)
+    lathe("neck", glass, [(0.027, 0.16), (0.026, 0.19), (0.026, 0.222), (0.031, 0.226), (0.031, 0.232), (0.026, 0.235)], segments=24)
+    for z, radius in ((0.18, 0.007), (0.2, 0.005), (0.213, 0.004)):
+        ellipsoid("rising", shine, (0.006 * math.cos(z * 90), 0.006 * math.sin(z * 90), z), (radius, radius, radius), 8, 4)
+    cylinder("cork", cork, 0.023, 0.046, (0, 0, 0.247), "Z", 20, bevel=0.004, top=0.027)
+    torus("twine", label, 0.0275, 0.0032, (0, 0, 0.202), "Z", 16, 4)
+    for side in (-1, 1):
+        torus("bow", label, (0.012, 0.007), 0.003, (side * 0.012, 0.03, 0.2), "Y", 12, 4)
+        tube("bow_tail", label, spline([(side * 0.004, 0.03, 0.198), (side * 0.01, 0.034, 0.185), (side * 0.016, 0.036, 0.172)], 2), 0.0025, 5)
+    def on_bulb(x, z, lift):
+        return (x, math.sqrt(max(0.0, r * r - x * x - (z - cz) ** 2)) + lift, z)
+
+    badge, core, bz = 0.052, 0.02, cz - 0.004
+    fan_badge("heart", label, [(x, z + bz) for x, z in heart(badge, 32)], (0.0, bz - 0.1 * badge), lambda x, z, layer: on_bulb(x, z, (-0.002, 0.0028)[layer]))
+    fan_badge("heart_core", shine, [(x - 0.009, z + bz + 0.006) for x, z in heart(core, 20)], (-0.009, bz + 0.006 - 0.1 * core),
+              lambda x, z, layer: on_bulb(x, z, (0.0018, 0.0038)[layer]))
+    for u, height, radius in ((58, 0.115, 0.0105), (66, 0.135, 0.0075), (52, 0.152, 0.0055), (128, 0.06, 0.0085), (235, 0.1, 0.009), (300, 0.07, 0.007)):
+        a = math.radians(u)
+        reach = math.sqrt(max(0.0, r * r - (height - cz) ** 2))
+        ellipsoid("bubble", shine, (reach * math.cos(a), reach * math.sin(a), height), (radius, radius, radius), 10, 5)
+
+
+def build_fence(size):
+    picket, frame, cap, grass = "yellow_Classic", "cobalt_Classic", "scarlet_Classic", "lime_Classic"
+    point = [(-0.05, 0.03), (0.05, 0.03), (0.05, 0.38), (0.0, 0.445), (-0.05, 0.38)]
+    for k in range(6):
+        x = -0.375 + 0.15 * k
+        slab("picket", picket, [(px + x, pz) for px, pz in point], -0.012, 0.012, bevel=(0.006, 2))
+        for z in (0.12, 0.31):
+            cylinder("nail", frame, 0.0065, 0.004, (x, 0.0125, z), "Y", 8, bevel=0)
+    for z in (0.12, 0.31):
+        box("rail", frame, (0.9, 0.02, 0.034), (0, -0.022, z), 0.006, 2)
+    for side in (-1, 1):
+        box("post", frame, (0.05, 0.05, 0.47), (side * 0.475, 0, 0.255), 0.01, 3)
+        ellipsoid("post_cap", cap, (side * 0.475, 0, 0.5), (0.038, 0.038, 0.034), 16, 8)
+        box("foot", frame, (0.075, 0.18, 0.03), (side * 0.475, 0, 0.015), 0.008, 2)
+    box("foot", frame, (0.07, 0.15, 0.025), (0, -0.01, 0.0125), 0.006, 2)
+    for k, x in enumerate((-0.43, -0.33, -0.12, -0.02, 0.09, 0.2, 0.4)):
+        for j, lean in enumerate((-0.35, 0.0, 0.3)):
+            tall = 0.05 + 0.02 * ((k + j) % 3)
+            blade = cylinder("grass", grass, 0.009, tall, (0, 0, tall / 2), "Z", 6, bevel=0, top=0.0008)
+            move(blade, (0.2, lean, 0), (x + 0.016 * (j - 1), 0.03, 0.0))
+    for x, height, petals in ((-0.23, 0.24, 6), (0.3, 0.19, 5)):
+        tube("stem", grass, spline([(x, 0.03, 0.0), (x + 0.008, 0.036, height * 0.5), (x, 0.04, height)], 3), 0.005, 6, reference=Vector((1, 0, 0)))
+        ellipsoid("leaf", grass, (x + 0.022, 0.036, height * 0.42), (0.022, 0.005, 0.009), 10, 5, (0, -0.5, 0))
+        for p in range(petals):
+            a = 2 * math.pi * p / petals
+            ellipsoid("petal", cap, (x + 0.021 * math.cos(a), 0.044, height + 0.021 * math.sin(a)), (0.016, 0.005, 0.011), 10, 5, (0, -a, 0))
+        ellipsoid("bloom", picket, (x, 0.05, height), (0.011, 0.006, 0.011), 10, 5)
+
+
+def build_camera(size):
+    shell, trim, barrel, glass, flash = "orange_Classic", "cobalt_Classic", "dark_Classic", "glass_Classic", "white_Classic"
+    box("body", shell, (0.28, 0.1, 0.15), (0, 0, 0.085), 0.018, 3)
+    box("grip", trim, (0.05, 0.034, 0.13), (0.108, 0.055, 0.085), 0.012, 3)
+    for z in (0.06, 0.085, 0.11):
+        box("grip_rib", trim, (0.04, 0.008, 0.006), (0.108, 0.073, z), 0.002, 1)
+    box("hump", trim, (0.1, 0.07, 0.04), (0.02, 0, 0.17), 0.01, 2)
+    cylinder("shutter", trim, 0.014, 0.014, (0.1, 0.0, 0.166), "Z", 16, bevel=0.003)
+    ellipsoid("shutter_top", flash, (0.1, 0.0, 0.174), (0.009, 0.009, 0.004), 10, 4)
+    cylinder("barrel", barrel, 0.056, 0.052, (-0.01, 0.075, 0.085), "Y", 32, bevel=0.005)
+    torus("lens_ring", trim, 0.056, 0.008, (-0.01, 0.1, 0.085), "Y", 32, 6)
+    torus("grip_ring", barrel, 0.057, 0.0035, (-0.01, 0.07, 0.085), "Y", 32, 4)
+    ellipsoid("lens", glass, (-0.01, 0.101, 0.085), (0.046, 0.012, 0.046), 24, 8)
+    ellipsoid("lens_iris", barrel, (-0.01, 0.097, 0.085), (0.026, 0.006, 0.026), 16, 6)
+    ellipsoid("glint", flash, (-0.027, 0.111, 0.103), (0.011, 0.003, 0.007), 10, 4, (0, 0.6, 0))
+    box("flash_base", trim, (0.064, 0.064, 0.014), (-0.085, 0, 0.167), 0.004, 2)
+    box("flash", flash, (0.058, 0.058, 0.058), (-0.085, 0, 0.203), 0.008, 2)
+    box("flash_face", glass, (0.044, 0.004, 0.044), (-0.085, 0.03, 0.203), 0.002, 1)
+    for x in (-0.096, -0.074):
+        for z in (0.192, 0.214):
+            cylinder("bulb", flash, 0.0055, 0.003, (x, 0.0325, z), "Y", 8, bevel=0)
+    box("window", barrel, (0.034, 0.006, 0.022), (0.085, 0.051, 0.135), 0.003, 1)
+    box("screen_frame", trim, (0.15, 0.006, 0.098), (-0.02, -0.051, 0.085), 0.004, 2)
+    box("screen", glass, (0.128, 0.004, 0.078), (-0.02, -0.0545, 0.085), 0.002, 1)
+    front_decal("star", flash, star(5, 0.017, 0.007), 0.049, 0.053, (-0.108, 0, 0.135))
+    for side in (-1, 1):
+        torus("lug", trim, 0.012, 0.004, (side * 0.142, 0, 0.14), "X", 12, 4)
+
+
+def build_latte(size):
+    cup, foam, art, sleeve, sticker = "emerald_Classic", "ivory_Classic", "wood_Classic", "wood_light_Classic", "yellow_Classic"
+    top, low, high = 0.25, 0.062, 0.085
+
+    def radius(z):
+        return low + (high - low) * z / top
+
+    lathe("cup", cup, [(0, 0.0), (low - 0.004, 0.0), (low, 0.004)] + [(radius(z), z) for z in (0.05, 0.12, 0.2, top)] + [(radius(top) - 0.006, top),
+                                                                                                                         (radius(0.23) - 0.006, 0.23), (0, 0.23)],
+          segments=40, sharp=50)
+    torus("rim", cup, radius(top), 0.007, (0, 0, top), "Z", 40, 6)
+    crema = 0.2465
+    lathe("foam", foam, [(radius(top) - 0.007, 0.236), (0.062, 0.2425), (0.05, 0.2455), (0.044, crema), (0, crema)], segments=40)
+    face = math.radians(LATTE_ART_FACING)
+
+    def art_turn(u, v):
+        return (u * math.cos(face) - v * math.sin(face), u * math.sin(face) + v * math.cos(face))
+
+    fan_badge("heart", art, [art_turn(u, v) for u, v in heart(0.064, 32)], art_turn(*heart_centre(0.064)),
+              lambda x, y, layer: (x, y, crema - 0.0005 + 0.003 * layer))
+    fan_badge("heart_core", foam, [art_turn(u, v + 0.003) for u, v in heart(0.022, 20)], art_turn(0.0, 0.003 - 0.0022),
+              lambda x, y, layer: (x, y, crema + 0.0021 + 0.0007 * layer))
+    z0, z1 = 0.07, 0.17
+    lathe("sleeve", sleeve, [(radius(z0) - 0.001, z0), (radius(z0) + 0.005, z0 + 0.002), (radius(z1) + 0.005, z1 - 0.002), (radius(z1) - 0.001, z1)], segments=40)
+    for z in (z0 + 0.008, z1 - 0.008):
+        torus("sleeve_line", sticker, radius(z) + 0.005, 0.0022, (0, 0, z), "Z", 32, 3)
+    tilt = math.atan2(high - low, top)
+    move(prism("star", sticker, star(5, 0.032, 0.0135), -0.002, 0.004, bevel=(0.001, 1)), (-math.pi / 2 + tilt, 0, 0), (0, radius(0.12) + 0.004, 0.12))
+    for degrees in (150, 210, 330):
+        a = math.radians(degrees)
+        ellipsoid("dot", sticker, ((radius(0.12) + 0.0045) * math.cos(a), (radius(0.12) + 0.0045) * math.sin(a), 0.12), (0.007, 0.0025, 0.007), 10, 4,
+                  (math.pi / 2, 0, a - math.pi / 2))
+
+
+def build_plane(size):
+    wing, hull, trim, mark, canopy = "cobalt_Classic", "scarlet_Classic", "yellow_Classic", "white_Classic", "glass_Classic"
+    axis = 0.065
+    lathe("fuselage", hull, densify([(0, -0.2), (0.012, -0.192), (0.02, -0.15), (0.03, -0.06), (0.035, 0.03), (0.034, 0.1), (0.028, 0.15), (0.017, 0.17), (0, 0.175)], 1),
+          (0, 0, axis), "Y", 24)
+    for y, r in ((-0.09, 0.0285), (0.12, 0.0322)):
+        torus("band", trim, r, 0.005, (0, y, axis), "Y", 24, 4)
+    ellipsoid("spinner", trim, (0, 0.178, axis), (0.017, 0.024, 0.017), 14, 7)
+    move(slab("propeller", trim, ellipse(0.085, 0.014, 0, 0, 24), -0.004, 0.004, bevel=(0.002, 1)), (0, 0.45, 0), (0, 0.192, axis))
+    prism("wing", wing, rounded_rect(0.46, 0.1, 0.03, 0.045, -0.035, 4), axis - 0.022, axis - 0.008, bevel=(0.004, 2))
+    for side in (-1, 1):
+        x = side * 0.155
+        prism("roundel", trim, ellipse(0.03, 0.03, x, 0.015, 20), axis - 0.009, axis - 0.0055)
+        prism("roundel_star", mark, [(x + px, 0.015 + py) for px, py in star(5, 0.022, 0.0095)], axis - 0.0062, axis - 0.0035)
+        box("wing_tip", trim, (0.012, 0.07, 0.016), (side * 0.226, 0.016, axis - 0.015), 0.004, 1)
+    prism("tailplane", wing, rounded_rect(0.18, 0.05, 0.015, 0.022, -0.2, 4), axis - 0.004, axis + 0.006, bevel=(0.003, 1))
+    fin = [(-0.2, axis), (-0.13, axis), (-0.162, axis + 0.06), (-0.188, axis + 0.072), (-0.2, axis + 0.066)]
+    move(slab("fin", wing, fin, -0.006, 0.006, bevel=(0.003, 1)), (0, 0, math.pi / 2))
+    stripe = [(-0.2, axis + 0.04), (-0.168, axis + 0.04), (-0.174, axis + 0.052), (-0.2, axis + 0.052)]
+    move(slab("fin_stripe", trim, stripe, -0.0075, 0.0075), (0, 0, math.pi / 2))
+    ellipsoid("canopy", canopy, (0, 0.035, axis + 0.026), (0.022, 0.045, 0.022), 16, 8)
+    torus("canopy_rim", trim, (0.023, 0.046), 0.004, (0, 0.035, axis + 0.022), "Z", 24, 4)
+
+
+def build_paint(size):
+    tin, paint, metal, wood, label = "teal_Classic", "magenta_Classic", "metal_Classic", "wood_light_Classic", "white_Classic"
+    r, height = 0.088, 0.13
+    cylinder("tin", tin, r, height - 0.01, (0, 0, height / 2), "Z", 40, bevel=0)
+    for z in (0.007, height - 0.004):
+        torus("chime", metal, r, 0.0065, (0, 0, z), "Z", 40, 6)
+    lobed("paint", paint, (0, 0, height - 0.011), (r - 0.006, r - 0.006, 0.006), lobes=5, amount=0.03, segments=32, rings=6)
+    for degrees, length in ((58, 0.112), (122, 0.04), (152, 0.06), (235, 0.07), (300, 0.04)):
+        a = math.radians(degrees)
+        c, s = math.cos(a), math.sin(a)
+        bottom = height - 0.004 - length
+        path = spline([(r * c, r * s, height + 0.002), ((r + 0.007) * c, (r + 0.007) * s, height - 0.012), ((r + 0.004) * c, (r + 0.004) * s, bottom)], 3)
+        taper("drip", paint, path, interpolate([0.012, 0.009, 0.007], len(path)), 10, Vector((c, s, 0)))
+        if bottom > 0.012:
+            ellipsoid("drop", paint, ((r + 0.004) * c, (r + 0.004) * s, bottom), (0.0095, 0.0095, 0.012), 10, 5)
+    lobed("puddle", paint, (0.06, 0.12, 0.004), (0.068, 0.05, 0.004), lobes=6, amount=0.16, segments=28, rings=4)
+    front_decal("star", label, star(5, 0.032, 0.014), r - 0.004, r + 0.004, (-0.012, 0, 0.065), bevel=(0.0015, 1))
+    for side in (-1, 1):
+        ellipsoid("lug", metal, (side * (r + 0.002), 0, 0.1), (0.006, 0.014, 0.014), 8, 4)
+    tube("bail", metal, spline([(-r - 0.004, 0, 0.1), (-0.07, -0.062, 0.072), (0, -r - 0.012, 0.055), (0.07, -0.062, 0.072), (r + 0.004, 0, 0.1)], 4), 0.004, 6)
+    lift = height + 0.015
+    path = spline([(-0.205, -0.03, lift + 0.008), (-0.12, -0.02, lift + 0.004), (-0.04, -0.008, lift)], 3)
+    taper("handle", wood, path, interpolate([0.011, 0.0135, 0.012], len(path)), 12, Vector((0, 0, 1)))
+    torus("hang_hole", wood, 0.008, 0.003, (-0.192, -0.029, lift + 0.019), "Z", 10, 4)
+    box("ferrule", metal, (0.05, 0.034, 0.018), (-0.015, -0.005, lift - 0.001), 0.004, 2, (0, 0.08, 0.12))
+    box("bristles", paint, (0.05, 0.036, 0.016), (0.03, 0.001, lift - 0.007), 0.006, 2, (0, 0.18, 0.12))
+
+
+def build_castle(size):
+    stone, roof, banner, gate, shadow = "purple_Classic", "scarlet_Classic", "yellow_Classic", "wood_Classic", "dark_Classic"
+    width, depth, wall = 0.34, 0.24, 0.24
+    box("keep", stone, (width, depth, wall), (0, 0, wall / 2), 0.008, 2)
+    for k in range(5):
+        x = -0.12 + 0.06 * k
+        for y in (depth / 2 - 0.015, -depth / 2 + 0.015):
+            box("merlon", stone, (0.034, 0.03, 0.034), (x, y, wall + 0.017), 0.004, 1)
+    for y in (-0.05, 0.0, 0.05):
+        for x in (width / 2 - 0.015, -width / 2 + 0.015):
+            box("merlon", stone, (0.03, 0.034, 0.034), (x, y, wall + 0.017), 0.004, 1)
+    slab("gate", gate, rounded_rect(0.11, 0.15, 0.0, 0.055, 0.0, 6), depth / 2 - 0.004, depth / 2 + 0.006)
+    slab("gate_arch", banner, rounded_rect(0.13, 0.163, 0.0, 0.065, 0.0, 6), depth / 2 - 0.006, depth / 2 + 0.002)
+    for x in (-0.03, 0.0, 0.03):
+        box("bar", shadow, (0.007, 0.008, 0.13 if x else 0.145), (x, depth / 2 + 0.008, 0.065 if x else 0.0725), 0)
+    for z in (0.045, 0.095):
+        box("bar", shadow, (0.1, 0.008, 0.007), (0, depth / 2 + 0.008, z), 0)
+    front_decal("crest", banner, star(5, 0.026, 0.011), depth / 2, depth / 2 + 0.005, (0, 0, 0.2))
+    for x in (-0.075, 0.075):
+        slab("window", shadow, [(px + x, pz + 0.12) for px, pz in rounded_rect(0.032, 0.05, 0.0, 0.016, 0.0, 4)], -depth / 2 - 0.003, -depth / 2 + 0.002)
+    tower, high = 0.065, 0.36
+    for tx in (-1, 1):
+        for ty in (-1, 1):
+            x, y = tx * 0.17, ty * 0.12
+            cylinder("tower", stone, tower, high, (x, y, high / 2), "Z", 28, bevel=0)
+            torus("tower_rim", banner, tower + 0.003, 0.006, (x, y, high), "Z", 28, 4)
+            cylinder("roof", roof, tower + 0.016, 0.15, (x, y, high + 0.083), "Z", 28, bevel=0, top=0.002)
+            cylinder("pole", banner, 0.004, 0.08, (x, y, high + 0.19), "Z", 6, bevel=0)
+            ellipsoid("knob", banner, (x, y, high + 0.232), (0.008, 0.008, 0.008), 8, 4)
+            move(slab("flag", banner, [(0.0, 0.0), (0.06, -0.012), (0.075, -0.02), (0.06, -0.028), (0.0, -0.04)], -0.003, 0.003, bevel=(0.001, 1)), at=(x + 0.004, y, high + 0.226))
+            near, far = y + ty * (tower - 0.004), y + ty * (tower + 0.004)
+            slab("slit", shadow, [(px + x, pz + 0.19) for px, pz in rounded_rect(0.026, 0.06, 0.0, 0.013, 0.0, 4)], min(near, far), max(near, far))
+
+
+def build_mallet(size):
+    head, caps, wood, band, mark = "lime_Classic", "magenta_Classic", "wood_light_Classic", "yellow_Classic", "white_Classic"
+    centre = 0.5
+    lathe("head", head, densify([(0, -0.125), (0.066, -0.125), (0.072, -0.117), (0.075, -0.07), (0.076, 0.0), (0.075, 0.07), (0.072, 0.117), (0.066, 0.125),
+                                 (0, 0.125)], 1), (0, 0, centre), "X", 36, sharp=50)
+    for side in (-1, 1):
+        cylinder("cap", caps, 0.078, 0.022, (side * 0.134, 0, centre), "X", 36, bevel=0.007)
+        torus("band", band, 0.0755, 0.0075, (side * 0.08, 0, centre), "X", 36, 5)
+        move(prism("star", mark, star(5, 0.038, 0.016), 0.143, 0.149, bevel=(0.001, 1)), (0, side * math.pi / 2, 0), (0, 0, centre))
+    move(prism("badge", band, star(5, 0.032, 0.0135), -0.004, 0.004, bevel=(0.001, 1)), (-math.pi / 2, 0, 0), (0, 0.073, centre))
+    path = spline([(0, 0, 0.03), (0, 0, 0.2), (0, 0, 0.35), (0, 0, 0.44)], 3)
+    taper("handle", wood, path, interpolate([0.019, 0.02, 0.019, 0.017], len(path)), 16, Vector((0, 1, 0)))
+    torus("collar", caps, 0.02, 0.007, (0, 0, 0.428), "Z", 20, 5)
+    tube("wrap", caps, helix((0, 0), 0.0215, 5, 60, 0.07, 0.19), 0.0042, 5)
+    ellipsoid("knob", caps, (0, 0, 0.03), (0.03, 0.03, 0.03), 16, 8)
+
+
+def build_crab(size):
+    shell, belly, eye, ink, thread = "scarlet_Classic", "yellow_Classic", "white_Classic", "dark_Classic", "teal_Classic"
+    ellipsoid("body", shell, (0, 0, 0.08), (0.125, 0.1, 0.064), 24, 12)
+    ellipsoid("belly", belly, (0, 0.05, 0.048), (0.08, 0.05, 0.03), 16, 6)
+    tube("smile", ink, [(0.024 * math.cos(math.radians(a)), 0.1, 0.098 + 0.014 * math.sin(math.radians(a))) for a in range(210, 335, 25)], 0.003, 5,
+         reference=Vector((0, 1, 0)))
+    for side in (-1, 1):
+        ellipsoid("cheek", belly, (side * 0.055, 0.084, 0.094), (0.013, 0.006, 0.009), 8, 3, (0, 0, side * 0.55))
+        tube("stalk", shell, spline([(side * 0.032, 0.06, 0.125), (side * 0.04, 0.066, 0.15), (side * 0.045, 0.07, 0.172)], 2), 0.011, 8, reference=Vector((1, 0, 0)))
+        ellipsoid("eye", eye, (side * 0.046, 0.072, 0.186), (0.026, 0.024, 0.026), 12, 6)
+        ellipsoid("pupil", ink, (side * 0.046, 0.094, 0.188), (0.013, 0.006, 0.015), 8, 4)
+        ellipsoid("shine", eye, (side * 0.042, 0.1, 0.194), (0.004, 0.002, 0.004), 6, 3)
+        arm = spline([(side * 0.1, 0.03, 0.09), (side * 0.15, 0.05, 0.13), (side * 0.18, 0.065, 0.17)], 2)
+        taper("arm", shell, arm, interpolate([0.026, 0.022, 0.02], len(arm)), 10, Vector((0, 1, 0)))
+        cx, cy, cz = side * 0.195, 0.07, 0.205
+        tilt = side * -0.45
+        move(torus("cuff", thread, 0.024, 0.0045, (0, 0, 0), "Z", 10, 4), (0, tilt, 0), (side * 0.18, 0.065, 0.172))
+        ellipsoid("palm", shell, (cx, cy, cz), (0.044, 0.036, 0.044), 12, 6, (0, tilt, 0))
+        for finger, length in ((1, 0.05), (-1, 0.042)):
+            fx = cx + side * finger * 0.02 + math.sin(tilt) * 0.045
+            ellipsoid("pincer", shell, (fx, cy, cz + 0.048), (0.017, 0.02, length), 10, 4, (0, tilt + side * finger * 0.38, 0))
+        for dz in (-0.012, 0.014):
+            for spin in (0.7, -0.7):
+                box("stitch", thread, (0.018, 0.004, 0.0035), (cx + math.sin(tilt) * dz, cy + 0.035, cz + dz), 0, rotation=(0, tilt + spin, 0))
+        for y in (0.0, -0.04, -0.075):
+            leg = spline([(side * 0.105, y, 0.06), (side * 0.155, y * 1.25 - 0.008, 0.052), (side * 0.18, y * 1.35 - 0.014, 0.016)], 2)
+            taper("leg", shell, leg, interpolate([0.019, 0.017, 0.015, 0.012, 0.007], len(leg)), 8, Vector((0, 0, 1)))
+    for k in range(5):
+        y = -0.07 + 0.03 * k
+        top = 0.08 + 0.064 * math.sqrt(max(0.0, 1 - (y / 0.1) ** 2))
+        box("seam", thread, (0.004, 0.014, 0.0035), (0, y, top + 0.0005), 0, rotation=(math.atan2(-y, 0.1) * 0.6, 0, 0))
+    box("tag", thread, (0.034, 0.005, 0.024), (0.05, -0.097, 0.07), 0.002, 1, (0, 0, -0.45))
+
+
 BUILDERS = {"RAKE": build_rake, "TEAPOT": build_teapot, "LID": build_lid, "TOMATO": build_tomato, "ROCKET": build_rocket,
             "MARBLE": build_marble, "LADDER": build_ladder, "PADDLE": build_paddle, "CHILI": build_chili, "DISC": build_disc,
             "HELMET": build_helmet, "LEMON": build_lemon, "TORCH": build_torch, "CARPET": build_carpet, "SLIME": build_slime,
             "SPOON": build_spoon, "TENT": build_tent, "PEAR": build_pear, "SOCK": build_sock, "HOSE": build_hose,
             "RACKET": build_racket, "MELON": build_melon, "PIANO": build_piano, "TONIC": build_tonic, "BRICK": build_brick,
-            "PENCIL": build_pencil, "RAMP": build_ramp, "OIL": build_oil, "DOOR": build_door, "BOOT": build_boot}
+            "PENCIL": build_pencil, "RAMP": build_ramp, "OIL": build_oil, "DOOR": build_door, "BOOT": build_boot,
+            "ANCHOR": build_anchor, "POTION": build_potion, "FENCE": build_fence, "CAMERA": build_camera, "LATTE": build_latte,
+            "PLANE": build_plane, "PAINT": build_paint, "CASTLE": build_castle, "MALLET": build_mallet, "CRAB": build_crab}
 
 
 def manifest():

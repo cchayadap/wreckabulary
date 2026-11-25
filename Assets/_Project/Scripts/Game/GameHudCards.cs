@@ -47,17 +47,17 @@ namespace Wreckabulary
         static readonly Color CardFace = Hex(0xfff0d9), CardLip = Hex(0xbba682), CardDrop = Hex(0x102d2c, .33f);
         static readonly Color Spark = Hex(0xcd7750), Eyebrow = Hex(0xb86647), BodyInk = Hex(0x697a6c), NewBest = Hex(0xff5a1f), CoinGold = Hex(0xe0a43a);
         static readonly Color ToastFill = Hex(0x173b3c, .94f), ToastEdge = Hex(0xcadac6, .33f), ToastInk = Hex(0xfff1d8), ToastDrop = Hex(0x173b3c, .3f);
-        static readonly Color ComposerFill = Hex(0xfff0dc, .95f), Well = Hex(0x173b3c, .07f), ReadyEdge = Hex(0x5bb48e), ReadyRing = Hex(0x9ff8d3, .25f);
+        static readonly Color ReadyEdge = Hex(0x5bb48e);
         static readonly Color ReadyInk = Hex(0x2f7a5c), Bad = Hex(0xb3533b), TileLine = Hex(0xdbc38f);
         static readonly Color MissingFill = Hex(0xf3d3c6), MissingEdge = Hex(0xe3a994), MissingLip = Hex(0xc98f7c), Go = Hex(0xdf7955);
         static readonly Color StepNumber = Hex(0xbe7754), StepInk = Hex(0x576f66), FinePrint = Hex(0x546763);
 
         const float ToastFont = 20f, ToastMinFont = 15f, ToastPadX = 25f, ToastPadY = 15f, ToastMaxWidth = 760f, BannerSeconds = 3.2f;
         const float CraftStatusFont = 20f, CraftStatusMinFont = 15f, CraftStatusHeight = 30f;
-        const float ComposerPad = 20f, ComposerRowGap = 10f, ComposerWellHeight = 75f, ComposerField = 490f, ComposerMaxWidth = 650f, ComposerEdgeRoom = 32f;
-        const float ComposerTileWidth = 47.5f, ComposerTileHeight = 55f, ComposerTileGap = 7.5f, ComposerWellInset = 12.5f, ComposerArrowRoom = 42f, ComposerCaretRoom = 14f;
-        const float ComposerTapWidth = 104f, ComposerCloseSize = 40f, ComposerSpawnY = 262f;
-        static readonly Vector2 TypedComposerSize = new(530f, 127f), TypedWellAt = new(20f, -14f);
+        const float ComposerPad = 20f, ComposerRowGap = 10f, ComposerWellHeight = 75f, ComposerLineMax = 610f, ComposerEdgeRoom = 32f;
+        const float ComposerTileWidth = 47.5f, ComposerTileHeight = 55f, ComposerTileGap = 7.5f, ComposerArrowRoom = 42f, ComposerLetterFont = 32f;
+        const float ComposerTapWidth = 104f, ComposerCloseSize = 40f, ComposerSpawnY = 262f, ComposerHintFont = 15f, ComposerCaretWidth = 4f, ComposerLineOutline = .26f;
+        const int ComposerTileRadius = 9, ComposerSlotStroke = 2;
         const float StatLabelFont = 15f, StatLabelSpacing = 4f;
         const float RewardChipHeight = 64f, RewardChipPad = 22f, RewardSpacing = 14f, RewardCoin = 40f, RewardLip = 5f, RewardCoinsFont = 36f, RewardLineFont = 20f;
         const int RewardRadius = 32;
@@ -105,12 +105,12 @@ namespace Wreckabulary
         Action leaveAction;
         Sprite sparkSprite;
         RectTransform composer, composerTiles, composerWell, caret;
-        Image composerEdge, composerRing;
         readonly ComposerTile[] tiles = new ComposerTile[TrayTiles];
         GameObject composerPrev, composerNext, composerChrome, composerClose;
         int composerLayout = -1, composerHintVersion = -1;
-        string fitWord, fitLine;
-        bool fitPicking, fitTap;
+        string fitLine;
+        int fitSlots = -1;
+        bool fitPicking, fitTap, fitTyped;
         float fitRoom;
         TextMeshProUGUI composerHint;
         string composerText = "", composerError;
@@ -128,7 +128,7 @@ namespace Wreckabulary
         sealed class ComposerTile
         {
             public RectTransform root;
-            public Image lip, face, edge;
+            public Image lip, face, edge, outline;
             public TextMeshProUGUI letter;
         }
 
@@ -933,35 +933,34 @@ namespace Wreckabulary
 
         void BuildComposer()
         {
-            composer = Put(Rect("Craft drawer", safe, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(.5f, 0f), new Vector2(.5f, 0f), new Vector2(0f, ComposerSpawnY), new Vector2(ComposerMaxWidth, ComposerPad * 2f + ComposerWellHeight + ComposerRowGap + CraftStatusHeight));
+            composer = Put(Rect("Craft drawer", safe, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(.5f, 0f), new Vector2(.5f, 0f), new Vector2(0f, ComposerSpawnY), new Vector2(ComposerLineMax + ComposerPad * 2f, ComposerPad * 2f + ComposerWellHeight + ComposerRowGap + CraftStatusHeight));
             craftRoot = composer.gameObject;
             var hit = composer.gameObject.AddComponent<Image>(); hit.color = Color.clear; hit.raycastTarget = true;
-            SoftShadow(composer, CardDrop, 75f, -19f);
-            Paint(Cover("Face", composer), LobbyIcons.RoundedSprite(25), ComposerFill);
-            composerEdge = Paint(Cover("Edge", composer), LobbyIcons.FrameSprite(25, 2), Hair);
-            composerRing = Paint(Cover("Ring", composer, 5f), LobbyIcons.FrameSprite(30, 5), ReadyRing);
-            composerRing.enabled = false;
 
             composerChrome = Rect("Chrome", composer, Vector2.zero, Vector2.zero, Vector2.zero).gameObject;
             Stretch((RectTransform)composerChrome.transform);
             var chrome = (RectTransform)composerChrome.transform;
 
-            var well = composerWell = Put(Rect("Field", composer, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(ComposerPad, -ComposerPad), new Vector2(ComposerField, ComposerWellHeight));
-            Paint(well, LobbyIcons.RoundedSprite(16), Well);
+            var well = composerWell = Put(Rect("Field", composer, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(ComposerPad, -ComposerPad), new Vector2(TileRun(1), ComposerWellHeight));
             composerTiles = Rect("Tiles", well, Vector2.zero, Vector2.zero, Vector2.zero);
             Stretch(composerTiles);
             for (int i = 0; i < tiles.Length; i++)
             {
                 var root = Put(Rect($"Tile {i + 1}", composerTiles, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(0f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(ComposerTileWidth, ComposerTileHeight));
                 var tile = tiles[i] = new ComposerTile { root = root };
-                tile.lip = Paint(Cover("Lip", root, 0f, -3.75f), LobbyIcons.RoundedSprite(9), TileEdge);
-                tile.face = Paint(Cover("Face", root), LobbyIcons.RoundedSprite(9), Tile);
-                tile.edge = Paint(Cover("Edge", root), LobbyIcons.FrameSprite(9, 1), TileLine);
-                tile.letter = Copy(root, "Letter", "", DisplayFont, 32f, Ink);
+                tile.lip = Paint(Cover("Lip", root, 0f, -3.75f), LobbyIcons.RoundedSprite(ComposerTileRadius), TileEdge);
+                tile.face = Paint(Cover("Face", root), LobbyIcons.RoundedSprite(ComposerTileRadius), Tile);
+                tile.edge = Paint(Cover("Edge", root), LobbyIcons.FrameSprite(ComposerTileRadius, 1), TileLine);
+                tile.outline = Paint(Cover("Outline", root), LobbyIcons.FrameSprite(ComposerTileRadius, ComposerSlotStroke), OnGame);
+                AddHudShadow(tile.outline);
+                tile.outline.enabled = false;
+                tile.letter = Copy(root, "Letter", "", DisplayFont, ComposerLetterFont, Ink);
                 Stretch(tile.letter.rectTransform); tile.letter.textWrappingMode = TextWrappingModes.NoWrap;
                 root.gameObject.SetActive(false);
             }
-            caret = Put(CreateImage("Caret", composerTiles, Vector2.zero, Vector2.zero, Vector2.zero, Ink).rectTransform, new Vector2(0f, .5f), new Vector2(0f, .5f), new Vector2(12.5f, 0f), new Vector2(4f, 43f));
+            var caretMark = CreateImage("Caret", composerTiles, Vector2.zero, Vector2.zero, Vector2.zero, OnGame);
+            AddHudShadow(caretMark);
+            caret = Put(caretMark.rectTransform, new Vector2(0f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(ComposerCaretWidth, ComposerTileHeight - ComposerTileGap * 2f));
             composerPrev = Chevron(well, "Previous", false, () => { if (LocalPlayer) LocalPlayer.Summoner.Step(-1); });
             composerNext = Chevron(well, "Next", true, () => { if (LocalPlayer) LocalPlayer.Summoner.Step(1); });
 
@@ -975,25 +974,33 @@ namespace Wreckabulary
             composerClose = cancel.gameObject;
             composerClose.SetActive(false);
 
-            craftStatus = Copy(chrome, "Craft status", "", LobbyFonts.Body, CraftStatusFont, Faded);
-            Put(craftStatus.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(ComposerPad, -(ComposerPad + ComposerWellHeight + ComposerRowGap)), new Vector2(ComposerMaxWidth - ComposerPad * 2f, CraftStatusHeight));
-            craftStatus.alignment = TextAlignmentOptions.Midline;
-            craftStatus.textWrappingMode = TextWrappingModes.NoWrap; craftStatus.overflowMode = TextOverflowModes.Overflow;
+            craftStatus = ComposerLine(chrome, "Craft status", CraftStatusFont);
             craftStatus.enableAutoSizing = true; craftStatus.fontSizeMin = CraftStatusMinFont; craftStatus.fontSizeMax = CraftStatusFont;
 
-            composerHint = Copy(composer, "Typed hint", "", LobbyFonts.Body, 14f, Faded);
-            Put(composerHint.rectTransform, Vector2.zero, Vector2.zero, new Vector2(20f, 9f), new Vector2(490f, 22f));
-            composerHint.textWrappingMode = TextWrappingModes.NoWrap; composerHint.overflowMode = TextOverflowModes.Overflow;
+            composerHint = ComposerLine(composer, "Typed hint", ComposerHintFont);
             composerHint.gameObject.SetActive(false);
             craftRoot.SetActive(false);
+        }
+
+        TextMeshProUGUI ComposerLine(Transform parent, string label, float size)
+        {
+            var line = Copy(parent, label, "", LobbyFonts.Body, size, OnGame);
+            Put(line.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(ComposerPad, -(ComposerPad + ComposerWellHeight + ComposerRowGap)), new Vector2(ComposerLineMax, CraftStatusHeight));
+            line.alignment = TextAlignmentOptions.Midline;
+            line.textWrappingMode = TextWrappingModes.NoWrap; line.overflowMode = TextOverflowModes.Overflow;
+            OnGameText(line); AddHudShadow(line);
+            line.outlineWidth = ComposerLineOutline; line.outlineColor = Ink; line.fontStyle = FontStyles.Bold;
+            return line;
         }
 
         GameObject Chevron(RectTransform well, string label, bool forward, Action action)
         {
             var rt = Put(Rect(label, well, Vector2.zero, Vector2.zero, Vector2.zero), new Vector2(forward ? 1f : 0f, .5f), new Vector2(forward ? 1f : 0f, .5f), new Vector2(forward ? -6f : 6f, 0f), new Vector2(36f, 56f));
-            var face = Paint(rt, LobbyIcons.RoundedSprite(12), Quiet); face.raycastTarget = true;
+            var face = Paint(rt, LobbyIcons.FrameSprite(12, ComposerSlotStroke), OnGame); face.raycastTarget = true;
+            AddHudShadow(face);
             var glyph = Cover("Icon", rt, -6f).gameObject.AddComponent<Image>();
-            glyph.sprite = LobbyIcons.Get(LobbyIcons.Chevron); glyph.color = Ink; glyph.preserveAspect = true; glyph.raycastTarget = false;
+            glyph.sprite = LobbyIcons.Get(LobbyIcons.Chevron); glyph.color = OnGame; glyph.preserveAspect = true; glyph.raycastTarget = false;
+            AddHudShadow(glyph);
             if (!forward) glyph.rectTransform.localRotation = Quaternion.Euler(0f, 0f, PreviousArrowTurn);
             var button = rt.gameObject.AddComponent<Button>();
             button.transition = Selectable.Transition.None; button.targetGraphic = face;
@@ -1001,7 +1008,7 @@ namespace Wreckabulary
             var press = rt.gameObject.AddComponent<LobbyPress>();
             press.Body = (RectTransform)glyph.transform; press.Lift = 0f; press.Sink = 1f;
             press.Lean = forward ? 0f : PreviousArrowTurn;
-            press.Hot = on => face.color = on ? QuietHover : Quiet;
+            press.Hot = on => face.color = on ? Mint : OnGame;
             rt.gameObject.SetActive(false);
             return rt.gameObject;
         }
@@ -1048,30 +1055,27 @@ namespace Wreckabulary
             composerLayout = layout;
             composerChrome.SetActive(!typed);
             composerHint.gameObject.SetActive(typed);
-            fitWord = fitLine = null;
-            if (!typed) return;
-            composer.sizeDelta = TypedComposerSize;
-            composerWell.anchoredPosition = TypedWellAt;
-            composerWell.sizeDelta = new Vector2(ComposerField, ComposerWellHeight);
-            if (!composerWell.gameObject.activeSelf) composerWell.gameObject.SetActive(true);
+            fitLine = null;
         }
 
         static float TileRun(int count) => count * ComposerTileWidth + Mathf.Max(0, count - 1) * ComposerTileGap;
 
-        void FitWheelComposer(string word, string line, bool picking)
+        void FitComposer(int slots, bool typed, bool picking)
         {
-            bool tap = TapSpelling;
-            float room = Mathf.Min(ComposerMaxWidth, safe ? safe.rect.width - ComposerEdgeRoom : ComposerMaxWidth);
-            if (word == fitWord && line == fitLine && picking == fitPicking && tap == fitTap && Mathf.Approximately(room, fitRoom)) return;
-            fitWord = word; fitLine = line; fitPicking = picking; fitTap = tap; fitRoom = room;
-            bool letters = word.Length > 0;
+            bool tap = !typed && TapSpelling;
+            var said = typed ? composerHint : craftStatus;
+            string line = said.text;
+            float room = safe ? safe.rect.width - ComposerEdgeRoom : ComposerLineMax + ComposerPad * 2f;
+            if (slots == fitSlots && line == fitLine && typed == fitTyped && picking == fitPicking && tap == fitTap && Mathf.Approximately(room, fitRoom)) return;
+            fitSlots = slots; fitLine = line; fitTyped = typed; fitPicking = picking; fitTap = tap; fitRoom = room;
+            bool letters = slots > 0;
             bool spell = tap && letters;
             float inner = room - ComposerPad * 2f;
             float tapRoom = spell ? ComposerRowGap + ComposerTapWidth : 0f;
-            float field = letters ? Mathf.Min(TileRun(Mathf.Min(word.Length, tiles.Length)) + ComposerWellInset * 2f + (picking ? ComposerArrowRoom * 2f : 0f), ComposerField, inner - tapRoom) : 0f;
+            float field = letters ? TileRun(slots) + (picking ? ComposerArrowRoom * 2f : 0f) : 0f;
             float row = letters ? field + tapRoom : 0f;
-            float said = Mathf.Min(craftStatus.GetPreferredValues(line).x, inner);
-            float width = Mathf.Max(row, said) + ComposerPad * 2f;
+            float lineWidth = Mathf.Min(said.GetPreferredValues(line).x, ComposerLineMax, inner);
+            float width = Mathf.Max(row, lineWidth) + ComposerPad * 2f;
             float height = ComposerPad * 2f + CraftStatusHeight + (letters ? ComposerWellHeight + ComposerRowGap : 0f);
             composer.sizeDelta = new Vector2(width, height);
             float left = (width - row) * .5f;
@@ -1082,8 +1086,8 @@ namespace Wreckabulary
             if (build.gameObject.activeSelf != spell) build.gameObject.SetActive(spell);
             build.anchoredPosition = new Vector2(left + field + ComposerRowGap, -ComposerPad);
             if (composerClose.activeSelf != tap) composerClose.SetActive(tap);
-            craftStatus.rectTransform.anchoredPosition = new Vector2(ComposerPad, -(ComposerPad + (letters ? ComposerWellHeight + ComposerRowGap : 0f)));
-            craftStatus.rectTransform.sizeDelta = new Vector2(width - ComposerPad * 2f, CraftStatusHeight);
+            said.rectTransform.anchoredPosition = new Vector2(ComposerPad, -(ComposerPad + (letters ? ComposerWellHeight + ComposerRowGap : 0f)));
+            said.rectTransform.sizeDelta = new Vector2(width - ComposerPad * 2f, CraftStatusHeight);
         }
 
         void RefreshComposerHint()
@@ -1277,13 +1281,13 @@ namespace Wreckabulary
                 line = "Nothing to spell yet. Smash furniture for letters.";
             }
             if (craftStatus.text != line) craftStatus.text = line;
-            craftStatus.color = state == 1 ? ReadyInk : state == 2 ? Bad : Faded;
-            composerEdge.color = state == 1 ? ReadyEdge : Hair;
-            composerRing.enabled = state == 1;
+            craftStatus.color = state == 1 ? Mint : state == 2 ? LowHp : OnGame;
             bool picking = !typed && summoner.Ready.Count > 1;
             if (composerPrev.activeSelf != picking) { composerPrev.SetActive(picking); composerNext.SetActive(picking); }
-            if (!typed) FitWheelComposer(word, line, picking);
-            LayTiles(word, typed, picking, composerWell.sizeDelta.x);
+            int count = Mathf.Min(word.Length, tiles.Length);
+            int slots = typed && count < tiles.Length ? count + 1 : count;
+            FitComposer(slots, typed, picking);
+            LayTiles(word, slots, typed, state == 1);
             buildButton.interactable = typed || summoner.SelectedWord != null;
             string caption = typed ? "SPELL\n<size=62%><alpha=#99>ENTER</size>" : "SPELL";
             if (buildLabel.text != caption) buildLabel.text = caption;
@@ -1292,40 +1296,45 @@ namespace Wreckabulary
             composer.anchoredPosition = new Vector2(x, composer.anchoredPosition.y);
         }
 
-        void LayTiles(string word, bool typed, bool picking, float field)
+        void LayTiles(string word, int slots, bool typed, bool ready)
         {
             const float width = ComposerTileWidth, height = ComposerTileHeight, gap = ComposerTileGap;
-            int count = Mathf.Min(word.Length, tiles.Length);
+            int count = Mathf.Min(word.Length, slots);
             bool free = LocalPlayer.Inventory.SpellsFree;
             spare.Clear(); spare.AddRange(LocalPlayer.Inventory.Letters);
-            float room = field - ComposerWellInset * 2f - (typed ? ComposerCaretRoom : 0f) - (picking ? ComposerArrowRoom * 2f : 0f);
-            float run = TileRun(count);
-            float scale = run > 0f && run > room ? Mathf.Max(room, ComposerTileGap) / run : 1f;
-            float x0 = typed ? ComposerWellInset : (field - run * scale) * .5f;
+            float x0 = (composerWell.sizeDelta.x - TileRun(slots)) * .5f;
             for (int i = 0; i < tiles.Length; i++)
             {
                 var tile = tiles[i];
-                bool shown = i < count;
+                bool shown = i < slots;
                 if (tile.root.gameObject.activeSelf != shown) tile.root.gameObject.SetActive(shown);
                 if (!shown) continue;
+                tile.root.anchoredPosition = new Vector2(x0 + i * (width + gap) + width * .5f, 0f);
+                tile.root.sizeDelta = new Vector2(width, height);
+                tile.root.localRotation = Quaternion.Euler(0f, 0f, i % 3 == 2 ? 3f : i % 3 == 0 ? -2f : 0f);
+                bool filled = i < count;
+                tile.lip.enabled = tile.edge.enabled = filled;
+                tile.outline.enabled = !filled;
+                if (!filled)
+                {
+                    tile.face.color = Color.clear;
+                    if (tile.letter.text.Length > 0) tile.letter.text = "";
+                    continue;
+                }
                 char letter = word[i];
                 int at = spare.IndexOf(letter);
                 bool got = free || at >= 0;
                 if (at >= 0) spare.RemoveAt(at);
-                tile.root.anchoredPosition = new Vector2(x0 + (i * (width + gap) + width * .5f) * scale, 0f);
-                tile.root.sizeDelta = new Vector2(width, height) * scale;
-                tile.root.localRotation = Quaternion.Euler(0f, 0f, i % 3 == 2 ? 3f : i % 3 == 0 ? -2f : 0f);
                 tile.face.color = got ? Tile : MissingFill;
-                tile.edge.color = got ? TileLine : MissingEdge;
+                tile.edge.color = ready ? ReadyEdge : got ? TileLine : MissingEdge;
                 tile.lip.color = got ? TileEdge : MissingLip;
                 tile.letter.color = got ? Ink : Bad;
-                tile.letter.fontSize = 32f * scale;
                 string text = One(letter);
                 if (tile.letter.text != text) tile.letter.text = text;
             }
-            bool blink = typed && (Time.unscaledTime - caretAt) % 1f < .5f;
+            bool blink = typed && count < slots && (Time.unscaledTime - caretAt) % 1f < .5f;
             if (caret.gameObject.activeSelf != blink) caret.gameObject.SetActive(blink);
-            caret.anchoredPosition = new Vector2(x0 + (count > 0 ? run * scale + 6f : 0f), 0f);
+            if (blink) caret.anchoredPosition = tiles[count].root.anchoredPosition;
         }
 
         void UpdateCards()

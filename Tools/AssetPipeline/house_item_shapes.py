@@ -381,6 +381,28 @@ def prism(name, mats, outline, z0, z1, bevel=None):
     return emit(name, bm, mats, bevel=bevel, weighted=bool(bevel))
 
 
+def fan_badge(name, mats, outline, centre, place):
+    mats = list(mats) if isinstance(mats, (list, tuple)) else [mats]
+    bm = bmesh.new()
+    layers = []
+    for layer in (0, 1):
+        hub = bm.verts.new(place(centre[0], centre[1], layer))
+        ring = [bm.verts.new(place(u, v, layer)) for u, v in outline]
+        layers.append((hub, ring))
+    count = len(outline)
+    for layer, (hub, ring) in enumerate(layers):
+        for i in range(count):
+            k = (i + 1) % count
+            face = bm.faces.new((hub, ring[i], ring[k]) if layer else (hub, ring[k], ring[i]))
+            face.material_index = len(mats) - 1
+    low, high = layers[0][1], layers[1][1]
+    for i in range(count):
+        k = (i + 1) % count
+        bm.faces.new((low[i], low[k], high[k], high[i])).material_index = 0
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return emit(name, bm, mats, sharp=30)
+
+
 def ellipse(rx, rz, cx=0.0, cz=0.0, steps=48):
     return [(cx + rx * math.cos(2 * math.pi * i / steps), cz + rz * math.sin(2 * math.pi * i / steps)) for i in range(steps)]
 
