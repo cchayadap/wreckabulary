@@ -310,11 +310,13 @@ namespace Wreckabulary
             int recipes = GameConfig.Current.Items.Enabled.Count();
             bool phone = Application.isMobilePlatform;
             var keys = DesktopBinding.Shared;
-            string spell = phone ? "CRAFT" : ControlHints.KeyOf(keys.Spell);
+            string spell = phone ? "CRAFT" : ControlHints.KeyOf(keys.SpellBox);
             string swing = phone ? "SMASH" : ControlHints.KeyOf(keys.Attack);
             Step(steps, "01", "Break furniture", "HAMMER", "A TABLE becomes T, A, B, L and E. Walk over the letters to collect them.");
             Step(steps, "02", "Spell equipment", "BOOK", $"Press {spell} to choose from {recipes} recipes. Your bag holds {rules.MaxLetters} letters.");
-            Step(steps, "03", "Use what you make", "BAT", $"Press {swing} to use your gear. Aim to throw it, or place a useful tool.");
+            Step(steps, "03", "Use what you make", "BAT", phone
+                ? $"Press {swing} to use your gear. Aim to throw it, or place a useful tool."
+                : $"Press {swing} to use your gear. Hold {swing} to aim a throw, or place a useful tool.");
             Wrapped(column, "Cosmetics never change your stats.", 17, LobbyKit.Muted, 26);
             var actions = LobbyKit.Row(column, HelpActions, HelpGap);
             actions.Size(-1, PlayHeight);

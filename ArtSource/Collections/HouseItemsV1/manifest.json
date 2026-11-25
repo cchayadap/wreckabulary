@@ -97,8 +97,8 @@
       ],
       "rebuilt": {
         "script": "Tools/AssetPipeline/rebuild_house_items.py",
-        "bytes": 146764,
-        "sha256": "aaff6bd38aca258757de7b3c4664fda8ff16392778bab7bc0989c751b36191bf"
+        "bytes": 161404,
+        "sha256": "a32f83014addd257a850bf2590f8a21ce8fc14a9e02f4a3fb04ea854f5deb015"
       }
     },
     {
@@ -183,8 +183,8 @@
       ],
       "rebuilt": {
         "script": "Tools/AssetPipeline/rebuild_house_items.py",
-        "bytes": 156764,
-        "sha256": "7e2e06f9aa283a49ca2b1194707bf187cc042384695e9e468bb64fdfaab9076f"
+        "bytes": 160092,
+        "sha256": "f9be8aef2d06eb788f7df4e60f2466a6dd1cec4f47992615f01dc0a88b82bf97"
       }
     },
     {
@@ -313,8 +313,8 @@
       "yaw": 270,
       "rebuilt": {
         "script": "Tools/AssetPipeline/rebuild_house_items.py",
-        "bytes": 129916,
-        "sha256": "52c801648fed9f81df7976696d2572660ca7cbbc2d9cda1ec4a57da1dc00a911"
+        "bytes": 138764,
+        "sha256": "0da058816aaf94fe0d0be5bc40e7cd730e3714c309ccbfeb677b7112c6126b23"
       }
     }
   ]

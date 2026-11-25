@@ -74,10 +74,11 @@ namespace Wreckabulary.Art
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
             {
                 var shared = r.sharedMaterials;
+                var look = r.GetComponentInParent<ItemLook>(true);
                 bool changed = false;
                 for (int i = 0; i < shared.Length; i++)
                 {
-                    var swapped = ForSkin(shared[i], skin);
+                    var swapped = look ? look.Resolve(this, shared[i], skin) : ForSkin(shared[i], skin);
                     if (swapped != shared[i])
                     {
                         shared[i] = swapped;

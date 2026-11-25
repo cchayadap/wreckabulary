@@ -146,7 +146,7 @@ namespace Wreckabulary
             if (Binding != null)
             {
                 Commands = default;
-                Binding.Read(ref Commands);
+                Binding.ReadHouse(ref Commands);
                 if (Binding is not TouchBinding && TouchBinding.Shared.IsOverlayFor(Binding.Id))
                     TouchBinding.Shared.Merge(ref Commands);
                 if (ShooterView) ApplyLook();
@@ -333,6 +333,7 @@ namespace Wreckabulary
             return strongest;
         }
         public float SlowLeft => Mathf.Max(0f, slowUntil - Time.time);
+        public float SlipperyLeft => Mathf.Max(0f, slipperyUntil - Time.time);
         public float HeldSwift => Combat && Combat.Weapon ? GameConfig.Current.Tuning?.Trait(Combat.Weapon.word, TraitKind.Swift)?.Amount ?? 1f : 1f;
         public void Slow(float multiplier, float seconds)
         {

@@ -22,7 +22,7 @@ namespace Wreckabulary
         }
 
         public readonly InputActionMap Map = new("Desktop");
-        public readonly InputAction Move, Attack, Aim, LookAround, Jump, Dodge, Interact, Spell, Drop, PushToTalk, Hand1, Hand2, Bag, Pause, Up, Down, Start, Point, Look;
+        public readonly InputAction Move, Attack, Aim, LookAround, Jump, Dodge, Interact, Spell, SpellBox, Drop, PushToTalk, Hand1, Hand2, Bag, Pause, Up, Down, Start, Point, Look;
         HoldToFire dropHold;
         readonly List<RaycastResult> uiHits = new();
         PointerEventData uiPointer;
@@ -35,12 +35,13 @@ namespace Wreckabulary
                 .With("Up", "<Keyboard>/w").With("Down", "<Keyboard>/s")
                 .With("Left", "<Keyboard>/a").With("Right", "<Keyboard>/d");
             Attack = Button("Attack", "<Mouse>/leftButton");
-            Aim = Button("Aim", "<Mouse>/rightButton");
+            Aim = Button(Rules.DesktopScheme.Aim, "<Mouse>/rightButton");
             LookAround = Button("Look around", "<Keyboard>/leftCtrl");
             Jump = Button("Jump", "<Keyboard>/space");
-            Dodge = Button("Dodge", "<Keyboard>/leftShift");
+            Dodge = Button(Rules.DesktopScheme.Dodge, "<Keyboard>/leftShift");
             Interact = Button("Interact", "<Keyboard>/e");
-            Spell = Button("Spell", "<Keyboard>/q");
+            Spell = Button(Rules.DesktopScheme.CourseSpell, "<Keyboard>/q");
+            SpellBox = Button(Rules.DesktopScheme.SpellBox, "<Mouse>/rightButton");
             Drop = Button("Drop", "<Keyboard>/r");
             PushToTalk = Button("Push to talk", "<Keyboard>/v");
             Hand1 = Button("Hand 1", "<Keyboard>/1");
@@ -74,6 +75,19 @@ namespace Wreckabulary
         public override string Id => "keyboard-mouse";
         public override bool CanLook => true;
         public override bool ReadsMouse => true;
+        public override bool AimsWithAttackHold => true;
+
+        bool Blocked => Typing || KeyBindings.GameplayBlocked || Time.timeScale <= 0f;
+
+        public override void ReadHouse(ref PlayerCommands c)
+        {
+            Read(ref c);
+            if (Blocked) return;
+            c.aimHeld = false;
+            c.spellHeld = SpellBox.IsPressed();
+            c.spellDown = SpellBox.WasPressedThisFrame();
+            c.spellUp = SpellBox.WasReleasedThisFrame();
+        }
 
         public override void Read(ref PlayerCommands c)
         {

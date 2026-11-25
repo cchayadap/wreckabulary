@@ -294,6 +294,7 @@ namespace Wreckabulary
             career.SecondsPlayed += SecondsSinceStart();
             LastResult = record;
             SaveCareer(career);
+            LobbyRecentPlayers.Note(record, World.Players, local);
             damage = 0; crafted = 0; broken = 0;
             return record;
         }

@@ -119,7 +119,7 @@ namespace Wreckabulary.Tests
             ControlTips.Learn(ControlTips.Tip.Move);
             yield return new WaitForSecondsRealtime(0.5f);
             StringAssert.Contains("smash, throw, place, block", tip.text, "Once you've moved, the next tip: left click does it all.");
-            StringAssert.DoesNotContain("RMB", tip.text, "Right click aims only in the over-the-shoulder view, so its tip waits.");
+            StringAssert.DoesNotContain("RMB", tip.text, "The spell box key has its own tip later.");
             Assert.IsFalse(safe.Find("Touch controls").gameObject.activeSelf, "On-screen buttons are for touch only.");
 
             safe.Find("Letter bag/Gear slot 2").GetComponent<Button>().onClick.Invoke();
@@ -434,7 +434,9 @@ namespace Wreckabulary.Tests
                 safe.sizeDelta = size;
                 yield return new WaitForSecondsRealtime(.12f);
                 Canvas.ForceUpdateCanvases();
-                Assert.AreEqual(size.x >= 1920f ? 4 : 3, grid.constraintCount, size.ToString());
+                Assert.GreaterOrEqual(grid.constraintCount, 3, size + " at least three recipe columns");
+                Assert.GreaterOrEqual(grid.cellSize.x, GameHud.BookCardFloor(hud.LongestRecipe) - .01f, size + " every card holds its longest word");
+                Assert.GreaterOrEqual(map.rect.width, GameHud.BagMapFloor, size + " the map keeps its floor under the inventory");
                 Assert.GreaterOrEqual(grid.cellSize.x, 188f, "Fewer columns keep the recipe cells readable.");
                 Assert.GreaterOrEqual(grid.cellSize.y, 200f);
                 Assert.IsTrue(scroll.vertical);
@@ -574,7 +576,8 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(card.gameObject.activeSelf, "Help takes the pause card's place.");
             StringAssert.Contains(" HP.", hud.transform.Find("Pause/Pause help/Fine print").GetComponent<TMPro.TMP_Text>().text);
             var spellStep = hud.transform.Find("Pause/Pause help/Steps/Step 02/Text").GetComponent<TMPro.TMP_Text>().text;
-            StringAssert.Contains("type a word, press Enter", spellStep, "Keyboard players are told to type, not to hold.");
+            string spellKey = ControlHints.KeyOf(DesktopBinding.Shared.SpellBox);
+            StringAssert.Contains($"Press {spellKey}, type a word, press {spellKey} again", spellStep, "Keyboard players are told to type, not to hold.");
             StringAssert.Contains("click a lit card", spellStep, "...or to use the book.");
             StringAssert.DoesNotContain("craft", spellStep);
             StringAssert.Contains("Harder words carry effects.", hud.transform.Find("Pause/Pause help/Steps/Step 03/Text").GetComponent<TMPro.TMP_Text>().text);
@@ -653,7 +656,7 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator TabOrRightClickClosesTheComposer()
+        public IEnumerator RightClickOpensTheSpellBoxAndLettersOnlyType()
         {
             var route = InputSystem.settings.editorInputBehaviorInPlayMode;
             var focus = InputSystem.settings.backgroundBehavior;
@@ -667,37 +670,95 @@ namespace Wreckabulary.Tests
             {
                 var player = Spawn(DesktopBinding.Shared);
                 var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
-                yield return null;
-                yield return new WaitForSecondsRealtime(0.12f);
+                yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the desktop player's HUD");
                 player.Inventory.Set("BAT");
-                player.Summoner.Open();
-                yield return null;
-                Assert.IsTrue(hud.ComposerOpen);
 
-                InputSystem.QueueStateEvent(keys, new KeyboardState(Key.Tab));
-                yield return null;
-                yield return null;
-                Assert.IsFalse(player.Summoner.IsSpelling, "Tab closes the composer");
-                Assert.IsFalse(hud.ComposerOpen);
-                Assert.IsFalse(hud.BagOpen, "the Tab that closed it doesn't open the bag");
-                Assert.IsTrue(DesktopBinding.Typing, "held keys stay swallowed");
-                InputSystem.QueueStateEvent(keys, new KeyboardState());
-                yield return null;
-                yield return null;
-                Assert.IsFalse(DesktopBinding.Typing);
-
-                player.Summoner.Open();
-                yield return null;
-                Assert.IsTrue(hud.ComposerOpen);
                 InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
-                yield return null;
-                yield return null;
-                Assert.IsFalse(hud.ComposerOpen, "right-click closes it too");
-                Assert.IsTrue(DesktopBinding.Typing, "the right-click doesn't reach the player as a block");
+                yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "right click opens the spell box");
+                Assert.IsTrue(player.Summoner.IsSpelling);
+                Assert.IsTrue(DesktopBinding.Typing, "letters go to the word");
                 InputSystem.QueueStateEvent(mouse, new MouseState());
                 yield return null;
                 yield return null;
-                Assert.IsFalse(DesktopBinding.Typing);
+                Assert.IsTrue(hud.ComposerOpen, "letting go of the right button keeps the box open");
+
+                InputSystem.QueueStateEvent(keys, new KeyboardState(Key.W, Key.Tab));
+                InputSystem.QueueTextEvent(keys, 'w');
+                yield return null;
+                yield return null;
+                yield return new WaitForSecondsRealtime(.1f);
+                Assert.AreEqual("W", hud.ComposerText, "W types a letter");
+                Assert.AreEqual(Vector2.zero, player.Commands.move, "W does not walk while the box is open");
+                Assert.IsFalse(hud.BagOpen, "the bag key waits too");
+                Assert.IsTrue(hud.ComposerOpen, "Tab no longer closes the box");
+
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
+                yield return TestScenes.WaitUntil(() => !hud.ComposerOpen, 5f, "right click again closes a box with no ready word");
+                Assert.IsFalse(player.Summoner.IsSpelling);
+                Assert.IsFalse(player.Summoner.IsCrafting, "a word that isn't ready is never spelled");
+                Assert.IsTrue(DesktopBinding.Typing, "the held right button is swallowed until it is let go");
+                Assert.AreEqual(Vector2.zero, player.Commands.move);
+
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                yield return TestScenes.WaitUntil(() => !DesktopBinding.Typing, 5f, "letting go of the right button frees the keys");
+                yield return TestScenes.WaitUntil(() => player.Commands.move.y > .5f, 5f, "W walks again once the box is closed");
+                yield return TestScenes.WaitUntil(() => hud.BagOpen, 5f, "and Tab opens the bag again");
+                InputSystem.QueueStateEvent(keys, new KeyboardState());
+                yield return null;
+                yield return null;
+                Object.Destroy(hud.gameObject);
+                Object.Destroy(player.gameObject);
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(keys);
+                InputSystem.RemoveDevice(mouse);
+                InputSystem.settings.editorInputBehaviorInPlayMode = route;
+                InputSystem.settings.backgroundBehavior = focus;
+                DesktopBinding.Typing = false;
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator RightClickAgainSpellsAReadyWord()
+        {
+            var route = InputSystem.settings.editorInputBehaviorInPlayMode;
+            var focus = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            var keys = InputSystem.AddDevice<Keyboard>();
+            var mouse = InputSystem.AddDevice<Mouse>();
+            keys.MakeCurrent();
+            mouse.MakeCurrent();
+            try
+            {
+                var player = Spawn(DesktopBinding.Shared);
+                var hud = new GameObject("Parity HUD", typeof(Canvas)).AddComponent<GameHud>();
+                yield return TestScenes.WaitUntil(() => hud.AcceptsGameplayInput && hud.LocalPlayer == player, 10f, "the desktop player's HUD");
+                player.Inventory.Set("BAT");
+                string spellKey = ControlHints.KeyOf(DesktopBinding.Shared.SpellBox);
+
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
+                yield return TestScenes.WaitUntil(() => hud.ComposerOpen, 5f, "right click opens the spell box");
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                yield return null;
+                yield return null;
+                foreach (char letter in "bat") InputSystem.QueueTextEvent(keys, letter);
+                yield return TestScenes.WaitUntil(() => hud.ComposerText == "BAT", 5f, "typed letters fill the word");
+                yield return null;
+                Assert.AreEqual(Wreckabulary.Rules.DesktopScheme.ReadyLine("BAT", spellKey), hud.ComposerStatus, "the status line names the key that spells");
+                Assert.IsFalse(player.Summoner.IsCrafting, "typing never spells by itself");
+
+                InputSystem.QueueStateEvent(mouse, new MouseState().WithButton(MouseButton.Right));
+                yield return TestScenes.WaitUntil(() => player.Summoner.IsCrafting || player.Combat.Weapon, 5f, "right click again spells the ready word");
+                Assert.AreEqual("BAT", player.Summoner.IsCrafting ? player.Summoner.CraftWord : player.Combat.Weapon.word);
+                yield return TestScenes.WaitUntil(() => !hud.ComposerOpen, 5f, "spelling closes the box");
+                yield return new WaitForSecondsRealtime(.1f);
+                Assert.IsTrue(player.Summoner.IsCrafting || player.Combat.Weapon, "the held right button does not cancel the word");
+                InputSystem.QueueStateEvent(mouse, new MouseState());
+                yield return TestScenes.WaitUntil(() => !DesktopBinding.Typing, 5f, "letting go frees the keys");
+                Assert.IsFalse(hud.ComposerOpen, "letting go does not reopen the box");
+                player.Summoner.CancelCraft();
                 Object.Destroy(hud.gameObject);
                 Object.Destroy(player.gameObject);
             }
@@ -769,7 +830,8 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(hud.ComposerLettersOnly, "Typing shows only the typed letters.");
             StringAssert.Contains("<b>ENTER</b> spell", hud.ComposerHint, "One short line under the letters says how to spell.");
             StringAssert.Contains($"<b>{ControlHints.KeyOf(DesktopBinding.Shared.Pause)}</b> back", hud.ComposerHint, "It also says how to go back.");
-            Assert.AreEqual("Type a word you can make from your letters. Tab or right-click closes.", hud.ComposerStatus);
+            string spellKey = ControlHints.KeyOf(DesktopBinding.Shared.SpellBox);
+            Assert.AreEqual(Wreckabulary.Rules.DesktopScheme.EmptyLine(spellKey), hud.ComposerStatus);
             hud.TypeWord("ba");
             yield return null;
             Assert.AreEqual("Keep going…", hud.ComposerStatus);
@@ -791,7 +853,7 @@ namespace Wreckabulary.Tests
             player.Inventory.Set("BAT");
             hud.TypeWord("bat");
             yield return null;
-            Assert.AreEqual("BAT is ready. Press Enter!", hud.ComposerStatus);
+            Assert.AreEqual(Wreckabulary.Rules.DesktopScheme.ReadyLine("BAT", spellKey), hud.ComposerStatus);
             Assert.IsTrue(player.Summoner.IsSpelling, "Typing never spells by itself.");
             hud.SubmitComposer();
             Assert.IsTrue(player.Summoner.IsCrafting, "Enter spells it.");

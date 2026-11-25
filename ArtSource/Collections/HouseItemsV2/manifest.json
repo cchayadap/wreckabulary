@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "package": "HouseItemsV2",
+  "provider": "Wreckabulary",
+  "license": {
+    "name": "Own work"
+  },
+  "units": "Metres, Y up, Unity axes. size is the prefab bounds with the origin at the bottom centre; grip is the hand socket in that space. The builder models in Blender (X right, Y forward, Z up), fits the joined mesh to size, turns it half a turn about Z and exports so that Unity sees (x, z, y). targetLongest is the longest side of size. heldScale is the in-hand miniature scale from items_house.json.",
+  "entries": [
+    {
+      "word": "RAKE",
+      "size": [
+        0.42,
+        1.2025,
+        0.134
+      ],
+      "targetLongest": 1.2025,
+      "grip": [
+        0.0,
+        0.13,
+        -0.037
+      ],
+      "heldScale": 0.6,
+      "materials": [
+        "orange_Classic",
+        "teal_Classic"
+      ],
+      "main": "orange_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 109900,
+        "sha256": "c0433d22dc4a76c95cee000090652d168e6dd7a959f0b4d2e4e3ee691dc5bedb",
+        "triangles": 3520
+      }
+    },
+    {
+      "word": "TEAPOT",
+      "size": [
+        0.385,
+        0.272,
+        0.224
+      ],
+      "targetLongest": 0.385,
+      "grip": [
+        -0.166,
+        0.12,
+        0.0
+      ],
+      "heldScale": 0.9,
+      "materials": [
+        "teal_Classic",
+        "yellow_Classic",
+        "white_Classic"
+      ],
+      "main": "teal_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 134092,
+        "sha256": "4ebd8912b9fd94ac70340560d466bfdbcc399a5da32e18f41cfd1452ee62cdd6",
+        "triangles": 4108
+      }
+    },
+    {
+      "word": "LID",
+      "size": [
+        0.422,
+        0.422,
+        0.2515
+      ],
+      "targetLongest": 0.422,
+      "grip": [
+        0.0,
+        0.211,
+        -0.115
+      ],
+      "heldScale": 0.8,
+      "materials": [
+        "purple_Classic",
+        "gold_Classic",
+        "metal_Classic",
+        "lime_Classic",
+        "dark_Classic"
+      ],
+      "main": "purple_Classic",
+      "accent": "lime_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 139676,
+        "sha256": "28c43621103102cfee6c8ca965cbfe8035c39d55238240ecbad4a60fb0c1d1d9",
+        "triangles": 4196
+      }
+    },
+    {
+      "word": "TOMATO",
+      "size": [
+        0.2688,
+        0.2397,
+        0.2707
+      ],
+      "targetLongest": 0.2707,
+      "grip": [
+        -0.0039,
+        0.0962,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "scarlet_Classic",
+        "lime_Classic",
+        "white_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "lime_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 132316,
+        "sha256": "418ccc55e36137b3f38c8cb572c7cea073521bcb6327ef2e61e4bbae5261868e",
+        "triangles": 4332
+      }
+    },
+    {
+      "word": "ROCKET",
+      "size": [
+        0.2,
+        0.6,
+        0.2
+      ],
+      "targetLongest": 0.6,
+      "grip": [
+        0.0,
+        0.26,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "yellow_Classic",
+        "navy_Classic",
+        "scarlet_Classic",
+        "metal_Classic",
+        "glass_Classic"
+      ],
+      "main": "yellow_Classic",
+      "accent": "navy_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 97596,
+        "sha256": "8105b52ad0af77bb0f75aca42a0d6b047c7992c034e891cc5dcd87551826c3c1",
+        "triangles": 2928
+      }
+    },
+    {
+      "word": "MARBLE",
+      "size": [
+        0.2511,
+        0.2919,
+        0.2511
+      ],
+      "targetLongest": 0.2919,
+      "grip": [
+        0.0,
+        0.146,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "purple_Classic",
+        "yellow_Classic",
+        "teal_Classic",
+        "scarlet_Classic",
+        "lime_Classic"
+      ],
+      "main": "purple_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 156764,
+        "sha256": "194e57d1944800686fdbba00ee4526c89ed45e6e304d29961ccbc1d5d5c0e8ef",
+        "triangles": 5520
+      }
+    },
+    {
+      "word": "LADDER",
+      "size": [
+        0.56,
+        1.086,
+        0.64
+      ],
+      "targetLongest": 1.086,
+      "grip": [
+        0.0,
+        0.54,
+        0.0
+      ],
+      "heldScale": 0.42,
+      "materials": [
+        "blue_Classic",
+        "yellow_Classic",
+        "metal_Classic"
+      ],
+      "main": "blue_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 99292,
+        "sha256": "1bdd8849d99909566e094c52f540c4864283dafd58fc8598df36d5d42fa41006",
+        "triangles": 2968
+      }
+    },
+    {
+      "word": "PADDLE",
+      "size": [
+        0.3,
+        0.52,
+        0.058
+      ],
+      "targetLongest": 0.52,
+      "grip": [
+        0.0,
+        0.09,
+        0.0
+      ],
+      "heldScale": 0.9,
+      "materials": [
+        "scarlet_Classic",
+        "navy_Classic",
+        "wood_light_Classic",
+        "white_Classic",
+        "yellow_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "navy_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 119228,
+        "sha256": "70443bbdbd9a69a2d4fe2bd6e181a8047165426a5e02a65fe4fd75b91d4cecfd",
+        "triangles": 3300
+      }
+    },
+    {
+      "word": "CHILI",
+      "size": [
+        0.33,
+        0.121,
+        0.1
+      ],
+      "targetLongest": 0.33,
+      "grip": [
+        -0.117,
+        0.07,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "scarlet_Classic",
+        "lime_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "lime_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 58348,
+        "sha256": "017093054de03585d86401f598a60d8a0422048cd224d52a87e040a467cf8a79",
+        "triangles": 1636
+      }
+    },
+    {
+      "word": "DISC",
+      "size": [
+        0.3,
+        0.0495,
+        0.3
+      ],
+      "targetLongest": 0.3,
+      "grip": [
+        -0.135,
+        0.025,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "orange_Classic",
+        "navy_Classic",
+        "white_Classic"
+      ],
+      "main": "orange_Classic",
+      "accent": "navy_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 86860,
+        "sha256": "0bb6ee4d3130859b1ec79de7f5d83abd23a0289e35fa8c570845edb0ef4daad8",
+        "triangles": 2628
+      }
+    },
+    {
+      "word": "HELMET",
+      "size": [
+        0.316,
+        0.41,
+        0.3705
+      ],
+      "targetLongest": 0.41,
+      "grip": [
+        0.0,
+        0.075,
+        -0.17
+      ],
+      "heldScale": 0.85,
+      "materials": [
+        "scarlet_Classic",
+        "teal_Classic",
+        "yellow_Classic",
+        "metal_Classic",
+        "dark_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 119660,
+        "sha256": "ec7060f8f63da65cfae3161b528b40b1f95edf86ffc19cc88805cbae6eda086a",
+        "triangles": 3488
+      }
+    },
+    {
+      "word": "LEMON",
+      "size": [
+        0.2669,
+        0.1485,
+        0.1485
+      ],
+      "targetLongest": 0.2669,
+      "grip": [
+        -0.0148,
+        0.0743,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "yellow_Classic",
+        "emerald_Classic",
+        "white_Classic",
+        "navy_Classic"
+      ],
+      "main": "yellow_Classic",
+      "accent": "emerald_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 87292,
+        "sha256": "d6cc2022893c38a08b155dcabcbad42566f4d99011a7065cba74f84891c8968e",
+        "triangles": 2444
+      }
+    },
+    {
+      "word": "TORCH",
+      "size": [
+        0.132,
+        0.4813,
+        0.132
+      ],
+      "targetLongest": 0.4813,
+      "grip": [
+        0.0,
+        0.143,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "cobalt_Classic",
+        "yellow_Classic",
+        "dark_Classic",
+        "glow_Classic"
+      ],
+      "main": "cobalt_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 115132,
+        "sha256": "057783ecd3c627598d1b1ab42f099103d3e02c5586941b78360551071d0e231b",
+        "triangles": 3716
+      }
+    },
+    {
+      "word": "CARPET",
+      "size": [
+        0.6704,
+        0.12,
+        1.58
+      ],
+      "targetLongest": 1.58,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "heldScale": 0.25,
+      "materials": [
+        "scarlet_Classic",
+        "yellow_Classic",
+        "teal_Classic",
+        "white_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 80604,
+        "sha256": "306a74b5e2e2d40007b929fd9cb69dec35bca926a3f76452f384ad0a012afb66",
+        "triangles": 2196
+      }
+    },
+    {
+      "word": "SLIME",
+      "size": [
+        0.32,
+        0.181,
+        0.325
+      ],
+      "targetLongest": 0.325,
+      "grip": [
+        -0.005,
+        0.062,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "lime_Classic",
+        "magenta_Classic",
+        "white_Classic"
+      ],
+      "main": "lime_Classic",
+      "accent": "magenta_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 156892,
+        "sha256": "bcb002e2468150554b5ee0c28ab9a96a22886ba1ec80d0f2948ee097c8933f84",
+        "triangles": 4604
+      }
+    },
+    {
+      "word": "SPOON",
+      "size": [
+        0.136,
+        0.618,
+        0.063
+      ],
+      "targetLongest": 0.618,
+      "grip": [
+        0.0,
+        0.133,
+        0.0
+      ],
+      "heldScale": 0.9,
+      "materials": [
+        "teal_Classic",
+        "soap_Classic",
+        "yellow_Classic",
+        "navy_Classic"
+      ],
+      "main": "teal_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 101372,
+        "sha256": "db37c124004a38798466459e9da94491b15dd389c06339a8dbf1d1522debe102",
+        "triangles": 2924
+      }
+    },
+    {
+      "word": "TENT",
+      "size": [
+        0.685,
+        0.545,
+        0.62
+      ],
+      "targetLongest": 0.685,
+      "grip": [
+        0.0,
+        0.42,
+        0.0
+      ],
+      "heldScale": 0.55,
+      "materials": [
+        "orange_Classic",
+        "yellow_Classic",
+        "dark_Classic",
+        "teal_Classic"
+      ],
+      "main": "orange_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 50572,
+        "sha256": "04deabf15fc959c0b6c9e15ec2962367e12189bd4f56122d9eae1ded2522b8c4",
+        "triangles": 1092
+      }
+    },
+    {
+      "word": "PEAR",
+      "size": [
+        0.1716,
+        0.2721,
+        0.1755
+      ],
+      "targetLongest": 0.2721,
+      "grip": [
+        0.0,
+        0.091,
+        -0.0026
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "lime_Classic",
+        "emerald_Classic",
+        "wood_dark_Classic",
+        "scarlet_Classic",
+        "ivory_Classic"
+      ],
+      "main": "lime_Classic",
+      "accent": "scarlet_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 82396,
+        "sha256": "b1c93fb2a9dc86578778b07add6a3217c12d8e80d51fbddaca98352d8466081f",
+        "triangles": 2680
+      }
+    },
+    {
+      "word": "SOCK",
+      "size": [
+        0.288,
+        0.3271,
+        0.11
+      ],
+      "targetLongest": 0.3271,
+      "grip": [
+        -0.082,
+        0.202,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "magenta_Classic",
+        "yellow_Classic",
+        "white_Classic",
+        "teal_Classic"
+      ],
+      "main": "magenta_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 95324,
+        "sha256": "9c73a6d93a65d1463ca35555c47b49a16813eb536c0ebdfde462253dd4ebbd3e",
+        "triangles": 2764
+      }
+    },
+    {
+      "word": "HOSE",
+      "size": [
+        0.2718,
+        0.1704,
+        0.5179
+      ],
+      "targetLongest": 0.5179,
+      "grip": [
+        0.0,
+        0.09,
+        0.077
+      ],
+      "heldScale": 0.75,
+      "materials": [
+        "emerald_Classic",
+        "yellow_Classic",
+        "metal_Classic",
+        "water_Classic"
+      ],
+      "main": "emerald_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 109852,
+        "sha256": "fc0f21c042789a428e471d9d7ca8f7866210ec5f7f6eb26e0ebdce8bbb7a49ed",
+        "triangles": 2792
+      }
+    },
+    {
+      "word": "RACKET",
+      "size": [
+        0.278,
+        0.674,
+        0.048
+      ],
+      "targetLongest": 0.674,
+      "grip": [
+        0.0,
+        0.13,
+        0.0
+      ],
+      "heldScale": 0.85,
+      "materials": [
+        "magenta_Classic",
+        "lime_Classic",
+        "yellow_Classic",
+        "navy_Classic"
+      ],
+      "main": "magenta_Classic",
+      "accent": "lime_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 140348,
+        "sha256": "9d0ecc3dfc6ae9df30cc33cbdc266348944795332c5d75fb731f49425a65d4af",
+        "triangles": 4012
+      }
+    },
+    {
+      "word": "MELON",
+      "size": [
+        0.2092,
+        0.2093,
+        0.254
+      ],
+      "targetLongest": 0.254,
+      "grip": [
+        0.0,
+        0.085,
+        0.03
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "lime_Classic",
+        "emerald_Classic",
+        "white_Classic",
+        "scarlet_Classic",
+        "dark_Classic"
+      ],
+      "main": "lime_Classic",
+      "accent": "scarlet_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 92764,
+        "sha256": "78c4a5eef6128159308ef164e8743e7a9947be8a0ff3cbfeb931de8e8868dc61",
+        "triangles": 2656
+      }
+    },
+    {
+      "word": "PIANO",
+      "size": [
+        0.582,
+        0.52,
+        0.315
+      ],
+      "targetLongest": 0.582,
+      "grip": [
+        0.0,
+        0.26,
+        -0.05
+      ],
+      "heldScale": 0.6186,
+      "materials": [
+        "scarlet_Classic",
+        "teal_Classic",
+        "white_Classic",
+        "dark_Classic",
+        "ivory_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "teal_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 97644,
+        "sha256": "bdf95696ee7a641f4483a3d1459d61abaf25bf7f9b6beb47578791fa7a9b2bb7",
+        "triangles": 2800
+      }
+    },
+    {
+      "word": "TONIC",
+      "size": [
+        0.1373,
+        0.2678,
+        0.1414
+      ],
+      "targetLongest": 0.2678,
+      "grip": [
+        0.0,
+        0.091,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "purple_Classic",
+        "yellow_Classic",
+        "scarlet_Classic",
+        "wood_light_Classic",
+        "white_Classic"
+      ],
+      "main": "purple_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 82908,
+        "sha256": "6757ece4214c1bef1e9ca566cdb7746bd606222e62c1ba77a846fde430c9f23d",
+        "triangles": 2186
+      }
+    },
+    {
+      "word": "BRICK",
+      "size": [
+        0.32,
+        0.145,
+        0.1664
+      ],
+      "targetLongest": 0.32,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "cobalt_Classic",
+        "yellow_Classic",
+        "dark_Classic"
+      ],
+      "main": "cobalt_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 78780,
+        "sha256": "69aee262ce9e62fac7ecc0e5ed370b7d49e0fc7b2dcb7e5e282d6d8cb06f944d",
+        "triangles": 2244
+      }
+    },
+    {
+      "word": "PENCIL",
+      "size": [
+        0.075,
+        0.76,
+        0.075
+      ],
+      "targetLongest": 0.76,
+      "grip": [
+        0.0,
+        0.19,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "yellow_Classic",
+        "magenta_Classic",
+        "metal_Classic",
+        "wood_light_Classic",
+        "dark_Classic"
+      ],
+      "main": "yellow_Classic",
+      "accent": "magenta_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 88060,
+        "sha256": "e6faa083bd528d1cdfaae2cf622ed0cf6244b51031be6d14430cb619c4e69a8d",
+        "triangles": 2632
+      }
+    },
+    {
+      "word": "RAMP",
+      "size": [
+        0.42,
+        0.213,
+        0.6005
+      ],
+      "targetLongest": 0.6005,
+      "grip": [
+        0.0,
+        0.11,
+        -0.1
+      ],
+      "heldScale": 0.6,
+      "materials": [
+        "teal_Classic",
+        "metal_Classic",
+        "yellow_Classic",
+        "scarlet_Classic"
+      ],
+      "main": "teal_Classic",
+      "accent": "yellow_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 61644,
+        "sha256": "db5b6a4ada365e11b38b06ce6f0568d554af99dfb5977975576e32c656b3dd0d",
+        "triangles": 1432
+      }
+    },
+    {
+      "word": "OIL",
+      "size": [
+        0.159,
+        0.2569,
+        0.2851
+      ],
+      "targetLongest": 0.2851,
+      "grip": [
+        0.0,
+        0.075,
+        -0.11
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "orange_Classic",
+        "metal_Classic",
+        "cobalt_Classic",
+        "white_Classic",
+        "yellow_Classic"
+      ],
+      "main": "orange_Classic",
+      "accent": "cobalt_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 113084,
+        "sha256": "4afe962beba4798307ad10ef6c7f9827f1e3248864df74bb24aaec1df2d0d6fc",
+        "triangles": 3184
+      }
+    },
+    {
+      "word": "DOOR",
+      "size": [
+        0.514,
+        0.9,
+        0.1687
+      ],
+      "targetLongest": 0.9,
+      "grip": [
+        0.007,
+        0.48,
+        -0.07
+      ],
+      "heldScale": 0.6,
+      "materials": [
+        "lime_Classic",
+        "emerald_Classic",
+        "yellow_Classic",
+        "cobalt_Classic",
+        "metal_Classic"
+      ],
+      "main": "lime_Classic",
+      "accent": "cobalt_Classic",
+      "maxTriangles": 4500,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 112956,
+        "sha256": "c909faed135581419cb92e592e170d6c808dc9bb139dc004e69983fc50ca5982",
+        "triangles": 3388
+      }
+    },
+    {
+      "word": "BOOT",
+      "size": [
+        0.2615,
+        0.3105,
+        0.115
+      ],
+      "targetLongest": 0.3105,
+      "grip": [
+        -0.054,
+        0.2,
+        0.0
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "yellow_Classic",
+        "dark_Classic",
+        "navy_Classic",
+        "scarlet_Classic"
+      ],
+      "main": "yellow_Classic",
+      "accent": "navy_Classic",
+      "maxTriangles": 3000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 99628,
+        "sha256": "55459acb3e57c9325c6785ff3b76f5c5fc78b2b5c875039440d2508e1aab250f",
+        "triangles": 2700
+      }
+    }
+  ]
+}

@@ -47,11 +47,15 @@ namespace Wreckabulary.Tests
         static IEnumerable<string> MeleeItems => Ids(HandlingFamily.MeleeSwing, HandlingFamily.MeleeThrust);
         static IEnumerable<string> ThrownItems => Ids(HandlingFamily.Thrown);
         static IEnumerable<string> ShieldItems => Ids(HandlingFamily.Shield);
-        static IEnumerable<string> DeployItems => Ids(HandlingFamily.DeployCover, HandlingFamily.DeployPad, HandlingFamily.DeploySpeed, HandlingFamily.DeployZone);
+        static readonly HandlingFamily[] DeployFamilies = { HandlingFamily.DeployCover, HandlingFamily.DeployPad, HandlingFamily.DeploySpeed, HandlingFamily.DeployZone };
+        static IEnumerable<string> DeployItems => House().All.Where(i => DeployFamilies.Contains(i.Family) && !i.Consumable).Select(i => i.Id).ToArray();
+        static IEnumerable<string> PatchItems => House().All.Where(i => DeployFamilies.Contains(i.Family) && i.Consumable).Select(i => i.Id).ToArray();
+        static IEnumerable<string> SwiftItems => GameConfig.Current.Items.Enabled.Where(i => GameConfig.Current.Tuning?.Trait(i.Id, TraitKind.Swift) != null).Select(i => i.Id).ToArray();
         static IEnumerable<string> UseItems => Ids(HandlingFamily.Heal, HandlingFamily.Buff);
         static IEnumerable<string> RangedItems => Ids(HandlingFamily.Ranged);
         static IEnumerable<string> StashItems => Ids(HandlingFamily.Utility);
         static IEnumerable<string> PosedItems =>ItemHolds.All.Select(h => h.Id).ToArray();
+        static IEnumerable<string> TurnedShieldItems => ShieldItems.Where(id => ItemHolds.For(id) != null).ToArray();
 
         static PlayerController Spawn(int seat, Vector3 at, out ScriptedBinding input)
         {
@@ -113,7 +117,7 @@ namespace Wreckabulary.Tests
         public void EveryHouseItemHasAFamilyCase()
         {
             CollectionAssert.AreEquivalent(House().All.Select(i => i.Id),
-                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems),
+                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(PatchItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems),
                 "add a runtime case for any new handling family");
         }
 
@@ -150,6 +154,26 @@ namespace Wreckabulary.Tests
             yield return null;
             Assert.Less(Quaternion.Angle(held.HoldRotation * turn, held.transform.localRotation), .5f, id + " returns to its hold turn after a cancelled use");
             Assert.Less(Vector3.Distance(held.transform.TransformPoint(HeldItemPose.Grip(item)), p.handR.position), .002f);
+        }
+
+        [UnityTest]
+        public IEnumerator TurnedShieldsRaiseLikeTheUnturnedOnesAndSettleBackUpright([ValueSource(nameof(TurnedShieldItems))] string id)
+        {
+            var p = Spawn(0, Vector3.zero, out var input);
+            yield return Frames(3);
+            var shield = Craft(p, id);
+            var item = shield.Definition;
+            input.Next.blockHeld = true;
+            yield return TestScenes.WaitUntil(() => p.Combat.IsBlocking, item.Shield.RaiseSeconds + 1f, id + " raised");
+            yield return null;
+            yield return null;
+            Assert.Less(Quaternion.Angle(Quaternion.Euler(90f, 0f, 0f), shield.transform.localRotation), .5f, id + " is raised exactly like MIRROR");
+            Assert.Less(Vector3.Distance(shield.transform.TransformPoint(HeldItemPose.Grip(item)), p.handR.position), .002f, id + " grip stays in the hand");
+            input.Next.blockHeld = false;
+            yield return TestScenes.WaitUntil(() => !p.Combat.IsBlocking, 1f, id + " lowered");
+            yield return null;
+            yield return null;
+            Assert.Less(Quaternion.Angle(shield.HoldRotation * HeldItemPose.Turn(item), shield.transform.localRotation), .5f, id + " settles back upright");
         }
 
         [UnityTest]
@@ -292,6 +316,15 @@ namespace Wreckabulary.Tests
                     yield return TestScenes.WaitUntil(() => rider.Body.linearVelocity.y > stats.Strength * 0.5f, 2f, id + " launches whoever steps on it");
                     break;
                 }
+                case DeployEffect.SpeedStrip:
+                {
+                    var runner = Spawn(1, body.position + Vector3.back * (stats.FootprintZ * 0.3f), out var run);
+                    runner.FaceTowards(Vector3.forward);
+                    run.Next.move = Vector2.up;
+                    yield return TestScenes.WaitUntil(() => runner.BoostLeft > 0f, 2f, id + " speeds up whoever runs along it");
+                    run.Next.move = Vector2.zero;
+                    break;
+                }
                 case DeployEffect.WindField:
                 case DeployEffect.SlowField:
                 {
@@ -340,10 +373,62 @@ namespace Wreckabulary.Tests
                 case UseEffect.Heal:
                     Assert.AreEqual(Mathf.Min(p.Health.Max, wounded + use.Amount), p.Health.Current, 0.01f, id + " restores its catalogue amount");
                     break;
+                case UseEffect.Speed:
+                    Assert.AreEqual(wounded, p.Health.Current, 0.01f, id + " boosts without healing");
+                    Assert.That(p.BoostLeft, Is.InRange(use.Seconds - 1f, use.Seconds + 0.01f), id + " boosts for its catalogue time");
+                    break;
                 default:
                     Assert.Fail($"{id}: add a runtime check for {use.Effect}");
                     break;
             }
+        }
+
+        [UnityTest]
+        public IEnumerator SpentPatchesSpreadTheirZoneInFront([ValueSource(nameof(PatchItems))] string id)
+        {
+            var stats = Live(id).Deploy;
+            Assert.IsNotNull(stats, id);
+            var p = Spawn(0, Vector3.zero, out var input);
+            yield return Frames(3);
+            p.FaceTowards(Vector3.forward);
+            var gear = Craft(p, id);
+
+            input.Next.attack = true;
+            yield return TestScenes.WaitUntil(() => !p.Combat.Weapon && !p.Combat.IsDeploying, stats.PlaceSeconds + 2f, id + " laid by the attack button");
+            yield return Frames(2);
+            Assert.IsFalse(gear, id + " is used up as it is laid");
+            var patch = Object.FindObjectsByType<SummonedThing>(FindObjectsSortMode.None).Single(s => s.Word == id);
+            Assert.AreEqual(1, DeployedGear.CountFor(p), id + " counts as placed gear");
+            Assert.Greater(Vector3.Dot(World.Flat(patch.transform.position - p.Body.position).normalized, Vector3.forward), 0.95f, id + " is laid in front");
+            Assert.AreEqual(stats.Radius * 2f, patch.transform.localScale.x, 0.01f, id + " covers its catalogue radius");
+            switch (stats.Effect)
+            {
+                case DeployEffect.SlipZone:
+                {
+                    var target = Spawn(1, patch.transform.position + Vector3.right * (stats.Radius * 0.5f), out _);
+                    yield return TestScenes.WaitUntil(() => target.SlipperyLeft > 0f, 1f, id + " makes whoever stands in it slip");
+                    break;
+                }
+                default:
+                    Assert.Fail($"{id}: add a runtime check for {stats.Effect}");
+                    break;
+            }
+            Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " is spent, not refunded");
+        }
+
+        [UnityTest]
+        public IEnumerator SwiftItemsSpeedUpTheirHolderOnlyWhileHeld([ValueSource(nameof(SwiftItems))] string id)
+        {
+            var swift = GameConfig.Current.Tuning.Trait(id, TraitKind.Swift);
+            var p = Spawn(0, Vector3.zero, out _);
+            yield return Frames(3);
+            Assert.AreEqual(1f, p.HeldSwift, 0.001f, "empty hands run at the normal speed");
+            Craft(p, id);
+            yield return null;
+            Assert.AreEqual(swift.Amount, p.HeldSwift, 0.001f, id + " speeds up its holder");
+            p.Combat.Drop();
+            yield return null;
+            Assert.AreEqual(1f, p.HeldSwift, 0.001f, id + " stops helping once dropped");
         }
 
         [UnityTest]

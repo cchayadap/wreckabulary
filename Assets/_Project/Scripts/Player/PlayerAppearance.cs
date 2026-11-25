@@ -428,7 +428,8 @@ namespace Wreckabulary
             if (gripL && controller.handL) controller.handL.SetPositionAndRotation(gripL.position, gripL.rotation * gripCorrectionL);
             if (gripR && controller.handR) controller.handR.SetPositionAndRotation(gripR.position, gripR.rotation * gripCorrectionR);
             if (contact && controller.Combat && controller.Combat.Weapon)
-                controller.Combat.Weapon.SetPoseRotation(Quaternion.Inverse(controller.handR.rotation) * itemRotation);
+                controller.Combat.Weapon.SetPoseRotation(Quaternion.Inverse(controller.handR.rotation) * itemRotation *
+                    Quaternion.Inverse(HeldItemPose.Turn(controller.Combat.Weapon.Definition)));
             var velocity = controller.Body ? controller.Body.linearVelocity : Vector3.zero;
             bool acting = Time.time < actionUntil;
             expressions?.Observe(new AvatarExpressionSample {

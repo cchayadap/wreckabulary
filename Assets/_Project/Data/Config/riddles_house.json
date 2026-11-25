@@ -10,9 +10,9 @@
     { "answer": "PILLOW", "clue": "I am soft and squishy, and your head rests on me at night (6)", "hint": "Grab me for a fluffy fight." },
     { "answer": "DESK", "clue": "Homework gets done on me, and my drawers hold your pens (4)", "hint": "I live in a study or a classroom." },
     { "answer": "SHELF", "clue": "I hang on the wall and hold your stories up high (5)", "hint": "Things sit on me up high." },
-    { "answer": "CABINET", "clue": "I am a cupboard with doors, and cups and bowls hide inside me (7)", "hint": "Open my doors in the kitchen." },
+    { "answer": "CABINET", "clue": "I am a cupboard with hinged fronts, and cups and bowls hide inside me (7)", "hint": "Swing me open in the kitchen." },
     { "answer": "RACK", "clue": "Hang your coat on me, or dry the dishes on me (4)", "hint": "I am a frame with bars or hooks." },
-    { "answer": "CRATE", "clue": "I am made of wooden slats for moving fruit or toys (5)", "hint": "Pack me, stack me, then nail my lid shut." },
+    { "answer": "CRATE", "clue": "I am made of wooden slats for moving fruit or toys (5)", "hint": "Pack me, stack me, then nail me shut." },
     { "answer": "BARREL", "clue": "I am big, round and wooden, and I roll if you tip me over (6)", "hint": "Metal hoops hold my sides together." },
     { "answer": "LAMP", "clue": "Click me on and I light up the room (4)", "hint": "My bulb glows when it gets dark." },
     { "answer": "FAN", "clue": "I spin round and round to keep you cool (3)", "hint": "Switch me on when it is hot." },
@@ -21,7 +21,7 @@
     { "answer": "SPEAKER", "clue": "Music comes out of me, loud and clear (7)", "hint": "Turn me up for a dance party." },
     { "answer": "TOASTER", "clue": "Put bread in me and it pops up warm and crunchy (7)", "hint": "I live in the kitchen next to the kettle." },
     { "answer": "PLANT", "clue": "I grow green leaves by a sunny window (5)", "hint": "Give me a drink so I do not droop." },
-    { "answer": "MAT", "clue": "Wipe your muddy feet on me by the front door (3)", "hint": "Roll me out for yoga." },
+    { "answer": "MAT", "clue": "Wipe your muddy feet on me as you come in (3)", "hint": "Roll me out for yoga." },
     { "answer": "PAN", "clue": "I am flat with a long handle, and eggs sizzle in me (3)", "hint": "Flip! Careful, I get hot." },
     { "answer": "POT", "clue": "Soup bubbles inside me on the stove (3)", "hint": "Flowers can grow in me too." },
     { "answer": "PLATE", "clue": "I am round and flat, and your dinner sits on me (5)", "hint": "Wash me after you eat." },
@@ -41,6 +41,10 @@
     { "answer": "BLADE", "clue": "I am the sharp, flat edge of a sword or a knife (5)", "hint": "Ice skates have one under each foot." },
     { "answer": "SPEAR", "clue": "I am a long pole with a sharp point that hunters carry (5)", "hint": "Some fishers catch fish with me." },
     { "answer": "ARROW", "clue": "I fly with feathers at my tail toward a target (5)", "hint": "Signs use my shape to point the way." },
-    { "answer": "SHIELD", "clue": "Knights hold me up to block a hit (6)", "hint": "Hold me in front of you to stay safe." }
+    { "answer": "SHIELD", "clue": "Knights hold me up to block a hit (6)", "hint": "Hold me in front of you to stay safe." },
+    { "answer": "TEAPOT", "clue": "I have a spout and a handle, and I pour hot tea into cups (6)", "hint": "Grandma fills me at teatime." },
+    { "answer": "LADDER", "clue": "Climb my rungs to reach high places (6)", "hint": "Painters climb me to reach the ceiling." },
+    { "answer": "TOMATO", "clue": "I am red and juicy, and nobody agrees if I am a fruit or a vegetable (6)", "hint": "Squash me into ketchup." },
+    { "answer": "ROCKET", "clue": "I blast off into space with fire under my tail (6)", "hint": "Count down from ten, then launch me." }
   ]
 }

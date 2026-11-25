@@ -273,7 +273,7 @@ namespace Wreckabulary.EditorTools
             {
                 anchor = EditorUtility.CreateGameObjectWithHideFlags("Item angle sheet " + candidate.key, HideFlags.HideAndDontSave);
                 SceneManager.MoveGameObjectToScene(anchor, scene);
-                var model = ModelVisual.Spawn(candidate.key, anchor.transform, finish);
+                var model = ModelVisual.SpawnItem(candidate.key, anchor.transform, finish);
                 if (!model || model.scene != scene) throw new InvalidOperationException("The model did not spawn into the owned preview scene.");
                 var renderers = model.GetComponentsInChildren<Renderer>(true).Where(renderer => renderer.enabled && renderer.gameObject.activeInHierarchy && !renderer.forceRenderingOff).ToArray();
                 if (renderers.Length == 0) throw new InvalidOperationException("The model has no visible renderers.");

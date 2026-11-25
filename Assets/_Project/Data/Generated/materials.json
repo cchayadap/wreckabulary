@@ -288,6 +288,81 @@
    ]
   },
   {
+   "name": "cobalt_Arcade",
+   "baseColor": [
+    0.0065,
+    0.0296,
+    0.2542,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "cobalt",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "cobalt_Candy",
+   "baseColor": [
+    0.3325,
+    0.5395,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "cobalt",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "cobalt_Classic",
+   "baseColor": [
+    0.0273,
+    0.159,
+    0.6867,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "cobalt",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
    "name": "cream_Arcade",
    "baseColor": [
     0.0242,
@@ -511,6 +586,81 @@
     "environment/Kitchen_Sink",
     "environment/Kitchen_Stove"
    ]
+  },
+  {
+   "name": "emerald_Arcade",
+   "baseColor": [
+    0.0033,
+    0.0685,
+    0.0232,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "emerald",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "emerald_Candy",
+   "baseColor": [
+    0.521,
+    1.0,
+    0.7454,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "emerald",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "emerald_Classic",
+   "baseColor": [
+    0.0176,
+    0.4564,
+    0.1022,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "emerald",
+   "skin": "Classic",
+   "sources": []
   },
   {
    "name": "eyes",
@@ -1561,6 +1711,156 @@
    ]
   },
   {
+   "name": "lime_Arcade",
+   "baseColor": [
+    0.013,
+    0.1022,
+    0.0044,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "lime",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "lime_Candy",
+   "baseColor": [
+    0.855,
+    1.0,
+    0.6308,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "lime",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "lime_Classic",
+   "baseColor": [
+    0.2016,
+    0.5841,
+    0.0273,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "lime",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
+   "name": "magenta_Arcade",
+   "baseColor": [
+    1.0,
+    0.0497,
+    0.6445,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.6,
+    0.0298,
+    0.3867
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "magenta",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "magenta_Candy",
+   "baseColor": [
+    1.0,
+    0.3278,
+    0.6308,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "magenta",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "magenta_Classic",
+   "baseColor": [
+    0.6724,
+    0.0423,
+    0.2623,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "magenta",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
    "name": "metal_Arcade",
    "baseColor": [
     0.2747,
@@ -1685,6 +1985,156 @@
     "environment/Kitchen_Stove",
     "environment/Radiator"
    ]
+  },
+  {
+   "name": "navy_Arcade",
+   "baseColor": [
+    0.0685,
+    0.107,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.0411,
+    0.0642,
+    0.6
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "navy",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "navy_Candy",
+   "baseColor": [
+    0.3231,
+    0.4678,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "navy",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "navy_Classic",
+   "baseColor": [
+    0.0232,
+    0.063,
+    0.305,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "navy",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
+   "name": "orange_Arcade",
+   "baseColor": [
+    0.1946,
+    0.0232,
+    0.0018,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "orange",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "orange_Candy",
+   "baseColor": [
+    1.0,
+    0.5395,
+    0.5029,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "orange",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "orange_Classic",
+   "baseColor": [
+    0.8228,
+    0.2232,
+    0.0212,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "orange",
+   "skin": "Classic",
+   "sources": []
   },
   {
    "name": "pink_Arcade",
@@ -1839,6 +2289,81 @@
    "normalMap": null,
    "emissionMap": null,
    "family": "plush",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
+   "name": "purple_Arcade",
+   "baseColor": [
+    0.0423,
+    0.0103,
+    0.1946,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "purple",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "purple_Candy",
+   "baseColor": [
+    0.6939,
+    0.4793,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "purple",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "purple_Classic",
+   "baseColor": [
+    0.2542,
+    0.0782,
+    0.7454,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.6,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "purple",
    "skin": "Classic",
    "sources": []
   },
@@ -2041,6 +2566,81 @@
    ]
   },
   {
+   "name": "scarlet_Arcade",
+   "baseColor": [
+    0.1441,
+    0.0048,
+    0.013,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "scarlet",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "scarlet_Candy",
+   "baseColor": [
+    1.0,
+    0.2747,
+    0.4342,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.22,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "scarlet",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "scarlet_Classic",
+   "baseColor": [
+    0.7454,
+    0.0356,
+    0.0242,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.34,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "scarlet",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
    "name": "soap_Arcade",
    "baseColor": [
     0.2623,
@@ -2119,6 +2719,1923 @@
    "skin": "Classic",
    "sources": [
     "item/SOAP"
+   ]
+  },
+  {
+   "name": "teal_Arcade",
+   "baseColor": [
+    0.0044,
+    0.0685,
+    0.0844,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "teal",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "teal_Candy",
+   "baseColor": [
+    0.5776,
+    0.855,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "teal",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "teal_Classic",
+   "baseColor": [
+    0.0116,
+    0.4621,
+    0.4233,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "teal",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
+   "name": "toy_blue_Arcade",
+   "baseColor": [
+    0.0103,
+    0.0497,
+    0.4342,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_blue",
+   "skin": "Arcade",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_blue_Candy",
+   "baseColor": [
+    0.3467,
+    0.807,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_blue",
+   "skin": "Candy",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_blue_Classic",
+   "baseColor": [
+    0.0284,
+    0.2122,
+    0.7084,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_blue",
+   "skin": "Classic",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_butter_Arcade",
+   "baseColor": [
+    0.0242,
+    0.7913,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.0169,
+    0.5539,
+    0.7
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_butter",
+   "skin": "Arcade",
+   "sources": [
+    "item/BEAR",
+    "item/BED",
+    "item/BOMB",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FOAM",
+    "item/MAT",
+    "item/PIE",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_butter_Candy",
+   "baseColor": [
+    1.0,
+    0.7454,
+    0.1329,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_butter",
+   "skin": "Candy",
+   "sources": [
+    "item/BEAR",
+    "item/BED",
+    "item/BOMB",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FOAM",
+    "item/MAT",
+    "item/PIE",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_butter_Classic",
+   "baseColor": [
+    0.8879,
+    0.6445,
+    0.2542,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_butter",
+   "skin": "Classic",
+   "sources": [
+    "item/BEAR",
+    "item/BED",
+    "item/BOMB",
+    "item/BOOK",
+    "item/CLOCK",
+    "item/FOAM",
+    "item/MAT",
+    "item/PIE",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_cherry_Arcade",
+   "baseColor": [
+    0.1946,
+    0.006,
+    0.117,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_cherry",
+   "skin": "Arcade",
+   "sources": [
+    "item/PIE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_cherry_Candy",
+   "baseColor": [
+    1.0,
+    0.0782,
+    0.3231,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_cherry",
+   "skin": "Candy",
+   "sources": [
+    "item/PIE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_cherry_Classic",
+   "baseColor": [
+    0.552,
+    0.0212,
+    0.0395,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_cherry",
+   "skin": "Classic",
+   "sources": [
+    "item/PIE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_coral_Arcade",
+   "baseColor": [
+    1.0,
+    0.0782,
+    0.4793,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.6,
+    0.0469,
+    0.2876
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_coral",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "toy_coral_Candy",
+   "baseColor": [
+    1.0,
+    0.3419,
+    0.1946,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.22,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_coral",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "toy_coral_Classic",
+   "baseColor": [
+    0.807,
+    0.1413,
+    0.1022,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_coral",
+   "skin": "Classic",
+   "sources": []
+  },
+  {
+   "name": "toy_green_Arcade",
+   "baseColor": [
+    0.0048,
+    0.1022,
+    0.0802,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_green",
+   "skin": "Arcade",
+   "sources": [
+    "item/BENCH",
+    "item/CHAIR",
+    "item/CRATE",
+    "item/MAT",
+    "item/SHELF"
+   ]
+  },
+  {
+   "name": "toy_green_Candy",
+   "baseColor": [
+    0.5089,
+    0.9301,
+    0.6867,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_green",
+   "skin": "Candy",
+   "sources": [
+    "item/BENCH",
+    "item/CHAIR",
+    "item/CRATE",
+    "item/MAT",
+    "item/SHELF"
+   ]
+  },
+  {
+   "name": "toy_green_Classic",
+   "baseColor": [
+    0.0612,
+    0.491,
+    0.0844,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.48,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_green",
+   "skin": "Classic",
+   "sources": [
+    "item/BENCH",
+    "item/CHAIR",
+    "item/CRATE",
+    "item/MAT",
+    "item/SHELF"
+   ]
+  },
+  {
+   "name": "toy_honey_Arcade",
+   "baseColor": [
+    0.0423,
+    0.016,
+    0.1683,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_honey",
+   "skin": "Arcade",
+   "sources": [
+    "item/BEAR"
+   ]
+  },
+  {
+   "name": "toy_honey_Candy",
+   "baseColor": [
+    1.0,
+    0.3916,
+    0.6172,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_honey",
+   "skin": "Candy",
+   "sources": [
+    "item/BEAR"
+   ]
+  },
+  {
+   "name": "toy_honey_Classic",
+   "baseColor": [
+    0.5841,
+    0.2542,
+    0.0595,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_honey",
+   "skin": "Classic",
+   "sources": [
+    "item/BEAR"
+   ]
+  },
+  {
+   "name": "toy_ivory_Arcade",
+   "baseColor": [
+    1.0,
+    0.807,
+    0.0467,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.6,
+    0.4842,
+    0.028
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_ivory",
+   "skin": "Arcade",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/CAKE",
+    "item/LAMP",
+    "item/VASE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_ivory_Candy",
+   "baseColor": [
+    1.0,
+    0.7454,
+    0.8714,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.2,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_ivory",
+   "skin": "Candy",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/CAKE",
+    "item/LAMP",
+    "item/VASE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_ivory_Classic",
+   "baseColor": [
+    0.9301,
+    0.8632,
+    0.6939,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_ivory",
+   "skin": "Classic",
+   "sources": [
+    "item/BALL",
+    "item/BED",
+    "item/CAKE",
+    "item/LAMP",
+    "item/VASE",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_kraft_Arcade",
+   "baseColor": [
+    0.0086,
+    0.0452,
+    0.1329,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_kraft",
+   "skin": "Arcade",
+   "sources": [
+    "item/BOX"
+   ]
+  },
+  {
+   "name": "toy_kraft_Candy",
+   "baseColor": [
+    1.0,
+    0.5149,
+    0.3005,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_kraft",
+   "skin": "Candy",
+   "sources": [
+    "item/BOX"
+   ]
+  },
+  {
+   "name": "toy_kraft_Classic",
+   "baseColor": [
+    0.4793,
+    0.1746,
+    0.0284,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_kraft",
+   "skin": "Classic",
+   "sources": [
+    "item/BOX"
+   ]
+  },
+  {
+   "name": "toy_leaf_Arcade",
+   "baseColor": [
+    0.1529,
+    1.0,
+    0.0452,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.0917,
+    0.6,
+    0.0271
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_leaf",
+   "skin": "Arcade",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_leaf_Candy",
+   "baseColor": [
+    0.2705,
+    0.8308,
+    0.5271,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.3,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_leaf",
+   "skin": "Candy",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_leaf_Classic",
+   "baseColor": [
+    0.0844,
+    0.5149,
+    0.0482,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_leaf",
+   "skin": "Classic",
+   "sources": [
+    "item/APPLE",
+    "item/CAKE",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_lime_Arcade",
+   "baseColor": [
+    0.1529,
+    1.0,
+    0.0452,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.0917,
+    0.6,
+    0.0271
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_lime",
+   "skin": "Arcade",
+   "sources": [
+    "item/BROOM"
+   ]
+  },
+  {
+   "name": "toy_lime_Candy",
+   "baseColor": [
+    0.2705,
+    0.8308,
+    0.5271,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.3,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_lime",
+   "skin": "Candy",
+   "sources": [
+    "item/BROOM"
+   ]
+  },
+  {
+   "name": "toy_lime_Classic",
+   "baseColor": [
+    0.2623,
+    0.5972,
+    0.0273,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_lime",
+   "skin": "Classic",
+   "sources": [
+    "item/BROOM"
+   ]
+  },
+  {
+   "name": "toy_magenta_Arcade",
+   "baseColor": [
+    1.0,
+    0.0782,
+    0.4793,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.6,
+    0.0469,
+    0.2876
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_magenta",
+   "skin": "Arcade",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "toy_magenta_Candy",
+   "baseColor": [
+    1.0,
+    0.3419,
+    0.1946,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.22,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_magenta",
+   "skin": "Candy",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "toy_magenta_Classic",
+   "baseColor": [
+    0.6724,
+    0.0467,
+    0.3916,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_magenta",
+   "skin": "Classic",
+   "sources": [
+    "item/CAKE"
+   ]
+  },
+  {
+   "name": "toy_mint_Arcade",
+   "baseColor": [
+    0.2623,
+    1.0,
+    0.0685,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.2,
+   "emissive": [
+    0.1311,
+    0.5,
+    0.0343
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_mint",
+   "skin": "Arcade",
+   "sources": [
+    "item/PLATE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_mint_Candy",
+   "baseColor": [
+    0.6105,
+    0.4452,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.18,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_mint",
+   "skin": "Candy",
+   "sources": [
+    "item/PLATE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_mint_Classic",
+   "baseColor": [
+    0.0331,
+    0.6376,
+    0.3515,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_mint",
+   "skin": "Classic",
+   "sources": [
+    "item/PLATE",
+    "item/TOASTER"
+   ]
+  },
+  {
+   "name": "toy_navy_Arcade",
+   "baseColor": [
+    0.0103,
+    0.0497,
+    0.4342,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_navy",
+   "skin": "Arcade",
+   "sources": [
+    "item/BARREL",
+    "item/BAT",
+    "item/CABINET",
+    "item/MAT",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "toy_navy_Candy",
+   "baseColor": [
+    0.3467,
+    0.807,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_navy",
+   "skin": "Candy",
+   "sources": [
+    "item/BARREL",
+    "item/BAT",
+    "item/CABINET",
+    "item/MAT",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "toy_navy_Classic",
+   "baseColor": [
+    0.0331,
+    0.0931,
+    0.491,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_navy",
+   "skin": "Classic",
+   "sources": [
+    "item/BARREL",
+    "item/BAT",
+    "item/CABINET",
+    "item/MAT",
+    "item/POT"
+   ]
+  },
+  {
+   "name": "toy_orange_Arcade",
+   "baseColor": [
+    0.0086,
+    0.0452,
+    0.1329,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_orange",
+   "skin": "Arcade",
+   "sources": [
+    "item/BOMB",
+    "item/PAN",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_orange_Candy",
+   "baseColor": [
+    1.0,
+    0.5149,
+    0.3005,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_orange",
+   "skin": "Candy",
+   "sources": [
+    "item/BOMB",
+    "item/PAN",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_orange_Classic",
+   "baseColor": [
+    0.8228,
+    0.227,
+    0.0194,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_orange",
+   "skin": "Classic",
+   "sources": [
+    "item/BOMB",
+    "item/PAN",
+    "item/PLANT"
+   ]
+  },
+  {
+   "name": "toy_pink_Arcade",
+   "baseColor": [
+    1.0,
+    0.0782,
+    0.4793,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.6,
+    0.0469,
+    0.2876
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_pink",
+   "skin": "Arcade",
+   "sources": [
+    "item/CAKE",
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "toy_pink_Candy",
+   "baseColor": [
+    1.0,
+    0.3419,
+    0.1946,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.22,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_pink",
+   "skin": "Candy",
+   "sources": [
+    "item/CAKE",
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "toy_pink_Classic",
+   "baseColor": [
+    0.807,
+    0.0976,
+    0.2623,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_pink",
+   "skin": "Classic",
+   "sources": [
+    "item/CAKE",
+    "item/SOAP"
+   ]
+  },
+  {
+   "name": "toy_purple_Arcade",
+   "baseColor": [
+    0.0194,
+    0.0144,
+    0.1441,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_purple",
+   "skin": "Arcade",
+   "sources": [
+    "item/BLADE",
+    "item/BOOK",
+    "item/CHEST",
+    "item/SPEAKER",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "toy_purple_Candy",
+   "baseColor": [
+    0.5711,
+    0.3916,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_purple",
+   "skin": "Candy",
+   "sources": [
+    "item/BLADE",
+    "item/BOOK",
+    "item/CHEST",
+    "item/SPEAKER",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "toy_purple_Classic",
+   "baseColor": [
+    0.2542,
+    0.0782,
+    0.6939,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_purple",
+   "skin": "Classic",
+   "sources": [
+    "item/BLADE",
+    "item/BOOK",
+    "item/CHEST",
+    "item/SPEAKER",
+    "item/VASE"
+   ]
+  },
+  {
+   "name": "toy_red_Arcade",
+   "baseColor": [
+    0.1946,
+    0.006,
+    0.117,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.8,
+    0.0398,
+    0.5156
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_red",
+   "skin": "Arcade",
+   "sources": [
+    "item/APPLE",
+    "item/ARROW",
+    "item/BOX",
+    "item/BROOM",
+    "item/CAKE",
+    "item/CLOCK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/MUG",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/SODA",
+    "item/SPEAR",
+    "item/STOOL"
+   ]
+  },
+  {
+   "name": "toy_red_Candy",
+   "baseColor": [
+    1.0,
+    0.0782,
+    0.3231,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_red",
+   "skin": "Candy",
+   "sources": [
+    "item/APPLE",
+    "item/ARROW",
+    "item/BOX",
+    "item/BROOM",
+    "item/CAKE",
+    "item/CLOCK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/MUG",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/SODA",
+    "item/SPEAR",
+    "item/STOOL"
+   ]
+  },
+  {
+   "name": "toy_red_Classic",
+   "baseColor": [
+    0.807,
+    0.0513,
+    0.0232,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_red",
+   "skin": "Classic",
+   "sources": [
+    "item/APPLE",
+    "item/ARROW",
+    "item/BOX",
+    "item/BROOM",
+    "item/CAKE",
+    "item/CLOCK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/MUG",
+    "item/SHELF",
+    "item/SHIELD",
+    "item/SODA",
+    "item/SPEAR",
+    "item/STOOL"
+   ]
+  },
+  {
+   "name": "toy_sky_Arcade",
+   "baseColor": [
+    0.0103,
+    0.0497,
+    0.4342,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0.0194,
+    0.633,
+    0.8
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": "Assets/_Project/Materials/Library/Patterns/arcade_grid.png",
+   "family": "toy_sky",
+   "skin": "Arcade",
+   "sources": [
+    "item/ARROW",
+    "item/BEAR",
+    "item/CAKE",
+    "item/DESK",
+    "item/FAN",
+    "item/MUG",
+    "item/PIE",
+    "item/PILLOW",
+    "item/SOAP",
+    "item/TABLE"
+   ]
+  },
+  {
+   "name": "toy_sky_Candy",
+   "baseColor": [
+    0.3467,
+    0.807,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_sky",
+   "skin": "Candy",
+   "sources": [
+    "item/ARROW",
+    "item/BEAR",
+    "item/CAKE",
+    "item/DESK",
+    "item/FAN",
+    "item/MUG",
+    "item/PIE",
+    "item/PILLOW",
+    "item/SOAP",
+    "item/TABLE"
+   ]
+  },
+  {
+   "name": "toy_sky_Classic",
+   "baseColor": [
+    0.0437,
+    0.3712,
+    0.7913,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_sky",
+   "skin": "Classic",
+   "sources": [
+    "item/ARROW",
+    "item/BEAR",
+    "item/CAKE",
+    "item/DESK",
+    "item/FAN",
+    "item/MUG",
+    "item/PIE",
+    "item/PILLOW",
+    "item/SOAP",
+    "item/TABLE"
+   ]
+  },
+  {
+   "name": "toy_teal_Arcade",
+   "baseColor": [
+    0.2623,
+    1.0,
+    0.0685,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.2,
+   "emissive": [
+    0.1311,
+    0.5,
+    0.0343
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_teal",
+   "skin": "Arcade",
+   "sources": [
+    "item/BOW",
+    "item/FOAM",
+    "item/LAMP",
+    "item/MIRROR",
+    "item/RACK",
+    "item/SHELF",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_teal_Candy",
+   "baseColor": [
+    0.6105,
+    0.4452,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.18,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_teal",
+   "skin": "Candy",
+   "sources": [
+    "item/BOW",
+    "item/FOAM",
+    "item/LAMP",
+    "item/MIRROR",
+    "item/RACK",
+    "item/SHELF",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_teal_Classic",
+   "baseColor": [
+    0.016,
+    0.4508,
+    0.3916,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_teal",
+   "skin": "Classic",
+   "sources": [
+    "item/BOW",
+    "item/FOAM",
+    "item/LAMP",
+    "item/MIRROR",
+    "item/RACK",
+    "item/SHELF",
+    "item/SOFA"
+   ]
+  },
+  {
+   "name": "toy_yellow_Arcade",
+   "baseColor": [
+    0.0242,
+    0.7913,
+    1.0,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.0169,
+    0.5539,
+    0.7
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_yellow",
+   "skin": "Arcade",
+   "sources": [
+    "item/BALL",
+    "item/BOMB",
+    "item/DESK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/LAMP",
+    "item/MAT",
+    "item/PILLOW",
+    "item/POT",
+    "item/SODA",
+    "item/SPEAKER",
+    "item/STOOL",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_yellow_Candy",
+   "baseColor": [
+    1.0,
+    0.7454,
+    0.1329,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_yellow",
+   "skin": "Candy",
+   "sources": [
+    "item/BALL",
+    "item/BOMB",
+    "item/DESK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/LAMP",
+    "item/MAT",
+    "item/PILLOW",
+    "item/POT",
+    "item/SODA",
+    "item/SPEAKER",
+    "item/STOOL",
+    "item/WATER"
+   ]
+  },
+  {
+   "name": "toy_yellow_Classic",
+   "baseColor": [
+    0.8228,
+    0.5583,
+    0.0232,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.42,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "toy_yellow",
+   "skin": "Classic",
+   "sources": [
+    "item/BALL",
+    "item/BOMB",
+    "item/DESK",
+    "item/FAN",
+    "item/HAMMER",
+    "item/LAMP",
+    "item/MAT",
+    "item/PILLOW",
+    "item/POT",
+    "item/SODA",
+    "item/SPEAKER",
+    "item/STOOL",
+    "item/WATER"
    ]
   },
   {
@@ -2917,6 +5434,81 @@
     "environment/Wall_Window",
     "vfx/Wood_Splinter"
    ]
+  },
+  {
+   "name": "yellow_Arcade",
+   "baseColor": [
+    0.6867,
+    1.0,
+    0.0467,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.38,
+   "emissive": [
+    0.309,
+    0.45,
+    0.021
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "yellow",
+   "skin": "Arcade",
+   "sources": []
+  },
+  {
+   "name": "yellow_Candy",
+   "baseColor": [
+    1.0,
+    0.9047,
+    0.6867,
+    1
+   ],
+   "metallic": 0.0,
+   "roughness": 0.26,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": "Assets/_Project/Materials/Library/Patterns/candy_stripes.png",
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "yellow",
+   "skin": "Candy",
+   "sources": []
+  },
+  {
+   "name": "yellow_Classic",
+   "baseColor": [
+    0.8148,
+    0.521,
+    0.0185,
+    1
+   ],
+   "metallic": 0,
+   "roughness": 0.45,
+   "emissive": [
+    0,
+    0,
+    0
+   ],
+   "alphaMode": "OPAQUE",
+   "alphaCutoff": 0.5,
+   "doubleSided": false,
+   "baseMap": null,
+   "normalMap": null,
+   "emissionMap": null,
+   "family": "yellow",
+   "skin": "Classic",
+   "sources": []
   }
  ],
  "textures": {

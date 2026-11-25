@@ -262,7 +262,8 @@ namespace Wreckabulary
             Destroy(gameObject);
         }
 
-        public void ShowRaised(bool raised) => SetPoseRotation(raised && word != "SHIELD" ? Quaternion.Euler(90f, 0f, 0f) : HoldRotation);
+        public void ShowRaised(bool raised) => SetPoseRotation(raised && word != ItemHolds.GuardPosedItem
+            ? Quaternion.Euler(90f, 0f, 0f) * Quaternion.Inverse(HeldItemPose.Turn(definition)) : HoldRotation);
 
         public void SetPoseRotation(Quaternion localRotation)
         {

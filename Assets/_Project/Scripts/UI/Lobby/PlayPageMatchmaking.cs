@@ -198,19 +198,25 @@ namespace Wreckabulary
 
         void JoinWithCode(TMP_InputField field)
         {
-            string code = (field.text ?? "").Trim();
-            if (code.Length == 0)
-            {
-                string copied = GUIUtility.systemCopyBuffer;
-                if (FriendRooms.LooksLikePartyInvite(copied) || FriendRooms.LooksLikeInvite(copied))
-                {
-                    code = copied.Trim();
-                    field.text = code;
-                }
-            }
-            if (FriendRooms.LooksLikePartyInvite(code)) Menu.JoinFriendsParty(code);
-            else if (FriendRooms.LooksLikeInvite(code)) Menu.JoinFriendsRoom(code);
-            else Menu.Post(PlayPageText.NotACode);
+            string typed = (field.text ?? "").Trim();
+            string code = CodeFrom(typed);
+            if (code != typed) field.text = code;
+            JoinByCode(Menu, code);
+        }
+
+        public static string CodeFrom(string typed)
+        {
+            string code = (typed ?? "").Trim();
+            if (code.Length > 0) return code;
+            string copied = GUIUtility.systemCopyBuffer;
+            return FriendRooms.LooksLikePartyInvite(copied) || FriendRooms.LooksLikeInvite(copied) ? copied.Trim() : code;
+        }
+
+        public static void JoinByCode(LobbyMenu menu, string code)
+        {
+            if (FriendRooms.LooksLikePartyInvite(code)) menu.JoinFriendsParty(code);
+            else if (FriendRooms.LooksLikeInvite(code)) menu.JoinFriendsRoom(code);
+            else menu.Post(PlayPageText.NotACode);
         }
 
         void PlaylistCardFor(Transform section, QuickPlayChoices choices, QuickPlayCard card, string size, int partySize, LobbyPlayDetail about)

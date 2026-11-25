@@ -35,7 +35,9 @@ namespace Wreckabulary
         public virtual bool CanLook => false;
         public virtual bool ReadsMouse => false;
         public virtual bool HoldingAttackRaisesShield => true;
+        public virtual bool AimsWithAttackHold => false;
         public abstract void Read(ref PlayerCommands c);
+        public virtual void ReadHouse(ref PlayerCommands c) => Read(ref c);
         public abstract bool JoinPressed();
         public abstract bool StartPressed();
     }

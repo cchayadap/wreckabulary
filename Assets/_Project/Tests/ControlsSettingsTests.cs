@@ -106,7 +106,10 @@ namespace Wreckabulary.Tests
             Assert.IsFalse(title.transform.IsChildOf(panel.GetComponentInChildren<ScrollRect>().content), "Mode context must remain outside the scrolling rows.");
             Assert.AreEqual("View / Share", ControllerLegend(panel, "Pause").text);
             Assert.AreEqual("—", ControllerLegend(panel, "Aim").text, "House controllers look with the stick, without an aim-held button.");
-            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell").text);
+            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell box").text);
+            Assert.IsFalse(ButtonNamed(panel, "Rebind Aim (hold)").gameObject.activeInHierarchy, "House modes aim by holding the attack button.");
+            Assert.IsFalse(ButtonNamed(panel, "Rebind Spell a word").gameObject.activeInHierarchy, "House modes spell with the spell box key.");
+            Assert.IsTrue(ButtonNamed(panel, "Rebind " + KeyBindings.SpellBoxLabel).gameObject.activeInHierarchy);
             Assert.AreEqual("Hold RB / R1", ControllerLegend(panel, "Bag").text);
             Assert.AreEqual("D-pad left\nR3 swaps hands", ControllerLegend(panel, "Hand 1").text);
             Assert.AreEqual("D-pad right\nR3 swaps hands", ControllerLegend(panel, "Hand 2").text);
@@ -114,13 +117,14 @@ namespace Wreckabulary.Tests
                 Is.Not.Empty.And.All.EqualTo("Left stick"), "Every move row shows the stick.");
             Assert.AreEqual("Hold L3 + right stick", ControllerLegend(panel, "Look around").text);
             Assert.AreEqual("Hold D-pad up", ControllerLegend(panel, "Push to talk").text);
-            Assert.AreEqual(17, panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")));
+            Assert.AreEqual(16, panel.GetComponentsInChildren<Button>().Count(button => button.name.StartsWith("Rebind ")));
             AssertNormalHeading(title);
             AssertRowCards(panel);
             AssertLegendShape(panel, "House controls");
             var houseNames = ActionLabels(panel);
-            CollectionAssert.AreEqual(new[] { "Spell a word", "Hand 1", "Hand 2", "Bag", "Menu" },
-                new[] { "Spell", "Hand 1", "Hand 2", "Bag", "Pause" }.Select(action => houseNames[action]).ToArray());
+            CollectionAssert.AreEqual(new[] { KeyBindings.SpellBoxLabel, "Hand 1", "Hand 2", "Bag", "Menu" },
+                new[] { "Spell box", "Hand 1", "Hand 2", "Bag", "Pause" }.Select(action => houseNames[action]).ToArray());
+            Assert.IsFalse(houseNames.ContainsKey("Aim") || houseNames.ContainsKey("Spell"));
             SubmitLegend(panel, "Wordbound controls");
             yield return null;
             Assert.AreEqual(ControlsPanel.CourseTitle, title.text);
@@ -128,8 +132,11 @@ namespace Wreckabulary.Tests
             AssertLegendShape(panel, "Wordbound controls");
             var courseNames = ActionLabels(panel);
             foreach (var pair in courseNames)
-                Assert.AreEqual(houseNames[pair.Key], pair.Value, pair.Key + " has one name in both lists");
+                if (houseNames.TryGetValue(pair.Key, out string houseName)) Assert.AreEqual(houseName, pair.Value, pair.Key + " has one name in both lists");
             Assert.IsFalse(courseNames.ContainsKey("Dodge"));
+            Assert.IsFalse(courseNames.ContainsKey("Spell box"), "Courses keep their own spell key.");
+            Assert.AreEqual("Aim (hold)", courseNames["Aim"]);
+            Assert.AreEqual("Spell a word", courseNames["Spell"]);
             Assert.AreEqual("RB / R1", ControllerLegend(panel, "Aim").text);
             Assert.AreEqual("Start / Options", ControllerLegend(panel, "Pause").text);
             Assert.AreEqual("Y / Triangle", ControllerLegend(panel, "Spell").text);
@@ -169,7 +176,7 @@ namespace Wreckabulary.Tests
             yield return null;
             Assert.AreEqual(ControlsPanel.HouseTitle, title.text);
             Assert.AreEqual("View / Share", ControllerLegend(panel, "Pause").text);
-            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell").text);
+            Assert.AreEqual("Hold Y / Triangle", ControllerLegend(panel, "Spell box").text);
             Assert.IsTrue(ButtonNamed(panel, "Rebind Dodge").gameObject.activeInHierarchy);
             Assert.IsTrue(ButtonNamed(panel, "Rebind Look around (hold)").gameObject.activeInHierarchy);
             Assert.AreSame(jump, ButtonNamed(panel, "Rebind Jump"));

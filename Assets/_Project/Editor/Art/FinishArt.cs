@@ -70,7 +70,7 @@ namespace Wreckabulary.EditorTools
                 foreach (var item in SkinnedItems())
                     foreach (var finish in Finishes.ForItem(item.Id, item.Skins).Where(f => f != Finishes.Classic))
                     {
-                        bool house = HouseItemsSetup.Words.Contains(item.Id);
+                        bool house = HouseItemsSetup.Words.Contains(item.Id) || HouseItemsV2Setup.Words.Contains(item.Id);
                         var pixels = studio.Render(item.Model, finish.Id, IconSize, IconView, Color.clear, true, house ? Fit.Bounds : Fit.Vertices);
                         string path = IconPath(item.Id, finish.Id);
                         File.WriteAllBytes(path, Encode(pixels, IconSize, IconSize, true));

@@ -16,7 +16,8 @@ namespace Wreckabulary.Tests
 {
     public class LobbyTests
     {
-        static readonly string[] Keys = new[] { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LastPlayChoice.StorageKey }
+        static readonly string[] Keys = new[] { MatchTally.CareerKey, LobbyMenu.OutfitKey, LobbyMenu.TurnHintKey, LastPlayChoice.StorageKey,
+                RecentPlayers.StorageKey }
             .Concat(GraphicsOptions.Keys).ToArray();
         const float NeverStarts = 3600f;
         string[] saved;
@@ -294,8 +295,8 @@ namespace Wreckabulary.Tests
             var menu = LobbyMenu.Instance;
             var bar = menu.GetComponentsInChildren<RectTransform>().Single(r => r.name == "Top bar");
             var names = bar.GetComponentsInChildren<Button>().Select(b => b.name).ToArray();
-            CollectionAssert.AreEquivalent(new[] { "Home", "Settings", "Quit", "Leaderboard", "Shop", "LOADOUT", "PLAY", "CAREER", "Party" }, names,
-                "no sound or help buttons: those live in Settings");
+            CollectionAssert.AreEquivalent(new[] { "Home", "Settings", "Quit", "Leaderboard", "Shop", "LOADOUT", "PLAY", "CAREER", "Server" }, names,
+                "no sound or help buttons: those live in Settings, and the party moved to the social rail");
 
             float middle = ScreenX(menu.transform);
             float unit = Screen.width / 1920f * 10f;
@@ -307,9 +308,11 @@ namespace Wreckabulary.Tests
             Assert.AreSame(Find("Home").transform.parent, Find("Quit").transform.parent, "home, settings and quit share a pill");
             Assert.AreSame(Find("Leaderboard").transform.parent, Find("CAREER").transform.parent, "the trophy sits beside Career");
             Assert.Greater(ScreenX(Find("Leaderboard")), ScreenX(Find("CAREER")));
-            Assert.AreSame(Find("Party").transform.parent, Find("Shop").transform.parent, "the coin balance is the shop entry beside the party");
             Assert.Greater(ScreenX(Find("Shop")), ScreenX(Find("Leaderboard")));
-            Assert.Greater(ScreenX(Find("Party")), ScreenX(Find("CAREER")), "the party chip is on the right, by the coins");
+            Assert.IsFalse(Find("Party").transform.IsChildOf(bar), "the party lives in the rail, not the top bar");
+            Assert.AreSame(Find("Server").transform.parent, Find("Shop").transform.parent, "the server pill sits by the coins, above the rail");
+            Assert.Greater(ScreenX(Find("Server")), ScreenX(Find("Shop")), "at the right end, over the rail");
+            Assert.Greater(ScreenX(Find("Party")), ScreenX(Find("CAREER")), "the rail runs down the right edge");
         }
 
         [UnityTest]
@@ -330,52 +333,54 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator ThePartyChipOpensThePartyUnderIt()
+        public IEnumerator TheRailPartyOpensThePartyPanelOnAnyPage()
         {
             yield return OpenLobby();
             var menu = LobbyMenu.Instance;
-            var panel = menu.GetComponentsInChildren<RectTransform>(true).Single(r => r.name == "Party and friends");
+            var panel = menu.transform.Find(LobbyPartyLineup.PartyPanel);
+            Assert.IsNotNull(panel);
             Assert.IsFalse(panel.gameObject.activeSelf, "the party stays out of the way until asked for");
-            StringAssert.Contains("1/4", Find("Party").GetComponentInChildren<TMPro.TMP_Text>().text, "the chip counts the party");
+            Assert.AreEqual("1/4", CountText(), "the rail counts the party");
             Click("Party");
             yield return null;
-            Assert.IsTrue(panel.gameObject.activeSelf, "the chip opens it");
-            Assert.IsTrue(Find("Party").GetComponent<LobbyTab>().On, "and shows it is open");
-            Assert.Greater(ScreenX(panel), Screen.width * .7f, "under the chip, on the right");
+            Assert.IsTrue(panel.gameObject.activeSelf, "the party count opens it");
+            Assert.Greater(ScreenX(panel), Screen.width * .6f, "beside the rail, on the right");
+            Assert.Less(ScreenX(panel), ScreenX(Find("Party")), "it slides out to the left of the rail");
             Click("Party");
             yield return null;
             Assert.IsFalse(panel.gameObject.activeSelf, "a second click closes it");
 
-            Click("Party");
-            yield return null;
             Click("LOADOUT");
             yield return null;
-            Assert.IsFalse(panel.gameObject.activeSelf, "a page opens over where it was");
             var corners = new Vector3[4];
             ((RectTransform)Find("RECIPES").transform).GetWorldCorners(corners);
             float tabsRight = corners[2].x;
             ((RectTransform)Find("Close page").transform).GetWorldCorners(corners);
             Assert.Less(tabsRight, corners[0].x, "the loadout's tabs end before the page's close button");
+            Assert.Less(corners[2].x, ScreenX(Find("Party")), "the page ends before the rail");
             Click("Party");
             yield return null;
-            Assert.AreEqual(LobbyMenu.Home, menu.Current, "the party belongs to the lobby screen");
+            Assert.AreEqual(LobbyMenu.Loadout, menu.Current, "the party opens over any page");
             Assert.IsTrue(panel.gameObject.activeSelf);
             yield return Tap(Key.Escape);
             Assert.IsFalse(panel.gameObject.activeSelf, "Esc closes it first");
-            Assert.AreEqual(LobbyMenu.Home, menu.Current);
-            Assert.AreSame(Find("Party").gameObject, Selected, "with a keyboard or controller back on the chip");
+            Assert.AreEqual(LobbyMenu.Loadout, menu.Current, "and leaves the page open");
+            Assert.AreSame(Find("Party").gameObject, Selected, "with a keyboard or controller back on the party count");
 
             menu.Join(new ScriptedBinding());
-            StringAssert.Contains("2/4", Find("Party").GetComponentInChildren<TMPro.TMP_Text>().text);
+            Assert.AreEqual("2/4", CountText());
             Click("Party");
             yield return null;
             Canvas.ForceUpdateCanvases();
-            foreach (var text in panel.GetComponentsInChildren<TMPro.TMP_Text>().Concat(Find("Party").GetComponentsInChildren<TMPro.TMP_Text>()))
+            foreach (var text in panel.GetComponentsInChildren<TMPro.TMP_Text>().Concat(menu.Social.Rail.GetComponentsInChildren<TMPro.TMP_Text>()))
             {
                 text.ForceMeshUpdate();
                 Assert.IsFalse(text.isTextTruncated, $"\"{text.text}\" fits without an ellipsis");
             }
         }
+
+        static string CountText() => LobbyMenu.Instance.Social.Rail.GetComponentsInChildren<TMPro.TMP_Text>()
+            .Single(text => text.name == LobbySocialRail.CountName).text;
 
         [UnityTest]
         public IEnumerator TheHomeDockIsOneBigPlayButtonBottomRight()

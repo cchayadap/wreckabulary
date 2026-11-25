@@ -35,6 +35,13 @@ namespace Wreckabulary.Art
             return copy;
         }
 
+        public static GameObject SpawnItem(string key, Transform parent, string skin = MaterialLibrary.StandardSkin)
+        {
+            var copy = Spawn(key, parent, skin);
+            if (copy) ItemLook.Attach(copy, ItemLook.ItemOf(key), skin);
+            return copy;
+        }
+
         public static Bounds BoundsIn(Transform space, GameObject model)
         {
             var result = new Bounds();

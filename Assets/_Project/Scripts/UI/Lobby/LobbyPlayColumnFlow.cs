@@ -88,8 +88,15 @@ namespace Wreckabulary
         }
 
         void OnEnable() => Fit();
-        void OnRectTransformDimensionsChange() => Fit();
         void LateUpdate() => Fit();
+
+        void OnRectTransformDimensionsChange()
+        {
+            if (Rebuilding) arrangedCards = -1;
+            else Fit();
+        }
+
+        static bool Rebuilding => CanvasUpdateRegistry.IsRebuildingLayout() || CanvasUpdateRegistry.IsRebuildingGraphics();
 
         public void Fit()
         {

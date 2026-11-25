@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Wreckabulary.Rules.Wordbound;
 
 namespace Wreckabulary.Online
 {
@@ -30,7 +33,17 @@ namespace Wreckabulary.Online
         public bool ReadyForLobby => !Closing && menu.LobbyIdle;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Register() => WordboundLobbyParty.Register(FromLaunchAssets);
+        static void Register()
+        {
+            WordboundLobbyParty.Register(FromLaunchAssets);
+            LobbyServiceCheck.Register(CheckService);
+        }
+
+        static async Task CheckService(CancellationToken cancellation)
+        {
+            using var transport = new WordboundHttpTransport(new Uri(WordboundClientTrust.ProductionOrigin));
+            await new OnlineCoordinatorClient(transport).Keys(cancellation);
+        }
 
         static IWordboundLobbyParty FromLaunchAssets()
         {

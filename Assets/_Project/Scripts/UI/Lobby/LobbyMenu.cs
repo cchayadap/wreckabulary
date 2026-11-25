@@ -30,7 +30,7 @@ namespace Wreckabulary
         public static string DefaultMode => TutorialDirector.Done ? Modes[0] : TutorialMode;
         public static float StartDelay = 3f;
         public const int PartyMax = 4;
-        const float BarHeight = 76f, Gutter = 26f, PartyWidth = 380f, FeedWidth = 420f;
+        const float BarHeight = 76f, Gutter = 26f, FeedWidth = 420f;
         const float ReferenceHeight = 1080f;
         public const float MessageLife = 8f, MessageFade = .4f;
         public const int MessagesShown = 3;
@@ -63,6 +63,9 @@ namespace Wreckabulary
         public IReadOnlyList<string> Messages => messages;
         public IReadOnlyList<InputBinding> Party => party;
         public int PartySize => 1 + party.Count;
+        public LobbySocialRail Social => social;
+        public float RailEdge => social ? social.Edge : 0f;
+        public Selectable PageFirst => Current != null && pages.TryGetValue(Current, out var page) ? page.First : null;
 
         readonly List<string> messages = new List<string>();
         readonly List<InputBinding> party = new List<InputBinding>();
@@ -72,14 +75,14 @@ namespace Wreckabulary
         readonly Dictionary<string, Selectable> openers = new Dictionary<string, Selectable>();
         readonly List<(CanvasGroup card, float posted)> notices = new List<(CanvasGroup, float)>();
         Canvas canvas;
-        RectTransform safe, pageHost, feed, rail, partyList, status, quitDialog;
+        RectTransform safe, pageHost, feed, rail, partyBlock, partyList, status, quitDialog;
         RectTransform topBar, systemBar, pageBar, walletBar, partySearch;
-        TextMeshProUGUI coins, initial, partyHeading, partyCount, statusTitle, statusDetail, statusCount;
+        TextMeshProUGUI coins, initial, statusTitle, statusDetail, statusCount;
         Button power, cancelButton, shopButton, trophyButton;
         Image shopUnderline, trophyUnderline;
         TextMeshProUGUI themeName;
         RectTransform themeBadge;
-        LobbyTab partyTab;
+        LobbySocialRail social;
         GameHud hud;
         UIStateController uiState;
         CanvasGroup visibility;
@@ -479,9 +482,6 @@ namespace Wreckabulary
             coins.name = "Balance";
             coins.Size(-1, 34);
             LobbyKit.Display(chip, "SHOP", 21, LobbyKit.Navy, TextAlignmentOptions.MidlineLeft).Size(62, 34);
-            partyTab = LobbyKit.Tab(wallet, "Party", LobbyIcons.Party, ToggleParty, 188, 52, 22, 0);
-            partyTab.GetComponentInChildren<HorizontalLayoutGroup>().padding = new RectOffset(16, 18, 0, 0);
-            partyCount = partyTab.GetComponentsInChildren<TextMeshProUGUI>(true).First();
         }
 
         void LayoutBar()
@@ -489,6 +489,7 @@ namespace Wreckabulary
             if (!safe || !topBar) return;
             float walletWidth = Mathf.Max(460f, LayoutUtility.GetPreferredWidth(walletBar));
             bool compact = safe.rect.width < 762f + 2f * (Gutter + walletWidth + 13f);
+            if (social && social.Arrange(safe.rect.width, safe.rect.height, compact ? 140f : BarHeight)) LayoutPageHost();
             if (barLayoutReady && compactBar == compact) return;
             compactBar = compact;
             barLayoutReady = true;
@@ -498,7 +499,6 @@ namespace Wreckabulary
             pageBar.Pin(new Vector2(.5f, 1), new Vector2(0, compact ? -78 : -8), new Vector2(762, 60));
             walletBar.Pin(Vector2.one, new Vector2(-Gutter, -8), new Vector2(460, 60));
             LayoutPageHost();
-            if (rail) rail.anchoredPosition = new Vector2(-Gutter, -(height + 6));
             if (feed) feed.anchoredPosition = new Vector2(Gutter, -(height + 10));
             if (status) status.anchoredPosition = new Vector2(0, -(height + 12));
             if (partySearch) partySearch.anchoredPosition = new Vector2(0, -(height + 12));
@@ -508,8 +508,9 @@ namespace Wreckabulary
         {
             if (!pageHost) return;
             float inset = Current == Play ? 12f : Gutter;
+            float right = social && social.Layout.Docked ? social.Layout.Inset : inset;
             pageHost.offsetMin = new Vector2(inset, inset);
-            pageHost.offsetMax = new Vector2(-inset, -((compactBar ? 140f : BarHeight) + (Current == Play ? 6f : 10f)));
+            pageHost.offsetMax = new Vector2(-right, -((compactBar ? 140f : BarHeight) + (Current == Play ? 6f : 10f)));
         }
 
         Button NavigationAction(Transform parent, string name, string page, Color accent, out Image underline)
@@ -527,13 +528,10 @@ namespace Wreckabulary
 
         void BuildParty()
         {
-            rail = LobbyKit.Column(safe, "Party and friends", 10, 18);
-            rail.Pin(Vector2.one, new Vector2(-Gutter, -(BarHeight + 6)), new Vector2(PartyWidth, 0));
-            rail.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            LobbyKit.PanelFace(rail, 18, 4, 6).raycastTarget = true;
-            var column = rail;
-            column.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.UpperLeft;
-            partyHeading = LobbyKit.Heading(column, "Party");
+            social = LobbySocialRail.Build(safe, this, walletBar);
+            rail = social.Rail;
+            partyBlock = social.PartyHost;
+            var column = partyBlock;
             var you = LobbyKit.Row(column, "You", 12, 10).Size(-1, 74);
             you.Paint(LobbyKit.Card, 14);
             var badge = LobbyKit.Rect(you, "Badge");
@@ -546,24 +544,10 @@ namespace Wreckabulary
             LobbyKit.Display(who, Career.Name, 26, LobbyKit.Cream, TextAlignmentOptions.MidlineLeft).Size(-1, 32).name = "Name";
             LobbyKit.Text(who, "Level " + Career.Level + "  ·  in the lobby", 17, LobbyKit.Muted, TextAlignmentOptions.MidlineLeft).Size(-1, 24).name = "Level";
             partyList = LobbyKit.Column(column, "Couch", 8, 0);
-            var friends = LobbyKit.Text(column, "Players here. For online play, open Play and choose Online.",
-                16, LobbyKit.Muted, TextAlignmentOptions.TopLeft);
-            friends.textWrappingMode = TextWrappingModes.Normal;
-            friends.Size(-1, 44);
             RefreshParty();
-            rail.gameObject.SetActive(false);
         }
 
-        public void ToggleParty() { if (rail) ShowParty(!rail.gameObject.activeSelf); }
-
-        void ShowParty(bool on)
-        {
-            if (!rail) return;
-            if (on && Current != Home) Open(Home);
-            rail.gameObject.SetActive(on);
-            if (partyTab) partyTab.On = on;
-            if (on) LobbyPop.On(rail).Play(new Vector2(0, 12));
-        }
+        public void ToggleParty() { if (social) social.ToggleParty(); }
 
         void Turning()
         {
@@ -578,8 +562,6 @@ namespace Wreckabulary
         {
             if (Stage) Stage.SetPartySize(PartySize);
             if (!partyList) return;
-            partyHeading.text = $"PARTY  {PartySize} / {PartyMax}";
-            if (partyCount) partyCount.text = $"Party {PartySize}/{PartyMax}";
             LobbyKit.Clear(partyList);
             for (int i = 0; i < party.Count; i++)
             {
@@ -604,7 +586,12 @@ namespace Wreckabulary
                 leave.GetComponent<LobbyPress>().Hot = hot => glyph.color = hot ? LobbyKit.Hot : LobbyKit.Navy;
                 leave.gameObject.AddComponent<LobbyHint>().Text = "Leave the party";
             }
-            if (party.Count >= PartyMax - 1) return;
+            if (party.Count < PartyMax - 1) JoinHint();
+            if (social) social.Refresh(true);
+        }
+
+        void JoinHint()
+        {
             var join = LobbyKit.Row(partyList, "Join", 12, 9).Size(-1, 86);
             join.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = false;
             join.Paint(LobbyKit.Mist(.06f), 14).raycastTarget = false;
@@ -738,7 +725,7 @@ namespace Wreckabulary
             foreach (var other in pages.Values) other.Root.gameObject.SetActive(other == page);
             Current = id;
             LayoutPageHost();
-            if (id != Home) ShowParty(false);
+            if (moved && social && social.Expanded) social.Close(false);
             Stage.Dress(Outfit);
             Stage.SetCharactersVisible(id != Play && id != Settings);
             Stage.SetPartyVisible(id == Home);
@@ -747,7 +734,7 @@ namespace Wreckabulary
             if (moved) page.Opened();
             page.Refresh();
             if (moved) page.Pop();
-            Stage.Frame(page.Focus, (Gutter + page.PanelWidth) / ReferenceHeight);
+            Stage.Frame(page.Focus, (Gutter + page.PanelWidth + RailFrame) / ReferenceHeight);
             feed.gameObject.SetActive(page.ShowFeed);
             foreach (var kv in tabs) kv.Value.On = kv.Key == id;
             if (shopUnderline) shopUnderline.enabled = id == Shop || shopButton.GetComponent<LobbyPress>().IsHot;
@@ -831,9 +818,9 @@ namespace Wreckabulary
                 shopButton.Size(Mathf.Clamp(coins.GetPreferredValues(coins.text).x + 138f, 250f, 350f), 52);
             }
             if (initial) initial.text = LobbyKit.Upper(Career.Name.Substring(0, 1));
-            var level = rail ? rail.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Level") : null;
+            var level = partyBlock ? partyBlock.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Level") : null;
             if (level) level.text = "Level " + Career.Level + "  ·  " + (Starting ? "starting a match" : "in the lobby");
-            var name = rail ? rail.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Name") : null;
+            var name = partyBlock ? partyBlock.GetComponentsInChildren<TextMeshProUGUI>(true).FirstOrDefault(t => t.name == "Name") : null;
             if (name) name.text = Career.Name;
         }
 
@@ -1124,6 +1111,7 @@ namespace Wreckabulary
             SetWorkshopHidden(workshopOpen);
             if (hidden || (uiState && uiState.IsTransitioning)) return;
             AgeNotices();
+            if (social) social.Tick();
             if (ModeGuides.Open) return;
             PollParty();
             if (Starting)
@@ -1137,20 +1125,18 @@ namespace Wreckabulary
                 }
             }
             int step = AnyPad(p => p.rightShoulder) ? 1 : AnyPad(p => p.leftShoulder) ? -1 : 0;
-            if (step != 0 && !KeyBindings.Busy && !KeyBindings.GameplayBlocked && !quitDialog && !Starting && !Typing)
+            if (step != 0 && !(social && social.Expanded) && !KeyBindings.Busy && !KeyBindings.GameplayBlocked && !quitDialog && !Starting && !Typing)
             {
                 int at = Array.IndexOf(PageOrder, Current);
                 Open(PageOrder[(at + step + PageOrder.Length) % PageOrder.Length]);
             }
             var keyboard = Keyboard.current;
+            bool jump = (keyboard != null && keyboard.fKey.wasPressedThisFrame) || AnyPad(p => p.buttonNorth);
+            if (jump && social && !KeyBindings.Busy && !KeyBindings.GameplayBlocked && !quitDialog && !Starting && !Typing) social.Jump();
             if (!KeyBindings.Busy && ((keyboard != null && keyboard.escapeKey.wasPressedThisFrame) || AnyPad(p => p.buttonEast)))
             {
                 if (quitDialog) CloseQuit();
-                else if (rail && rail.gameObject.activeSelf)
-                {
-                    ShowParty(false);
-                    if (EventSystem.current && partyTab) EventSystem.current.SetSelectedGameObject(partyTab.gameObject);
-                }
+                else if (social && !Starting && !Typing && social.Back()) { }
                 else if (Starting) CancelStart();
                 else if (Typing || typedLastFrame) { }
                 else Close();
@@ -1161,8 +1147,10 @@ namespace Wreckabulary
         {
             typedLastFrame = Typing;
             if (!hidden && Current == Play && Stage && Stage.IsPresenting && pages.TryGetValue(Play, out var page))
-                Stage.Frame(page.Focus, (Gutter + page.PanelWidth) / ReferenceHeight);
+                Stage.Frame(page.Focus, (Gutter + page.PanelWidth + RailFrame) / ReferenceHeight);
         }
+
+        float RailFrame => social && social.FrameExtra > 0f ? social.FrameExtra - Gutter : 0f;
 
         static bool AnyPad(Func<Gamepad, ButtonControl> button)
         {

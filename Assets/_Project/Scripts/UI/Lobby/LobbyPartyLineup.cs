@@ -14,7 +14,7 @@ namespace Wreckabulary
         public const string RootName = "Party line-up", LayerName = "Plates", PlatePrefix = "Party plate ", OpenName = "Add player";
         public const string ChipName = "Plate chip", NameName = "Plate name", TagName = "Plate tag", FrameName = "Edge";
         public const string KeysName = "Join keys", KeyPrefix = "Join key ";
-        public const string PartyPanel = "Safe area/Party and friends";
+        public const string PartyPanel = "Safe area/" + LobbySocialRail.HostName + "/" + LobbySocialRail.PanelName;
         public const float NameText = 22f, NameTextMinimum = 15f, TagText = 15f, OpenText = 18f, ChipText = 18f, ChipTextMinimum = 15f;
         public const float KeyText = 15f, KeyHeight = 24f;
         public const float Margin = 12f;
@@ -248,7 +248,7 @@ namespace Wreckabulary
             if (!show) return;
             if (signature == null) Sync();
             var area = layer.rect;
-            var bounds = new PlateBox(area.xMin + ScreenMargin, area.yMin + ScreenMargin, area.xMax - ScreenMargin, area.yMax - ScreenMargin);
+            var bounds = new PlateBox(area.xMin + ScreenMargin, area.yMin + ScreenMargin, area.xMax - ScreenMargin - menu.RailEdge, area.yMax - ScreenMargin);
             PlateBox? blocked = null;
             if (dock && dock.gameObject.activeInHierarchy) blocked = LocalBox(dock);
             placed.Clear();

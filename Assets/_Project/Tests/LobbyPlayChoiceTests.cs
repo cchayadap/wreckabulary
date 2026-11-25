@@ -2170,8 +2170,11 @@ namespace Wreckabulary.Tests
                 emblems.Add(art[0]);
             }
             CollectionAssert.AllItemsAreUnique(emblems, "no two cards share a picture");
-            Assert.AreEqual(QuickPlayCards.StartTicked[0], Page.GetComponentInChildren<LobbyPlayDetail>().Shown, "the panel opens on the first ticked card");
             using var viewport = new StageViewport(menu);
+            viewport.Set(1280, 720);
+            yield return null;
+            yield return TestScenes.WaitUntil(() => Band.GetComponent<LobbyPlayColumnFlow>().SideShown, 3f, "a 1280x720 window has room for the detail panel beside the rail");
+            Assert.AreEqual(QuickPlayCards.StartTicked[0], Page.GetComponentInChildren<LobbyPlayDetail>().Shown, "the panel opens on the first ticked card");
             foreach (var size in new[] { new Vector2(1280, 720), new Vector2(1248, 576) })
             {
                 viewport.Set(size.x, size.y);
@@ -2202,6 +2205,7 @@ namespace Wreckabulary.Tests
             Submit(PlayPage.PlaylistCard + "freeplay");
             yield return null;
             Assert.IsTrue(Ticked("freeplay"));
+            yield return TestScenes.WaitUntil(() => Band.GetComponent<LobbyPlayColumnFlow>().SideShown, 3f, "the rebuilt page keeps the detail panel");
             Assert.AreEqual("freeplay", Page.GetComponentInChildren<LobbyPlayDetail>().Shown, "ticking a card keeps the panel on it after the page rebuilds");
         }
 

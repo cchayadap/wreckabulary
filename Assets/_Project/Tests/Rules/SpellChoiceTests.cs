@@ -24,12 +24,12 @@ namespace Wreckabulary.Rules.Tests
         {
             var expected = new (SpellRole role, string[] ids)[]
             {
-                (SpellRole.Weapon, new[] { "BAT", "PAN", "SPEAR", "LAMP", "BLADE", "BROOM", "RACK", "PILLOW", "HAMMER", "ARROW", "BALL", "POT", "TOASTER", "BEAR", "BARREL", "BOOK", "BOW" }),
-                (SpellRole.Shot, new[] { "BOMB", "PIE", "VASE" }),
-                (SpellRole.Shield, new[] { "SHIELD", "PLATE", "MIRROR" }),
-                (SpellRole.Heal, new[] { "APPLE", "WATER", "CAKE", "FOAM", "MUG" }),
-                (SpellRole.Boost, new[] { "SODA" }),
-                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH", "BOX", "CHEST" }),
+                (SpellRole.Weapon, new[] { "BAT", "PAN", "SPEAR", "LAMP", "BLADE", "BROOM", "RACK", "PILLOW", "HAMMER", "ARROW", "BALL", "POT", "TOASTER", "BEAR", "BARREL", "BOOK", "BOW", "RAKE", "PADDLE", "DISC", "TORCH", "SPOON", "SOCK", "RACKET", "BRICK", "PENCIL", "BOOT" }),
+                (SpellRole.Shot, new[] { "BOMB", "PIE", "VASE", "TOMATO", "ROCKET", "LEMON", "MELON" }),
+                (SpellRole.Shield, new[] { "SHIELD", "PLATE", "MIRROR", "LID", "HELMET", "DOOR" }),
+                (SpellRole.Heal, new[] { "APPLE", "WATER", "CAKE", "FOAM", "MUG", "TEAPOT", "PEAR" }),
+                (SpellRole.Boost, new[] { "SODA", "CHILI", "TONIC" }),
+                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH", "BOX", "CHEST", "MARBLE", "LADDER", "CARPET", "SLIME", "TENT", "HOSE", "PIANO", "RAMP", "OIL" }),
             };
             foreach (var (role, ids) in expected)
                 foreach (string id in ids)
@@ -88,7 +88,7 @@ namespace Wreckabulary.Rules.Tests
             CollectionAssert.IsSubsetOf(new[] { "BAT", "HAMMER", "ARROW", "BOMB" }, unarmed);
             CollectionAssert.IsEmpty(unarmed.Intersect(new[] { "CLOCK", "FAN", "SPEAKER", "PLANT", "SHIELD", "APPLE", "SODA", "BED" }), "nothing a bot can't hit with");
             var armed = Items.Enabled.Where(i => SpellChoice.BotWants(SpellChoice.RoleOf(i), Armed)).Select(i => i.Id).ToList();
-            CollectionAssert.AreEquivalent(new[] { "SHIELD", "PLATE", "MIRROR" }, armed, "an armed bot only adds a shield to Hand 2");
+            CollectionAssert.AreEquivalent(new[] { "SHIELD", "PLATE", "MIRROR", "LID", "HELMET", "DOOR" }, armed, "an armed bot only adds a shield to Hand 2");
             Assert.IsFalse(SpellChoice.BotWants(SpellRole.Shield, new SpellNeeds(true, true, false)));
         }
 

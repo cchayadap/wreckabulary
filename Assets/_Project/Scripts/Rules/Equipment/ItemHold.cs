@@ -66,6 +66,9 @@ namespace Wreckabulary.Rules
         public static readonly HoldTurn OneHandSocket = new HoldTurn(-.4782f, -.1462f, .0755f, .8627f).Normalized;
         public static readonly HoldTurn TwoHandSocket = new HoldTurn(-.655f, -.166f, .0623f, .7345f).Normalized;
 
+        public const string GuardPosedItem = "SHIELD";
+        const float SwingLean = 25f, ThrustLean = 45f;
+
         static readonly ItemHold[] holds =
         {
             new ItemHold { Id = "ARROW", Turn = new[] { 45f, 15f, 0f } },
@@ -73,17 +76,47 @@ namespace Wreckabulary.Rules
             new ItemHold { Id = "BEAR", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "BED", Turn = new[] { 0f, 90f, 0f } },
             new ItemHold { Id = "BENCH", Turn = new[] { -15f, 0f, 0f }, Grip = new[] { -.25f, .3f, -.1f } },
+            new ItemHold { Id = "BOOT", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "BRICK", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "CABINET", Grip = new[] { 0f, .5675f, 0f }, ModelYaw = 180f, ModelShift = new[] { 0f, 0f, .043f } },
+            new ItemHold { Id = "CARPET", Turn = new[] { 0f, 90f, 0f } },
             new ItemHold { Id = "CHAIR", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "CHILI", Turn = new[] { -SwingLean, 180f, 90f } },
             new ItemHold { Id = "CRATE", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "DESK", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "DISC", Turn = new[] { -30f, -45f, 0f } },
+            new ItemHold { Id = "DOOR", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "HELMET", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "HOSE", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "LADDER", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "LEMON", Turn = new[] { 0f, 180f, 90f }, Grip = new[] { -.0675f, .0743f, 0f } },
+            new ItemHold { Id = "LID", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "MARBLE", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "MELON", Turn = new[] { -60f, 180f, 0f } },
+            new ItemHold { Id = "OIL", Turn = new[] { 0f, 90f, 0f } },
+            new ItemHold { Id = "PADDLE", Turn = new[] { -SwingLean, 180f, 0f } },
             new ItemHold { Id = "PAN", Turn = new[] { 0f, -90f, 105f } },
+            new ItemHold { Id = "PEAR", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "PENCIL", Turn = new[] { ThrustLean, 0f, 0f } },
+            new ItemHold { Id = "PIANO", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "PILLOW", Turn = new[] { 35f, 0f, 45f } },
+            new ItemHold { Id = "RACKET", Turn = new[] { -SwingLean, 180f, 0f } },
+            new ItemHold { Id = "RAKE", Turn = new[] { SwingLean, 0f, 0f } },
+            new ItemHold { Id = "RAMP", Turn = new[] { 0f, 90f, 0f } },
+            new ItemHold { Id = "ROCKET", Turn = new[] { -ThrustLean, 180f, 0f } },
             new ItemHold { Id = "SHELF", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "SLIME", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "SOCK", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "SOFA", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "SPEAKER", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "SPOON", Turn = new[] { SwingLean, 0f, 0f } },
             new ItemHold { Id = "STOOL", Turn = new[] { 0f, 0f, 0f } },
             new ItemHold { Id = "TABLE", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "TEAPOT", Turn = new[] { 0f, 0f, 0f } },
+            new ItemHold { Id = "TENT", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "TOMATO", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "TONIC", Turn = new[] { 0f, 180f, 0f } },
+            new ItemHold { Id = "TORCH", Turn = new[] { -ThrustLean, 180f, 0f } },
         };
 
         public static IReadOnlyList<ItemHold> All => holds;
@@ -116,7 +149,8 @@ namespace Wreckabulary.Rules
                 items.TryGet(hold.Id, out var item);
                 Require(item != null && item.Enabled, "is not an enabled item");
                 if (item == null) continue;
-                Require(item.Use == null && item.Shield == null, "is posed by ItemContactPose while used or raised");
+                Require(hold.Id != GuardPosedItem, "is posed by ItemContactPose while raised, which ignores the hold turn");
+                Require(item.Use == null || hold.Grip == null, "keeps its catalogue grip, which the drinking pose lifts to the mouth");
                 Require(Within(hold.Turn, 180f), "turn needs three angles within 180 degrees");
                 Require(Math.Abs(hold.ModelYaw) <= 180f, "model yaw must stay within 180 degrees");
                 Require(hold.Grip == null || Inside(hold.Grip, item.Size), "grip must lie inside the item");

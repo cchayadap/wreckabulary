@@ -13,6 +13,7 @@ namespace Wreckabulary
         public const string OverridesKey = "wv.keys", SensitivityKey = "wv.look.sensitivity", InvertKey = "wv.look.invert";
         public const string LegacyBackupKey = "wv.keys.legacy";
         public const float MinSensitivity = .25f, MaxSensitivity = 3f, SensitivityStep = .25f;
+        public const string SpellBoxLabel = "Open and spell a word";
 
         public static float Sensitivity { get; private set; } = 1f;
         public static bool InvertY { get; private set; }
@@ -62,7 +63,7 @@ namespace Wreckabulary
                     yield return (row.Item1, move, Part(move, row.Item2));
             foreach (var row in new[] {
                 ("Smash, throw, place, block", "Attack"), ("Aim (hold)", "Aim"), ("Look around (hold)", "Look around"), ("Jump", "Jump"), ("Dodge", "Dodge"),
-                ("Pick up, use, hold to revive", "Interact"), ("Spell a word", "Spell"), ("Drop gear (hold)", "Drop"), ("Push to talk (hold)", "Push to talk"),
+                ("Pick up, use, hold to revive", "Interact"), ("Spell a word", "Spell"), (SpellBoxLabel, Rules.DesktopScheme.SpellBox), ("Drop gear (hold)", "Drop"), ("Push to talk (hold)", "Push to talk"),
                 ("Hand 1", "Hand 1"), ("Hand 2", "Hand 2"), ("Bag", "Bag"), ("Menu", "Pause") })
             {
                 var action = map.FindAction(row.Item2);
@@ -169,7 +170,8 @@ namespace Wreckabulary
                     PlayerPrefs.SetString(LegacyBackupKey, json);
                     LoadWarning = "Some older keys could not be restored. Please reassign them here.";
                 }
-                if (migrated || unresolved) Save(map, false);
+                bool moved = SettleClashes(map);
+                if (migrated || unresolved || moved) Save(map, false);
             }
             catch (Exception)
             {
@@ -179,6 +181,25 @@ namespace Wreckabulary
                 LoadWarning = "Saved controls were unreadable. Defaults are ready to edit.";
                 PlayerPrefs.Save();
             }
+        }
+
+        static bool SettleClashes(InputActionMap map)
+        {
+            bool moved = false;
+            foreach (var (_, chosen, index) in Rows(map))
+            {
+                var binding = chosen.bindings[index];
+                if (!binding.hasOverrides) continue;
+                foreach (var (_, other, at) in Rows(map))
+                {
+                    var settled = other.bindings[at];
+                    if ((other == chosen && at == index) || settled.hasOverrides || !Rules.DesktopScheme.Shares(chosen.name, other.name) ||
+                        !string.Equals(settled.effectivePath, binding.effectivePath, StringComparison.OrdinalIgnoreCase)) continue;
+                    other.ApplyBindingOverride(at, binding.path);
+                    moved = true;
+                }
+            }
+            return moved;
         }
 
         [Serializable] sealed class SavedOverrides { public SavedBinding[] bindings; }
@@ -217,7 +238,8 @@ namespace Wreckabulary
             string before = action.bindings[binding].effectivePath;
             if (string.Equals(before, path, StringComparison.OrdinalIgnoreCase)) return;
             foreach (var (_, other, index) in Rows(map))
-                if ((other != action || index != binding) && string.Equals(other.bindings[index].effectivePath, path, StringComparison.OrdinalIgnoreCase))
+                if ((other != action || index != binding) && Rules.DesktopScheme.Shares(action.name, other.name) &&
+                    string.Equals(other.bindings[index].effectivePath, path, StringComparison.OrdinalIgnoreCase))
                     other.ApplyBindingOverride(index, before);
             action.ApplyBindingOverride(binding, path);
             Save(map);

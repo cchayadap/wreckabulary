@@ -9,7 +9,7 @@ namespace Wreckabulary.Rules
         public const float DefaultSeconds = 30f, ReadyHoldSeconds = 1f, RespawnSeconds = 1f, CardSeconds = 5f;
         public const string Title = "WARM-UP", StartWord = "Start", ReadyWord = "READY";
         public const string Tip = "Spell anything, no letters needed. Nothing counts yet.";
-        public const string TypeAnything = "Warm-up: type any recipe, no letters needed. Tab or right-click closes.";
+        public const string TypeAnything = "Warm-up: type any recipe, no letters needed.";
 
         static readonly string[] VersusIds =
         {

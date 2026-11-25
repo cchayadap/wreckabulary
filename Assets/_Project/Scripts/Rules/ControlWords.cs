@@ -117,14 +117,15 @@ namespace Wreckabulary.Rules
             ControlDevice.Gamepad => $"Hold {spell}, choose {word} with the stick, then let go",
             ControlDevice.KeysLeft => $"Hold {spell}, choose {word} with W and S, then let go",
             ControlDevice.KeysRight => $"Hold {spell}, choose {word} with the arrow keys, then let go",
-            _ => $"Press {spell}, type {word}, then press Enter",
+            _ => $"Press {spell}, type {word}, then press {spell} again",
         };
 
         public static string SwingHow(ControlDevice device, string attack, string word) =>
             $"{Verb(device)} {attack} to swing your {word}";
 
-        public static string ThrowHow(ControlDevice device, string grab, string attack) =>
-            $"{Verb(device)} {grab} to grab it, then {attack} to throw it";
+        public static string ThrowHow(ControlDevice device, string grab, string attack) => device == ControlDevice.MouseKeyboard
+            ? $"Press {grab} to grab it, then hold {attack} to aim and let go to throw"
+            : $"{Verb(device)} {grab} to grab it, then {attack} to throw it";
 
         public static string HandsHow(ControlDevice device, string hands) => device == ControlDevice.Touch
             ? "Tap a hand slot to switch between Hand 1 and Hand 2"
