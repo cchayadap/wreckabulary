@@ -24,6 +24,8 @@ namespace Wreckabulary.Rules
         public const string MovingOut = "MovingOut", MovingDay = "MovingDay", Escape = "Escape";
         public const string ShoppingList = "ShoppingList", RiddleRush = "RiddleRush", BossFight = "BossFight";
 
+        public static string FixedHouse(string mode) => mode == BossFight ? BossFightTuning.Map : null;
+
         static readonly HouseMode[] Entries =
         {
             new HouseMode

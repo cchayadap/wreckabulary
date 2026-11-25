@@ -8,6 +8,7 @@ namespace Wreckabulary
     {
         public const int Capacity = 24;
         readonly List<char> letters = new();
+        Popup note;
         PlayerController owner;
         int team = Teams.NoTeam;
 
@@ -47,7 +48,7 @@ namespace Wreckabulary
                 }
                 if (!bag.TrySpend(new string(moved.ToArray()))) return false;
                 letters.AddRange(moved);
-                Popup.Show($"BANKED {moved.Count} · {letters.Count} INSIDE", at, Color.white, 3f);
+                note = Popup.Replace(note, $"BANKED {moved.Count} · {letters.Count} INSIDE", at, Color.white, 3f);
             }
             else
             {
@@ -58,7 +59,7 @@ namespace Wreckabulary
                     taken++;
                 }
                 if (taken == 0) return false;
-                Popup.Show($"TOOK {taken} · {letters.Count} LEFT", at, Color.white, 3f);
+                note = Popup.Replace(note, $"TOOK {taken} · {letters.Count} LEFT", at, Color.white, 3f);
             }
             GameFeedback.Play(GameCue.Pickup);
             return true;

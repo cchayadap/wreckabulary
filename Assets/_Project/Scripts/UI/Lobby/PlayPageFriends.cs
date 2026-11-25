@@ -49,7 +49,7 @@ namespace Wreckabulary
             var note = LobbyKit.Text(top, AmongYourselves, 17, LobbyKit.Muted, TextAlignmentOptions.BottomRight);
             note.name = CustomMatchNote;
             note.Size(-1, 28, 1);
-            var tiles = ModeTiles(column, RoomModes, RoomModesFamily);
+            var tiles = TileBoard(column, RoomModes, RoomModesFamily);
             foreach (var room in FriendRooms.All) RoomModeCardFor(tiles, choice, room);
             SizeTiles(tiles.GetComponentInParent<LobbyPlayModeFamilies>());
             LobbyKit.SectionLabel(column, "Map");

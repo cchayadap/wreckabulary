@@ -83,6 +83,12 @@ namespace Wreckabulary
 
         public static void Show(string message, Vector3 at, Color color, float size = 4f) => Create(message, at, color, size);
 
+        public static Popup Replace(Popup previous, string message, Vector3 at, Color color, float size = 4f)
+        {
+            if (previous) Destroy(previous.gameObject);
+            return Create(message, at, color, size);
+        }
+
         static Popup Create(string message, Vector3 at, Color color, float size, bool damage = false)
         {
             var go = new GameObject("Popup");

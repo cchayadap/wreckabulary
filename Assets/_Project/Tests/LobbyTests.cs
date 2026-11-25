@@ -122,16 +122,58 @@ namespace Wreckabulary.Tests
 
         static Button Find(string name)
         {
-            var button = LobbyMenu.Instance.GetComponentsInChildren<Button>().FirstOrDefault(b => b.name == name);
+            var button = Showing(name) ?? Reach(name);
             Assert.IsNotNull(button, $"a '{name}' button is showing");
             return button;
         }
 
+        static Button Showing(string name) => LobbyMenu.Instance.GetComponentsInChildren<Button>().FirstOrDefault(b => b.name == name);
+
+        static bool IsNext(Button go) => go && go.interactable &&
+            go.GetComponentsInChildren<TMPro.TMP_Text>().Any(text => text.text.ToUpperInvariant().Contains(PlayPage.NextWord.ToUpperInvariant()));
+
+        static bool PassNext(string name)
+        {
+            var go = Showing(name);
+            if (!IsNext(go)) return false;
+            go.onClick.Invoke();
+            Canvas.ForceUpdateCanvases();
+            return true;
+        }
+
+        static Button Reach(string name)
+        {
+            if (LobbyMenu.Instance.Current != LobbyMenu.Play) return null;
+            string id = name.Substring(name.IndexOf(' ') + 1);
+            bool tile = (name.StartsWith("Mode ") || name.StartsWith("Solo ")) && HouseModes.Families.Any(family => HouseModes.ModesIn(family).Contains(id));
+            if (tile)
+            {
+                Showing(PlayPage.BackToModes)?.onClick.Invoke();
+                if (!Showing(name)) Showing(PlayPage.CategoryCard + HouseModes.FamilyName(HouseModes.FamilyOf(id)))?.onClick.Invoke();
+                Canvas.ForceUpdateCanvases();
+                return Showing(name);
+            }
+            bool place = name.StartsWith("Map ") || name.StartsWith("Solo map ") || name.StartsWith(PlayPage.SavedHomeCard) || name == PlayPage.AnyHouse;
+            return place && (PassNext("Solo GO") || PassNext("GO")) ? Showing(name) : null;
+        }
+
         static void Click(string name)
         {
+            if (name == "GO" || name == "Solo GO") PassNext(name);
             var button = Find(name);
             Assert.IsTrue(button.interactable, $"'{name}' can be pressed");
             button.onClick.Invoke();
+        }
+
+        IEnumerator PressGo()
+        {
+            var go = Find("GO");
+            EventSystem.current.SetSelectedGameObject(go.gameObject);
+            bool next = IsNext(go);
+            yield return Press(GamepadButton.South);
+            if (!next) yield break;
+            EventSystem.current.SetSelectedGameObject(Find("GO").gameObject);
+            yield return Press(GamepadButton.South);
         }
 
         static float ScreenX(Component c)
@@ -148,6 +190,14 @@ namespace Wreckabulary.Tests
             Canvas.ForceUpdateCanvases();
             var rect = LobbyMenu.Instance.GetComponentsInChildren<RectTransform>().Single(r => r.name == name && r.GetComponent(layout));
             return rect.rect.height;
+        }
+
+        static bool Within(RectTransform inner, RectTransform outer)
+        {
+            var a = new Vector3[4]; var b = new Vector3[4];
+            inner.GetWorldCorners(a); outer.GetWorldCorners(b);
+            const float slack = .5f;
+            return a[0].x >= b[0].x - slack && a[0].y >= b[0].y - slack && a[2].x <= b[2].x + slack && a[2].y <= b[2].y + slack;
         }
 
         static GameObject Selected => EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
@@ -549,12 +599,16 @@ namespace Wreckabulary.Tests
             Click("Queue " + LobbyMenu.Practice);
             yield return null;
             var page = menu.Page<PlayPage>().Root;
-            CollectionAssert.AreEqual(HouseModes.Families.Select(HouseModes.FamilyName).ToArray(),
-                page.GetComponentsInChildren<RectTransform>().Single(r => r.name == PlayPage.ModeSections).Cast<Transform>().Select(r => r.name).ToArray(),
-                "Classic, Co-op, Arcade and Training sections run left to right");
-            var posters = page.GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Mode ")).Select(b => b.name.Substring(5)).ToArray();
-            CollectionAssert.AreEqual(HouseModes.Families.SelectMany(HouseModes.ModesIn).Where(HouseModes.Has).ToArray(), posters,
-                "every house mode is one press away");
+            CollectionAssert.AreEqual(HouseModes.Families.Select(family => PlayPage.CategoryCard + HouseModes.FamilyName(family)).ToArray(),
+                page.GetComponentsInChildren<RectTransform>().Single(r => r.name == PlayPage.CategoryRow).GetComponentsInChildren<Button>().Select(b => b.name).ToArray(),
+                "Classic, Co-op, Arcade and Training categories run left to right");
+            foreach (var family in HouseModes.Families)
+                foreach (string mode in HouseModes.ModesIn(family))
+                    Assert.IsNotNull(Find(PlayPage.ModeButton(mode)), "every mode is a category and a tile away: " + mode);
+            Click("Mode Duos");
+            yield return null;
+            Assert.IsTrue(PassNext("GO"), "a house mode picks its house on the next step");
+            yield return null;
             Assert.AreEqual(GameConfig.Current.Houses.Count, page.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Map ")), "every house, without a Random card");
             Assert.IsFalse(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Rays"), "decorative rays are excluded from the redesigned choices");
             Assert.IsFalse(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Start" || r.name == "Fitted plan"), "map cards show pictures, not floor-plan skeletons");
@@ -568,7 +622,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(LobbyMenu.TutorialMode, menu.Mode);
             Assert.AreEqual(LobbyMenu.Practice, menu.Queue, "the tutorial is the first Training choice");
             Assert.IsFalse(page.GetComponentsInChildren<Button>().Any(b => b.name.StartsWith("Map ")), "the tutorial has its own room");
-            Assert.IsTrue(page.GetComponentsInChildren<RectTransform>().Any(r => r.name == "Tutorial room"), "and says so");
+            Assert.IsFalse(IsNext(Find("GO")), "so Play starts it from the mode step");
             StringAssert.StartsWith(HouseModes.Name(LobbyMenu.TutorialMode) + " · ", menu.Describe());
             AssertNoEllipsis(page, "PLAY with the tutorial");
         }
@@ -1036,19 +1090,36 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(74f, Height("You", typeof(HorizontalLayoutGroup)), 1f, "your party card");
             Click("PLAY");
             yield return null;
-            var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<LobbyPlayModeFamilies>().Single(row => row.name == PlayPage.ModeSections);
+            var modes = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<RectTransform>().Single(row => row.name == PlayPage.ModeTiles);
             var modeButtons = modes.GetComponentsInChildren<Button>();
-            CollectionAssert.AreEquivalent(HouseModes.Families.SelectMany(HouseModes.ModesIn).Select(PlayPage.ModeButton), modeButtons.Select(button => button.name),
-                "Every section's modes are directly available.");
-            float modeHeight = 0f;
+            var open = HouseModes.FamilyOf(LobbyMenu.Instance.Mode);
+            CollectionAssert.AreEqual(HouseModes.ModesIn(open).Select(PlayPage.ModeButton), modeButtons.Select(button => button.name),
+                "The open category's modes are directly available.");
+            var page = LobbyMenu.Instance.Page<PlayPage>().Root;
+            var step = page.GetComponentsInChildren<RectTransform>().Single(row => row.name == PlayPage.ModeBoard);
             foreach (var button in modeButtons)
             {
-                modeHeight = Mathf.Max(modeHeight, ((RectTransform)button.transform).rect.height);
-                Assert.GreaterOrEqual(((RectTransform)button.transform).rect.height, 44f, "Compact mode choices retain accessible targets.");
+                var tile = (RectTransform)button.transform;
+                Assert.GreaterOrEqual(tile.rect.height, 44f, "Mode tiles retain accessible targets.");
+                Assert.GreaterOrEqual(tile.rect.width, 44f, button.name);
+                Assert.IsTrue(Within(tile, step), button.name + " stays inside the mode step");
             }
             Assert.IsFalse(modes.GetComponentsInChildren<RawImage>().Any(image => image.name == "Rays"), "No decorative stripes.");
+            Assert.IsTrue(PassNext("GO"), "the houses are the next step");
+            yield return null;
+            Canvas.ForceUpdateCanvases();
             var maps = LobbyMenu.Instance.Page<PlayPage>().Root.GetComponentsInChildren<GridLayoutGroup>().Single(row => row.name == "Houses");
-            Assert.Greater(maps.cellSize.y, modeHeight, "Map cards are the main choice area.");
+            Assert.GreaterOrEqual(maps.cellSize.y, LobbyPlayCardGrid.ShortestCard, "House cards keep their readable height on their own step.");
+            Assert.GreaterOrEqual(maps.cellSize.x, LobbyPlayCardGrid.WidthFor(LobbyPlayCardGrid.ShortestCard) - 1f, "and a whole 16:9 picture");
+            foreach (var card in maps.GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Map ")))
+            {
+                Assert.AreEqual(1, card.GetComponentsInChildren<RectTransform>().Count(r => r.name == "Map picture"), card.name + " shows one picture");
+                foreach (var text in card.GetComponentsInChildren<TMPro.TMP_Text>())
+                {
+                    text.ForceMeshUpdate();
+                    Assert.IsFalse(text.isTextTruncated || text.isTextOverflowing, card.name + ": " + text.text);
+                }
+            }
             Click("CAREER");
             yield return null;
             Assert.AreEqual(112f, Height("Level", typeof(HorizontalLayoutGroup)), 1f, "the level header");
@@ -1161,9 +1232,8 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(LobbyMenu.Play, LobbyMenu.Instance.Current, "A on PLAY opens the Play section");
             Assert.IsFalse(LobbyMenu.Instance.Starting);
             Assert.AreSame(Find("Mode " + LobbyMenu.Instance.Mode).gameObject, Selected, "and lands on the chosen mode");
-            EventSystem.current.SetSelectedGameObject(Find("GO").gameObject);
-            yield return Press(GamepadButton.South);
-            Assert.IsTrue(LobbyMenu.Instance.Starting, "A presses GO");
+            yield return PressGo();
+            Assert.IsTrue(LobbyMenu.Instance.Starting, "A presses Next, then GO");
             yield return TestScenes.WaitForActive(Session.DibsScene);
             yield return null;
             var joins = Object.FindAnyObjectByType<PlayerJoinManager>();
@@ -1237,8 +1307,7 @@ namespace Wreckabulary.Tests
             var menu = LobbyMenu.Instance;
             yield return Press(GamepadButton.South);
             Assert.AreEqual(LobbyMenu.Play, menu.Current, "A on PLAY opens the Play section");
-            EventSystem.current.SetSelectedGameObject(Find("GO").gameObject);
-            yield return Press(GamepadButton.South);
+            yield return PressGo();
             Assert.IsTrue(menu.Starting);
             Assert.AreSame(Find("CANCEL").gameObject, Selected, "GO hides, so the controller lands on CANCEL");
             yield return Press(GamepadButton.East);

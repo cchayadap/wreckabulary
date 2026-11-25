@@ -54,7 +54,8 @@ namespace Wreckabulary
         public string SavedHomeName { get; private set; }
         public TickSet Maps => maps ??= PracticeMaps.Load(GameConfig.Current.Houses.Keys, Session.LobbyMaps);
         public Func<int, int> Roll { get; set; } = count => UnityEngine.Random.Range(0, count);
-        public string MapLabel => SavedHome != null ? SavedHomeName
+        public string MapLabel => Queue == Practice && HouseModes.FixedHouse(Mode) is string fixedHouse ? HouseName(fixedHouse)
+            : SavedHome != null ? SavedHomeName
             : Queue == Practice ? PracticeMaps.Label(Maps, HouseName) : HouseName(Map);
         public LobbyStage Stage { get; private set; }
         public string Current { get; private set; }
@@ -667,6 +668,7 @@ namespace Wreckabulary
         void PartyChanged()
         {
             RefreshParty();
+            FitModeToParty();
             if (Current != Home && Current != Play) return;
             var page = pages[Current];
             var selected = EventSystem.current ? EventSystem.current.currentSelectedGameObject : null;
@@ -936,10 +938,23 @@ namespace Wreckabulary
             ? "House modes are played on this screen. For online matches, choose Online."
             : PlayPage.Refusal(this);
 
+        void FitModeToParty()
+        {
+            if (Queue != Practice || !PracticeModes.Contains(Mode) || Fits(Mode)) return;
+            string from = Mode;
+            string to = HouseModes.ModesIn(HouseModes.FamilyOf(from)).Where(PracticeModes.Contains).FirstOrDefault(Fits)
+                ?? PracticeModes.FirstOrDefault(Fits) ?? Modes[0];
+            Choose(mode: to);
+            Post($"{ModeName(from)} is for 1 player, so {ModeName(to)} is picked.");
+        }
+
+        bool Fits(string mode) => PartySize <= ModeAccess.For(mode).MaxSeats;
+
         public void Go()
         {
             if (Starting) return;
             if (Blocked != null) { Post(Blocked); return; }
+            if (Queue == Practice && PracticeModes.Contains(Mode) && !Fits(Mode)) { Post(PlayPage.TooMany(Mode)); return; }
             launchHome = null;
             if (SavedHome != null && !HomeStorage.ForGame().TryLoad(SavedHome, out launchHome, out string error))
             {
@@ -1078,7 +1093,7 @@ namespace Wreckabulary
             return mode switch
             {
                 HouseModes.Escape => "",
-                HouseModes.BossFight => "solo",
+                HouseModes.BossFight => "1 player",
                 HouseModes.Duos => humans switch
                 {
                     1 => "you and a bot vs 2 bots",
@@ -1091,7 +1106,7 @@ namespace Wreckabulary
                     : $"{humans} players + {bots} bots, {side} v {side}",
                 _ when seats > 0 => humans == 1 ? $"you + {bots} bot{(bots == 1 ? "" : "s")}"
                     : bots == 0 ? $"{humans} players" : $"{humans} players + {bots} bot{(bots > 1 ? "s" : "")}",
-                _ => humans == 1 ? "solo" : $"{humans} players",
+                _ => humans == 1 ? "1 player" : $"{humans} players",
             };
         }
 

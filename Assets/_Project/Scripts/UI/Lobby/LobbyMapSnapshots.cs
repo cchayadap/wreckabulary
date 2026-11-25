@@ -17,9 +17,9 @@ namespace Wreckabulary
             ["flat"] = "Tiled kitchen and bathroom",
             ["terrace"] = "Checkered kitchen floor",
             ["walkup"] = "Four flats stacked high",
-            [WordboundSoloEntry.ParcelServiceMap] = "Loading ramp by the factories",
-            [WordboundSoloEntry.LostAddressMap] = "Tables above the old brick town",
-            [WordboundSoloEntry.ParcelHallMap] = "Furnished gate by glass towers",
+            [WordboundSoloEntry.ParcelServiceMap] = "Two floors",
+            [WordboundSoloEntry.LostAddressMap] = "Four floors",
+            [WordboundSoloEntry.ParcelHallMap] = "Four floors, furnished start",
             [ToyboxArena] = "Walled arena under the skyline",
         };
 

@@ -131,7 +131,11 @@ namespace Wreckabulary.Qa
             yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Queue " + LobbyMenu.Practice);
             yield return Settle();
+            OpenCategory(menu.Page<PlayPage>().Root, "Solo " + mode);
+            yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Solo " + mode);
+            yield return Settle();
+            Submit(menu.Page<PlayPage>().Root, "Solo GO");
             yield return Settle();
             Submit(menu.Page<PlayPage>().Root, "Solo map " + soloMap);
             yield return Settle();
@@ -421,6 +425,13 @@ namespace Wreckabulary.Qa
         }
         static T Read<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
         static void Require(bool condition, string message) { if (!condition) throw new QaFailException(message); }
+        static void OpenCategory(Transform root, string tile)
+        {
+            if (root.GetComponentsInChildren<Button>().Any(item => item.name == tile)) return;
+            var family = Wreckabulary.Rules.HouseModes.FamilyOf(tile.Substring(tile.IndexOf(' ') + 1));
+            Submit(root, PlayPage.CategoryCard + Wreckabulary.Rules.HouseModes.FamilyName(family));
+        }
+
         static void Submit(Transform root, string name)
         {
             var button = root.GetComponentsInChildren<Button>().Single(item => item.name == name);

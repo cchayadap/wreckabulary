@@ -102,6 +102,7 @@ namespace Wreckabulary
         public const float PictureAspect = 16f / 9f, Inset = 8, CaptionHeight = 40, PreferredWidth = 384, ShortestCard = 140, ViewportMargin = 28;
         public float MinimumWidth = 264;
         public int MaximumColumns = 3, Basis;
+        public bool FillPage;
         GridLayoutGroup grid;
         bool fitting;
         Vector2 viewportSize;
@@ -151,6 +152,24 @@ namespace Wreckabulary
             }
         }
 
+        float Room(ScrollRect scroll)
+        {
+            var content = scroll.content;
+            var mine = transform;
+            while (mine.parent && mine.parent != content) mine = mine.parent;
+            if (mine.parent != content) return 0f;
+            content.TryGetComponent(out VerticalLayoutGroup column);
+            float above = column ? column.padding.top : 0f;
+            for (int i = 0; i < mine.GetSiblingIndex(); i++)
+            {
+                var child = (RectTransform)content.GetChild(i);
+                if (!child.gameObject.activeSelf || child.TryGetComponent(out LayoutElement element) && element.ignoreLayout) continue;
+                above += child.rect.height + (column ? column.spacing : 0f);
+            }
+            float below = column ? column.padding.bottom : 0f;
+            return viewportSize.y - above - below;
+        }
+
         void OnEnable() { grid = GetComponent<GridLayoutGroup>(); Fit(); }
         void OnRectTransformDimensionsChange() => Fit();
         void LateUpdate() => Fit();
@@ -173,6 +192,11 @@ namespace Wreckabulary
             viewportSize = nextViewportSize;
             int count = Cards;
             var (columns, cell) = Layout(rect.rect.width, grid.spacing.x, MinimumWidth, MaximumColumns, viewportSize.y, count, Basis);
+            if (FillPage && scroll && scroll.content)
+            {
+                var plan = Wreckabulary.Rules.PlaceGrid.Fit(count, rect.rect.width, Room(scroll), grid.spacing.x, Inset, CaptionHeight, MinimumWidth);
+                if (plan.Fits) { columns = plan.Columns; cell = new Vector2(plan.Width, plan.Height); }
+            }
             int rows = Mathf.Max(1, Rows(count, columns));
             float height = rows * cell.y + (rows - 1) * grid.spacing.y;
             if (grid.startCorner != GridLayoutGroup.Corner.UpperLeft) { grid.startCorner = GridLayoutGroup.Corner.UpperLeft; changed = true; }

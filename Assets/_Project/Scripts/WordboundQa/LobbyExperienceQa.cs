@@ -43,20 +43,20 @@ namespace Wreckabulary.Qa
         {
             if (hierarchyOnly)
             {
-                yield return QaStep.Named("centered_play_flow").Timeout(45)
+                yield return QaStep.Named("centered_play_flow").Timeout(75)
                     .When(_ => LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning)
-                    .Do(value => GuardChoices(value, Hierarchy(value), Time.realtimeSinceStartupAsDouble + 40, 40, 45, "hierarchy_owned_stack_cleanup"));
+                    .Do(value => GuardChoices(value, Hierarchy(value), Time.realtimeSinceStartupAsDouble + 70, 70, 75, "hierarchy_owned_stack_cleanup"));
                 yield break;
             }
             double localDeadline = 0;
-            yield return QaStep.Named("local_choices").Timeout(30)
+            yield return QaStep.Named("local_choices").Timeout(60)
                 .When(_ => {
-                    if (localDeadline == 0) localDeadline = Time.realtimeSinceStartupAsDouble + 25;
+                    if (localDeadline == 0) localDeadline = Time.realtimeSinceStartupAsDouble + 55;
                     return LobbyMenu.Instance && GameHud.Active && !GameHud.Active.StateController.IsTransitioning;
                 })
-                .Do(value => GuardChoices(value, Local(value), localDeadline, 25, 30, "local_owned_stack_cleanup"));
-            yield return QaStep.Named("saved_home_choices").Timeout(20).Do(value =>
-                GuardChoices(value, SavedHomes(value), Time.realtimeSinceStartupAsDouble + 15, 15, 20, "saved_home_owned_stack_cleanup"));
+                .Do(value => GuardChoices(value, Local(value), localDeadline, 55, 60, "local_owned_stack_cleanup"));
+            yield return QaStep.Named("saved_home_choices").Timeout(35).Do(value =>
+                GuardChoices(value, SavedHomes(value), Time.realtimeSinceStartupAsDouble + 30, 30, 35, "saved_home_owned_stack_cleanup"));
             yield return QaStep.Named("create_choices").Timeout(20).Do(value =>
                 GuardChoices(value, Create(value), Time.realtimeSinceStartupAsDouble + 15, 15, 20, "create_owned_stack_cleanup"));
             yield return QaStep.Named("home_play").Timeout(20).Do(value =>
@@ -119,11 +119,11 @@ namespace Wreckabulary.Qa
                 Require(menu.Current == LobbyMenu.Play, "Top PLAY did not open the real chooser.");
                 Submit(Find(Page(), "Queue " + LobbyMenu.Practice));
                 yield return Settle();
-                Require(ModeCards().SequenceEqual(AllHouseModes()), "Practice must show every house mode, section by section, in order.");
+                Require(CategoryCards().SequenceEqual(PlayPage.FamilyOrder.Select(Category)), "Practice must show every mode category, in order.");
                 Require(Label(Find(Page(), "Queue " + LobbyMenu.Practice)) == "Same screen" &&
                     Label(Find(Page(), "Queue " + LobbyMenu.Matchmaking)) == "Online" &&
                     Label(Find(Page(), "Queue " + LobbyMenu.Workshop)) == "Create", "Play destination labels differ.");
-                ObserveFamilies(context, "practice_families_one_seat");
+                yield return ObserveCategories(context, "practice_families_one_seat");
                 yield return RevealModes(context, "one_seat");
                 yield return Learn(context);
                 foreach (string mode in PartyModes)
@@ -134,8 +134,8 @@ namespace Wreckabulary.Qa
                     Require(detail.text.ToLowerInvariant().Contains("bot") == HouseModes.Find(mode).BotSeats > 0, "Incorrect bot claim: " + mode);
                     TextFits(detail);
                     var goal = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GoalLine);
-                    Require(goal.text == LobbyPlayModeLabels.Line(mode) && goal.transform.IsChildOf(Strip()),
-                        "The selected mode must state its goal beside or under the mode columns: " + mode);
+                    Require(goal.text == LobbyPlayModeLabels.Goal(mode) && goal.transform.IsChildOf(Strip()),
+                        "The selected mode must state its goal in the panel beside the tiles: " + mode);
                     TextFits(goal);
                     var access = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.AccessLine);
                     Require(access.text == ModeAccess.For(mode).Line && access.transform.IsChildOf(Strip()) &&
@@ -144,28 +144,44 @@ namespace Wreckabulary.Qa
                     Require(access.text.ToLowerInvariant().Contains("bot") == HouseModes.Find(mode).BotSeats > 0, "Incorrect bot claim in who can play: " + mode);
                     TextFits(access);
                     foreach (string id in ShownTargets()) ColumnFits(Find(Page(), id));
-                    var maps = Page().GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Map ")).Select(button => button.name).ToArray();
-                    Require(maps.SequenceEqual(GameConfig.Current.Houses.Keys.Select(id => "Map " + id)), "Every House mode must offer every installed house: " + mode);
-                    Require(menu.Maps.Count > 0 && GameConfig.Current.Houses.Keys.All(id => Ticked(Find(Page(), "Map " + id)) == (menu.SavedHome == null && !menu.Maps.All && menu.Maps.IsTicked(id))),
-                        "Each house card must show whether it is ticked, and Any house stands for every house: " + mode);
-                    var anyHouse = Find(Page(), PlayPage.AnyHouse);
-                    Require(anyHouse.transform.parent.name == PlayPage.MapsRow && anyHouse.GetComponentsInChildren<TMP_Text>().Single().text == PracticeMaps.Every,
-                        "The Maps label must carry the Any house chip: " + mode);
-                    ControlFits(anyHouse);
-                    TextFits(anyHouse.GetComponentsInChildren<TMP_Text>().Single());
                     var guide = Page().GetComponentsInChildren<Button>().Where(button => button.name == PlayPage.GuideIcon).ToArray();
-                    Require(guide.Length == (ModeGuides.Has(mode) ? 1 : 0), "The mode guide icon must show exactly when a guide exists: " + mode);
+                    Require(guide.Length == (ModeGuides.Has(mode) ? 1 : 0), "The How to play button must show exactly when a guide exists: " + mode);
                     if (guide.Length == 1) ControlFits(guide[0]);
-                    var howTo = Page().GetComponentsInChildren<LobbyPlaySpare>().SingleOrDefault();
-                    Require(howTo && howTo.name == PlayPage.GuideStrip, "Every Same screen mode must build its how-to-play strip: " + mode);
-                    if (howTo.Shown) foreach (var text in howTo.GetComponentsInChildren<TMP_Text>()) TextFits(text);
-                    bool mapLocked = HouseModes.Find(mode).Maps.Length > 0;
+                    Require(!Page().GetComponentsInChildren<LobbyPlaySpare>().Any(), "Same screen leaves how to play to the preview and the guide, not a strip: " + mode);
+                    var preview = Page().GetComponentInChildren<LobbyPlayModePreview>();
+                    Require(preview && preview.Shown == mode, "The preview beside the modes must show the selected mode: " + mode);
+                    string goalText = goal.text, accessText = access.text;
+                    bool pictureShown = preview.PictureShown, guided = guide.Length == 1;
+                    bool fixedPlace = HouseModes.FixedHouse(mode) != null;
+                    Require(IsNext("GO") != fixedPlace, fixedPlace ? "A mode with its own house must start from the mode step: " + mode
+                        : "A house mode must lead to its houses with Next: " + mode);
+                    string[] maps = new string[0];
+                    if (!fixedPlace)
+                    {
+                        yield return PlaceStep("GO", "houses of " + mode);
+                        var chosen = Page().GetComponentsInChildren<RectTransform>().SingleOrDefault(rect => rect.name == PlayPage.ChosenMode);
+                        Require(chosen && chosen.GetComponentsInChildren<TMP_Text>().Any(text => text.text == LobbyPlayModeLabels.Name(mode)),
+                            "The house step must keep the chosen mode in view: " + mode);
+                        maps = Page().GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Map ")).Select(button => button.name).ToArray();
+                        Require(maps.SequenceEqual(GameConfig.Current.Houses.Keys.Select(id => "Map " + id)), "Every House mode must offer every installed house: " + mode);
+                        Require(menu.Maps.Count > 0 && GameConfig.Current.Houses.Keys.All(id => Ticked(Find(Page(), "Map " + id)) == (menu.SavedHome == null && !menu.Maps.All && menu.Maps.IsTicked(id))),
+                            "Each house card must show whether it is ticked, and Any house stands for every house: " + mode);
+                        var anyHouse = Find(Page(), PlayPage.AnyHouse);
+                        Require(anyHouse.transform.parent.name == PlayPage.MapsRow && anyHouse.GetComponentsInChildren<TMP_Text>().Single().text == PracticeMaps.Every,
+                            "The Houses label must carry the Any house chip: " + mode);
+                        ControlFits(anyHouse);
+                        TextFits(anyHouse.GetComponentsInChildren<TMP_Text>().Single());
+                        ControlFits(Find(Page(), PlayPage.BackToModes));
+                        Require(!IsNext("GO"), "The house step must end in Play: " + mode);
+                    }
+                    else Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ") || button.name.StartsWith(PlayPage.SavedHomeCard)),
+                        "A mode with its own house must not offer houses: " + mode);
                     string refusal = PlayPage.Refusal(menu);
-                    Require(mapLocked ? Find(Page(), "GO").interactable == (refusal == null) && (refusal == null || detail.text == refusal) : Find(Page(), "GO").interactable,
-                        "The selected local mode cannot start, or a map-locked mode hides why: " + mode);
-                    context.Note("local_" + mode, new Dictionary<string, object> { ["summary"] = detail.text, ["goal"] = goal.text, ["access"] = access.text, ["map"] = menu.Map,
-                        ["humans"] = menu.PartySize, ["selected"] = EventSystem.current.currentSelectedGameObject.name, ["maps"] = maps,
-                        ["ticked"] = menu.Maps.Ticked.ToArray(), ["guide"] = guide.Length == 1, ["how_to_play"] = howTo.Shown });
+                    Require(Find(Page(), "GO").interactable == (refusal == null) && (refusal == null || Summary() == refusal),
+                        "The selected local mode cannot start, or hides why: " + mode);
+                    context.Note("local_" + mode, new Dictionary<string, object> { ["summary"] = Summary(), ["goal"] = goalText, ["access"] = accessText, ["map"] = menu.Map,
+                        ["map_label"] = menu.MapLabel, ["humans"] = menu.PartySize, ["selected"] = Focused(), ["maps"] = maps,
+                        ["ticked"] = menu.Maps.Ticked.ToArray(), ["guide"] = guided, ["preview"] = pictureShown, ["two_steps"] = !fixedPlace });
                     if (mode is HouseModes.Dibs or HouseModes.Duos or HouseModes.Escape or HouseModes.War or HouseModes.BossFight)
                         yield return Capture(context, "lobby_local_" + mode.ToLowerInvariant());
                 }
@@ -174,13 +190,17 @@ namespace Wreckabulary.Qa
             finally { PreservePreferences(context); }
         }
 
+        static string Focused() => EventSystem.current && EventSystem.current.currentSelectedGameObject ? EventSystem.current.currentSelectedGameObject.name : "";
+
+        string Summary() => Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Mode detail").text;
+
         IEnumerator Learn(QaContext context)
         {
             yield return Pick(LobbyMenu.TutorialMode);
             Require(menu.Mode == LobbyMenu.TutorialMode && !menu.Starting && menu.Blocked == null, "Tutorial selection changed its launch contract.");
             Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ") || button.name.StartsWith(PlayPage.SavedHomeCard)) &&
-                Page().GetComponentsInChildren<RectTransform>().Any(rect => rect.name == "Tutorial room"), "Tutorial must keep its own room.");
-            Require(Find(Page(), "GO").interactable, "The tutorial cannot start.");
+                !Page().GetComponentsInChildren<RectTransform>().Any(rect => rect.name == PlayPage.TutorialRoom), "The tutorial has its own room, so it offers no houses.");
+            Require(Find(Page(), "GO").interactable && !IsNext("GO"), "The tutorial must start from the mode step.");
             foreach (string id in ShownTargets()) ColumnFits(Find(Page(), id));
             foreach (var detail in Page().GetComponentsInChildren<TMP_Text>().Where(text => text.name == "Mode detail")) TextFits(detail);
             var start = Page().GetComponentsInChildren<TMP_Text>().Where(text => text.transform.parent.name == PlayPage.StartTag).ToArray();
@@ -192,92 +212,88 @@ namespace Wreckabulary.Qa
             yield return Capture(context, "lobby_practice_learn");
         }
 
-        void ObserveFamilies(QaContext context, string key)
-        {
-            var strip = Strip();
-            var sections = strip.Find(PlayPage.ModeSections);
-            Require(sections, "Practice must hold its sections in one block of columns.");
-            string[] rows = sections.Cast<Transform>().Select(child => child.name).ToArray();
-            Require(rows.SequenceEqual(PlayPage.FamilyOrder.Select(HouseModes.FamilyName)),
-                "Practice must show the " + string.Join(", ", PlayPage.FamilyOrder.Select(HouseModes.FamilyName)) + " sections left to right.");
-            Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Group ")), "Practice still shows group tabs.");
-            Require(strip.GetComponentsInChildren<ScrollRect>(true).Length == 0 && strip.GetComponentsInChildren<Scrollbar>(true).Length == 0,
-                "The Practice modes must not scroll sideways or carry a scrollbar of their own.");
-            var scroll = strip.GetComponentInParent<ScrollRect>();
-            Require(scroll && scroll.vertical && !scroll.horizontal && strip.parent == scroll.content && strip.GetSiblingIndex() == 0,
-                "The Practice modes must lead the page's own up-and-down scroll.");
-            var captions = strip.GetComponentsInChildren<TMP_Text>().Where(text => text.name == LobbyPlayModeFamilies.Caption).ToArray();
-            Require(captions.Select(text => text.text).SequenceEqual(PlayPage.FamilyOrder.Select(family => LobbyKit.Upper(HouseModes.FamilyName(family)))),
-                "Each Practice section must carry its name above its modes.");
-            foreach (var caption in captions) TextFits(caption);
-            var columns = new List<object>();
-            float right = float.NegativeInfinity, top = float.NaN;
-            foreach (Transform section in sections)
-            {
-                var area = ScreenRect((RectTransform)section);
-                Require(area.xMin > right, section.name + " must sit right of the section before it.");
-                Require(float.IsNaN(top) || Mathf.Abs(area.yMax - top) <= 2, section.name + " must start level with the section before it.");
-                right = area.xMax; top = area.yMax;
-                StackFits(section, area);
-                columns.Add(new Dictionary<string, object> { ["section"] = section.name, ["rect"] = new[] { area.x, area.y, area.width, area.height },
-                    ["rows"] = section.Cast<Transform>().Skip(1).Select(child => child.name).ToArray() });
-            }
-            Require(ModeCards().SequenceEqual(AllHouseModes()) &&
-                ModeCards().All(mode => Find(Page(), "Mode " + mode).transform.parent.name == HouseModes.FamilyName(HouseModes.FamilyOf(mode))),
-                "Every house mode must show in its own section, in order.");
-            var courses = Page().GetComponentsInChildren<Button>().Where(IsCourse).ToArray();
-            string[] solo = PlayPage.FamilyOrder.SelectMany(HouseModes.ModesIn).Where(mode => !HouseModes.Has(mode)).ToArray();
-            Require(courses.Select(button => button.name).SequenceEqual(solo.Select(PlayPage.ModeButton)) &&
-                courses.All(button => button.transform.parent.name == HouseModes.FamilyName(HouseModes.FamilyOf(button.name.Substring(5)))),
-                "Each solo course must keep its row in its section.");
-            var tags = courses.Select(button => button.GetComponentsInChildren<TMP_Text>().SingleOrDefault(text => text.transform.parent.name == PlayPage.SeatTag)).ToArray();
-            var closed = courses.Where(button => button.TryGetComponent(out CanvasGroup group) && group.alpha < 1f).Select(button => button.name).ToArray();
-            if (menu.PartySize == 1)
-                Require(tags.All(tag => !tag) && closed.Length == 0 && courses.All(button => !button.GetComponent<LobbyPlayGoalSwap>()),
-                    "Each solo course must look open while one local seat is taken.");
-            else
-            {
-                Require(!menu.Page<PlayPage>().WordboundSolo && closed.Length == courses.Length && courses.All(button => button.IsInteractable()),
-                    "Solo courses must stay in place, dimmed and focusable, while extra local seats are taken.");
-                Require(tags.All(tag => tag && tag.text == LobbyKit.Upper(ModeAccess.OnePlayer)), "A dimmed solo course must carry its 1 player tag.");
-                Require(courses.All(button => button.TryGetComponent(out LobbyPlayGoalSwap swap) && swap.Reason == PlayPage.SoloOnly(button.name.Substring(5))),
-                    "A dimmed solo course must say why when focused.");
-                foreach (var tag in tags) TextFits(tag);
-            }
-            var bounds = ScreenRect(strip); var view = ScreenRect(scroll.viewport); var safe = Screen.safeArea;
-            Require(bounds.xMin >= safe.xMin - 2 && bounds.xMax <= safe.xMax + 2, "The Practice modes overflow the window.");
-            Require(Mathf.Abs(scroll.content.anchoredPosition.y) <= 1 && ModeTargets().All(button => Inside(ScreenRect((RectTransform)button.transform), view)),
-                "Every Practice mode must show without scrolling.");
-            var board = strip.GetComponent<LobbyPlayModeBoard>();
-            context.Note(key, new Dictionary<string, object> { ["sections"] = rows, ["captions"] = captions.Select(text => text.text).ToArray(),
-                ["modes"] = ModeCards(), ["courses"] = courses.Select(button => button.name).ToArray(), ["closed_courses"] = closed,
-                ["humans"] = menu.PartySize, ["block"] = new[] { bounds.x, bounds.y, bounds.width, bounds.height }, ["columns"] = columns.ToArray(),
-                ["goal_beside"] = board && board.Beside, ["content_height"] = scroll.content.rect.height, ["view_height"] = scroll.viewport.rect.height,
-                ["scrolls_sideways"] = false });
-        }
+        static string Category(HouseModeFamily family) => PlayPage.CategoryCard + HouseModes.FamilyName(family);
 
-        static void StackFits(Transform section, Rect area)
+        string[] CategoryCards() => Page().GetComponentsInChildren<RectTransform>().Where(rect => rect.name == PlayPage.CategoryRow)
+            .SelectMany(row => row.GetComponentsInChildren<Button>()).Select(button => button.name).ToArray();
+
+        IEnumerator ObserveCategories(QaContext context, string key)
         {
-            Rect? previous = null;
-            foreach (Transform child in section)
+            bool solo = menu.Page<PlayPage>().WordboundSolo;
+            string original = solo ? WordboundSoloEntry.SelectedMode : menu.Mode;
+            var row = Page().GetComponentsInChildren<RectTransform>().SingleOrDefault(rect => rect.name == PlayPage.CategoryRow);
+            Require(row, "Practice must lead with its row of mode categories.");
+            Require(CategoryCards().SequenceEqual(PlayPage.FamilyOrder.Select(Category)),
+                "Practice must show the " + string.Join(", ", PlayPage.FamilyOrder.Select(HouseModes.FamilyName)) + " categories left to right.");
+            Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Group ")), "Practice still shows group tabs.");
+            var scroll = row.GetComponentInParent<ScrollRect>();
+            Require(scroll && scroll.vertical && !scroll.horizontal && row.parent == scroll.content && row.GetSiblingIndex() == 0 && Strip().GetSiblingIndex() == 1,
+                "The categories, then the open category's modes, must lead the page's own up-and-down scroll.");
+            var names = row.GetComponentsInChildren<TMP_Text>().Where(text => text.name == PlayPage.CategoryName).ToArray();
+            Require(names.Select(text => text.text).SequenceEqual(PlayPage.FamilyOrder.Select(HouseModes.FamilyName)), "Each category card must carry its name.");
+            foreach (var text in row.GetComponentsInChildren<TMP_Text>()) TextFits(text);
+            string[] nameTexts = names.Select(text => text.text).ToArray();
+            float right = float.NegativeInfinity;
+            foreach (string card in CategoryCards())
             {
-                var rect = ScreenRect((RectTransform)child);
-                if (child.GetSiblingIndex() == 0)
-                {
-                    Require(child.name == LobbyPlayModeFamilies.Caption, "The caption must lead " + section.name + ".");
-                    continue;
-                }
-                Require(Inside(rect, area), child.name + " must stay inside " + section.name + ".");
-                if (previous is Rect last)
-                    Require(Mathf.Abs(rect.width - last.width) <= 2 && Mathf.Abs(rect.height - last.height) <= 2
-                        && (Mathf.Abs(rect.yMax - last.yMax) <= 2 ? rect.xMin >= last.xMax : rect.yMax <= last.yMin + 2),
-                        child.name + " must follow the tile before it in " + section.name + ".");
-                previous = rect;
-                if (!child.TryGetComponent(out Button button)) continue;
-                var label = button.GetComponentInChildren<TMP_Text>();
-                TextFits(label);
-                Require(label.fontSize >= SmallestModeLabel, "The mode label is too small to read: " + button.name);
+                var area = ScreenRect((RectTransform)Find(Page(), card).transform);
+                Require(area.xMin > right, card + " must sit right of the category before it.");
+                right = area.xMax;
+                ControlFits(Find(Page(), card));
             }
+            var categories = new List<object>();
+            var closedCourses = new List<string>();
+            var courses = new List<string>();
+            foreach (var family in PlayPage.FamilyOrder)
+            {
+                Submit(Find(Page(), Category(family)));
+                yield return Settle();
+                var strip = Strip();
+                Require(strip.GetComponentsInChildren<ScrollRect>(true).Length == 0 && strip.GetComponentsInChildren<Scrollbar>(true).Length == 0,
+                    "The Practice modes must not scroll sideways or carry a scrollbar of their own.");
+                var tiles = ModeTargets();
+                Require(tiles.Select(button => button.name).SequenceEqual(HouseModes.ModesIn(family).Select(PlayPage.ModeButton)),
+                    "The " + HouseModes.FamilyName(family) + " category must show its own modes, in order.");
+                var view = ScreenRect(strip.GetComponentInParent<ScrollRect>().viewport);
+                foreach (var tile in tiles)
+                {
+                    ColumnFits(tile);
+                    Require(Inside(ScreenRect((RectTransform)tile.transform), view), "Every mode of an open category must show without scrolling: " + tile.name);
+                    foreach (var text in tile.GetComponentsInChildren<TMP_Text>())
+                    {
+                        TextFits(text);
+                        Require(text.fontSize >= SmallestModeLabel, "The mode label is too small to read: " + tile.name);
+                    }
+                }
+                foreach (var course in tiles.Where(IsCourse))
+                {
+                    courses.Add(course.name);
+                    var tag = course.GetComponentsInChildren<TMP_Text>().SingleOrDefault(text => text.transform.parent.name == PlayPage.SeatTag);
+                    bool closed = course.TryGetComponent(out CanvasGroup group) && group.alpha < 1f;
+                    if (closed) closedCourses.Add(course.name);
+                    if (menu.PartySize == 1)
+                        Require(!tag && !closed && !course.GetComponent<LobbyPlayGoalSwap>(), "Each solo course must look open while one local seat is taken: " + course.name);
+                    else
+                    {
+                        Require(!menu.Page<PlayPage>().WordboundSolo && closed && course.IsInteractable(),
+                            "Solo courses must stay in place, dimmed and focusable, while extra local seats are taken: " + course.name);
+                        Require(tag && tag.text == LobbyKit.Upper(ModeAccess.OnePlayer), "A dimmed solo course must carry its 1 player tag: " + course.name);
+                        Require(course.TryGetComponent(out LobbyPlayGoalSwap swap) && swap.Reason == PlayPage.SoloOnly(course.name.Substring(5)),
+                            "A dimmed solo course must say why when focused: " + course.name);
+                        TextFits(tag);
+                    }
+                }
+                var bounds = ScreenRect(strip); var safe = Screen.safeArea;
+                Require(bounds.xMin >= safe.xMin - 2 && bounds.xMax <= safe.xMax + 2, "The Practice modes overflow the window.");
+                categories.Add(new Dictionary<string, object> { ["category"] = HouseModes.FamilyName(family), ["modes"] = tiles.Select(button => button.name).ToArray(),
+                    ["step"] = new[] { bounds.x, bounds.y, bounds.width, bounds.height }, ["chosen"] = menu.Mode });
+            }
+            if (solo && menu.PartySize == 1) yield return Pick(original);
+            else if (HouseModes.Has(original) && PlayPage.SeatOpen(original, menu.PartySize)) yield return Pick(original);
+            scroll = Strip().GetComponentInParent<ScrollRect>();
+            context.Note(key, new Dictionary<string, object> { ["categories"] = CategoryCards(), ["names"] = nameTexts,
+                ["courses"] = courses.ToArray(), ["closed_courses"] = closedCourses.ToArray(), ["humans"] = menu.PartySize, ["steps"] = categories.ToArray(),
+                ["content_height"] = scroll.content.rect.height, ["view_height"] = scroll.viewport.rect.height, ["scrolls_sideways"] = false });
         }
 
         static bool Inside(Rect rect, Rect view) =>
@@ -285,12 +301,12 @@ namespace Wreckabulary.Qa
 
         RectTransform Strip() => Page().GetComponentsInChildren<RectTransform>().Single(rect => rect.name == PlayPage.ModeBoard);
 
-        Button[] ModeTargets() => Strip().Find(PlayPage.ModeSections).GetComponentsInChildren<Button>();
+        Button[] ModeTargets() => Strip().Find(PlayPage.ModeTiles).GetComponentsInChildren<Button>();
 
         void ColumnFits(Button button)
         {
             var rect = ScreenRect((RectTransform)button.transform);
-            Require(rect.width > 1 && rect.height > 1 && Inside(rect, ScreenRect(Strip())), "A mode leaves the Practice columns: " + button.name);
+            Require(rect.width > 1 && rect.height > 1 && Inside(rect, ScreenRect(Strip())), "A mode leaves the Practice tiles: " + button.name);
             ControlFits(button);
         }
 
@@ -312,8 +328,6 @@ namespace Wreckabulary.Qa
             context.Note("practice_columns_focus_" + key, shown.ToArray());
         }
 
-        static string[] AllHouseModes() => PlayPage.FamilyOrder.SelectMany(HouseModes.ModesIn).Where(HouseModes.Has).ToArray();
-
         static bool IsCourse(Button button) => button.name.StartsWith("Solo ") && !button.name.StartsWith("Solo map ") && button.name != "Solo GO";
 
         static bool Ticked(Button card) => card.GetComponentsInChildren<RectTransform>(true).Any(rect => rect.name == "Selected");
@@ -321,9 +335,39 @@ namespace Wreckabulary.Qa
         string[] ShownTargets() => Page().GetComponentsInChildren<Button>()
             .Where(button => button.name.StartsWith("Mode ") || IsCourse(button)).Select(button => button.name).ToArray();
 
+        bool IsNext(string go) => Page().GetComponentsInChildren<Button>().Any(button => button.name == go &&
+            button.GetComponentsInChildren<TMP_Text>().Any(text => text.text.ToUpperInvariant().Contains(PlayPage.NextWord.ToUpperInvariant())));
+
+        IEnumerator PlaceStep(string go, string what)
+        {
+            yield return Shown(go, "Next to the " + what);
+            Require(IsNext(go), "The mode step must lead to the " + what + " with Next.");
+            Submit(Find(Page(), go));
+            yield return Settle();
+            yield return Shown(PlayPage.BackToModes, "the way back from the " + what);
+        }
+
+        IEnumerator ModeStep()
+        {
+            if (!Present(PlayPage.BackToModes)) yield break;
+            Submit(Find(Page(), PlayPage.BackToModes));
+            yield return Settle();
+        }
+
+        IEnumerator ShowCategory(string mode)
+        {
+            yield return ModeStep();
+            if (Present(PlayPage.ModeButton(mode))) yield break;
+            string card = Category(HouseModes.FamilyOf(mode));
+            yield return Shown(card, "the " + HouseModes.FamilyName(HouseModes.FamilyOf(mode)) + " category");
+            Submit(Find(Page(), card));
+            yield return Settle();
+        }
+
         IEnumerator Pick(string mode)
         {
             string id = PlayPage.ModeButton(mode);
+            yield return ShowCategory(mode);
             yield return Shown(id, "the " + mode + " mode");
             Submit(Find(Page(), id));
             yield return Settle();
@@ -351,6 +395,7 @@ namespace Wreckabulary.Qa
                 Require(batch.Ok, "The QA home could not be furnished: " + string.Join("; ", batch.Errors));
                 Require(HomeStorage.ForGame().TrySave(batch.Layout, out string saveError), "The QA home could not be saved in its temporary folder: " + saveError);
                 yield return Pick("Dibs");
+                yield return PlaceStep("GO", "houses of Dibs");
                 yield return Shown(cardName, "the saved-home card in the Houses grid");
                 var card = Find(Page(), cardName);
                 var houses = Page().GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Map ")).ToArray();
@@ -370,6 +415,7 @@ namespace Wreckabulary.Qa
                 foreach (string playable in HomeDesigner.PlayableModes.Where(mode => mode != "Dibs"))
                 {
                     yield return Pick(playable);
+                    yield return PlaceStep("GO", "houses of " + playable);
                     yield return Shown(cardName, "the saved-home card in " + playable);
                     Require(menu.Mode == playable && menu.SavedHome == QaHomeMap, playable + " must keep the chosen saved home.");
                 }
@@ -378,6 +424,7 @@ namespace Wreckabulary.Qa
                 {
                     yield return Pick(other);
                     Require(menu.Mode == other, "Selecting " + other + " did not change the mode.");
+                    if (IsNext("GO")) yield return PlaceStep("GO", "houses of " + other);
                     Require(menu.SavedHome == null && Session.LobbyHome == null &&
                         !Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith(PlayPage.SavedHomeCard)),
                         "Saved homes must not be offered for " + other + ".");
@@ -424,7 +471,8 @@ namespace Wreckabulary.Qa
                 Submit(Find(Page(), "Queue " + LobbyMenu.Practice)); yield return Settle();
                 yield return Pick("Dibs");
                 ObserveHierarchy(context, "practice", PlayPage.ModeBoard, ShownTargets());
-                ObserveFamilies(context, "hierarchy_families");
+                yield return ObserveCategories(context, "hierarchy_families");
+                yield return PlaceStep("GO", "houses of Dibs");
                 var houseMaps = Page().GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Map ")).ToArray();
                 Require(houseMaps.Length > 0, "The selected house mode needs actual maps.");
                 var footprint = ScreenRect((RectTransform)houseMaps[0].transform);
@@ -438,8 +486,10 @@ namespace Wreckabulary.Qa
                     yield return Pick(selected);
                     ObserveHierarchy(context, selected, PlayPage.ModeBoard, ShownTargets());
                     Require(Label(Find(Page(), "Solo " + selected)) == (selected == "TimeRun" ? "Time Trial" : "Free Roam"), "Solo display name differs from the chosen direct mode.");
+                    yield return PlaceStep("Solo GO", "maps of " + selected);
                     var maps = Page().GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Solo map ")).ToArray();
-                    yield return UniformMaps(context, selected, maps, footprint);
+                    Require(maps.Length > 0, "The map step of " + selected + " shows no maps.");
+                    yield return UniformMaps(context, selected, maps, ScreenRect((RectTransform)maps[0].transform));
                     MapPictures(context, selected, maps);
                     var ids = maps.Select(b => b.name).OrderBy(id => id, StringComparer.Ordinal).ToArray();
                     Require(ids.Length == 3, "The installed solo modes must show exactly three compatible installed maps.");
@@ -450,6 +500,7 @@ namespace Wreckabulary.Qa
                     yield return Capture(context, "play_" + selected.ToLowerInvariant());
                 }
                 yield return Pick(HouseModes.Escape);
+                yield return PlaceStep("GO", "houses of Escape");
                 var escapeMaps = Page().GetComponentsInChildren<Button>().Where(b => b.name.StartsWith("Map ")).ToArray();
                 Require(escapeMaps.Select(b => b.name).SequenceEqual(GameConfig.Current.Houses.Keys.Select(id => "Map " + id)) &&
                     GameConfig.Current.Houses.ContainsKey(menu.Map), "Escape must offer the installed houses to tick like every other House mode.");
@@ -571,13 +622,13 @@ namespace Wreckabulary.Qa
             try
             {
                 yield return Pick("TimeRun");
-                Require(ModeCards().SequenceEqual(AllHouseModes()) && !Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")),
-                    "Practice must retain its direct modes and show only maps compatible with the selected solo mode.");
+                Require(CategoryCards().SequenceEqual(PlayPage.FamilyOrder.Select(Category)) && !Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Map ")),
+                    "Practice must keep its categories, and a course picks its map on the next step, not among the modes.");
                 foreach (string selected in new[] { "TimeRun", "Freestyle" })
                 {
                     yield return Pick(selected);
-                    Require(WordboundSoloEntry.SelectedMode == selected && Find(Page(), "Solo GO").interactable,
-                        "The selected one-human Wordbound entry is unavailable.");
+                    Require(WordboundSoloEntry.SelectedMode == selected && Find(Page(), "Solo GO").interactable && IsNext("Solo GO"),
+                        "The selected one-human course must lead to its maps with Next.");
                     foreach (string name in ShownTargets()) ColumnFits(Find(Page(), name));
                     ControlFits(Find(Page(), "Solo GO"));
                     TextFits(Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Solo detail"));
@@ -588,21 +639,29 @@ namespace Wreckabulary.Qa
                     ControlFits(Find(Page(), PlayPage.PlayOnline));
                     context.Note("solo_access_" + selected, access.text);
                     yield return Capture(context, "lobby_solo_" + selected.ToLowerInvariant());
+                    yield return PlaceStep("Solo GO", "maps of " + selected);
+                    var maps = Page().GetComponentsInChildren<Button>().Where(button => button.name.StartsWith("Solo map ")).Select(button => button.name).ToArray();
+                    Require(maps.SequenceEqual(PlayPage.SoloMaps.Select(id => "Solo map " + id)), "A course must offer its three maps on the map step: " + selected);
+                    Require(Find(Page(), "Solo GO").interactable && !IsNext("Solo GO"), "The map step must end in Play: " + selected);
+                    foreach (string name in maps) ControlFits(Find(Page(), name));
+                    context.Note("solo_maps_step_" + selected, maps);
                 }
                 yield return Pick(HouseModes.BossFight);
-                Require(menu.Mode == HouseModes.BossFight && PlayPage.Refusal(menu) == null && Find(Page(), "GO").interactable,
-                    "Boss Fight must be ready to play with one local human.");
+                Require(menu.Mode == HouseModes.BossFight && PlayPage.Refusal(menu) == null && Find(Page(), "GO").interactable && !IsNext("GO"),
+                    "Boss Fight must be ready to play from the mode step with one local human.");
+                Require(menu.MapLabel == GameConfig.Current.HouseFor(HouseModes.FixedHouse(HouseModes.BossFight)).Name,
+                    "Boss Fight must name its own house in the summary.");
                 menu.Join(second);
                 yield return Settle();
                 Require(menu.PartySize == 2 && ReferenceEquals(menu.Party.Single(), second), "Only the fixture-owned extra seat may be present.");
                 yield return BossFightTwoSeats(context);
                 Require(!Page().GetComponentsInChildren<Button>().Any(button => button.name.StartsWith("Solo map ") || button.name == "Solo GO"),
                     "Course maps and GO must be hidden with two local humans.");
-                Require(ModeCards().SequenceEqual(AllHouseModes()), "Every house mode must stay available with extra seats.");
-                ObserveFamilies(context, "practice_families_two_seats");
+                yield return ObserveCategories(context, "practice_families_two_seats");
                 menu.OpenWordboundSolo("TimeRun");
                 Require(SceneManager.GetActiveScene().name == Session.HubScene && menu.PartySize == 2 && WordboundSoloEntry.TakeRequest() == null,
                     "The secondary solo launch guard lost a seat or entered a scene.");
+                yield return ShowCategory("TimeRun");
                 var closedCourse = Find(Page(), PlayPage.ModeButton("TimeRun"));
                 EventSystem.current.SetSelectedGameObject(closedCourse.gameObject);
                 yield return Settle();
@@ -611,12 +670,14 @@ namespace Wreckabulary.Qa
                 TextFits(reason);
                 context.Note("solo_two_seats_reason", reason.text);
                 yield return Capture(context, "lobby_solo_two_seats");
+                menu.Leave(second);
+                yield return Settle();
+                Require(menu.PartySize == 1 && !menu.Party.Any(binding => ReferenceEquals(binding, second)) && Session.Bindings.SequenceEqual(originalBindings),
+                    "Leaving the extra seat must restore the local seats and devices.");
                 yield return Pick(mode);
-                Require(ModeCards().SequenceEqual(AllHouseModes()) && menu.Queue == queue && menu.Mode == mode && menu.Map == map,
+                Require(CategoryCards().SequenceEqual(PlayPage.FamilyOrder.Select(Category)) && menu.Queue == queue && menu.Mode == mode && menu.Map == map,
                     "Selecting the prior direct house mode must restore its exact choice.");
-                Require(menu.PartySize == 2 && ReferenceEquals(menu.Party.Single(), second) && Session.Bindings.SequenceEqual(originalBindings),
-                    "Selecting another direct mode must preserve local seats/devices.");
-                context.Note("local_solo_families", "Each solo course sits in its section; one-human GO; an owned second seat dims the courses in place with a 1 player tag and the reason on focus, and blocks launch; exact original house and bindings preserved.");
+                context.Note("local_solo_families", "Each solo course sits in its category and picks its map on the next step; one-human GO; an owned second seat moves Boss Fight to a mode that fits, dims the courses in place with a 1 player tag and the reason on focus, and blocks launch; exact original house and bindings preserved.");
             }
             finally
             {
@@ -629,22 +690,26 @@ namespace Wreckabulary.Qa
         IEnumerator BossFightTwoSeats(QaContext context)
         {
             string id = PlayPage.ModeButton(HouseModes.BossFight);
+            string moved = menu.Mode;
+            Require(moved != HouseModes.BossFight && HouseModes.FamilyOf(moved) == HouseModes.FamilyOf(HouseModes.BossFight) && PlayPage.SeatOpen(moved, menu.PartySize),
+                "A second local seat must move Boss Fight to an Arcade mode that fits: " + moved);
+            yield return ShowCategory(HouseModes.BossFight);
             var tile = Find(Page(), id);
             var go = Find(Page(), "GO");
-            var detail = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == "Mode detail");
-            string tooMany = PlayPage.TooMany(HouseModes.BossFight);
-            Require(menu.Mode == HouseModes.BossFight && !go.interactable && PlayPage.Refusal(menu) == tooMany && detail.text == tooMany,
-                "With two local humans Boss Fight must keep its choice, disable Play and say why.");
+            Require(go.interactable && PlayPage.Refusal(menu) == null, "The mode picked for two local humans must be ready: " + moved);
             Require(tile.TryGetComponent(out CanvasGroup group) && group.alpha < 1f && tile.IsInteractable(),
                 "With two local humans the Boss Fight tile must stay in place, dimmed and focusable.");
-            TextFits(detail);
+            var tag = tile.GetComponentsInChildren<TMP_Text>().SingleOrDefault(text => text.transform.parent.name == PlayPage.SeatTag);
+            Require(tag && tag.text == LobbyKit.Upper(ModeAccess.OnePlayer), "The dimmed Boss Fight tile must carry its 1 player tag.");
+            TextFits(tag);
             EventSystem.current.SetSelectedGameObject(tile.gameObject);
             yield return Settle();
+            string tooMany = PlayPage.TooMany(HouseModes.BossFight);
             var reason = Page().GetComponentsInChildren<TMP_Text>().Single(text => text.name == PlayPage.GoalLine);
             Require(reason.text == tooMany, "Focus on the dimmed Boss Fight tile must say why it is closed.");
             TextFits(reason);
-            context.Note("bossfight_two_seats", new Dictionary<string, object> { ["mode"] = menu.Mode, ["humans"] = menu.PartySize,
-                ["play_enabled"] = go.interactable, ["detail"] = detail.text, ["focused_reason"] = reason.text, ["tile_alpha"] = group.alpha });
+            context.Note("bossfight_two_seats", new Dictionary<string, object> { ["moved_to"] = moved, ["humans"] = menu.PartySize,
+                ["play_enabled"] = go.interactable, ["focused_reason"] = reason.text, ["tile_alpha"] = group.alpha });
             yield return Capture(context, "lobby_bossfight_two_seats");
         }
 

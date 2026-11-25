@@ -73,7 +73,9 @@ namespace Wreckabulary.Tests
             {
                 menu.Choose(mode: mode);
                 CollectionAssert.AreEqual(ticked, menu.Maps.Ticked, mode);
-                StringAssert.Contains("Any of 2 houses", menu.Describe(), mode);
+                string fixedHouse = HouseModes.FixedHouse(mode);
+                if (fixedHouse == null) StringAssert.Contains("Any of 2 houses", menu.Describe(), mode);
+                else StringAssert.Contains(GameConfig.Current.HouseFor(fixedHouse).Name, menu.Describe(), mode + " names the one house it always plays in");
             }
             menu.Choose(LobbyMenu.Workshop);
             Assert.IsTrue(HomeDesigner.Supports(menu.Map), "The Home builder opens a real house.");
@@ -122,6 +124,7 @@ namespace Wreckabulary.Tests
             Assert.AreEqual("flat", Session.ResolveMap("Dibs", "flat"), "An explicit house is kept.");
             Assert.IsNull(Session.ResolveMap("Dibs", null), "No map keeps the current house.");
             Assert.IsNull(Session.ResolveMap(LobbyMenu.TutorialMode, null), "The Tutorial has its own room.");
+            Assert.AreEqual(HouseModes.FixedHouse(HouseModes.BossFight), Session.ResolveMap(HouseModes.BossFight, "flat"), "Boss Fight always plays in its own house.");
             yield return null;
         }
     }
