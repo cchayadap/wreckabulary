@@ -447,7 +447,7 @@
     {
       "level": "info",
       "check": "traceability",
-      "message": "冻结条目 38 个（已确认 38），工程引用覆盖率 38/38 = 100%",
+      "message": "冻结条目 43 个（已确认 43），工程引用覆盖率 43/43 = 100%",
       "path": "C:\\Users\\thoma\\Documents\\GitHub\\wreckabulary\\docs\\design-freeze.json",
       "hint": "",
       "files": []

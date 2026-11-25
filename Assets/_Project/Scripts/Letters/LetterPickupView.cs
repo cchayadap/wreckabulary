@@ -8,7 +8,10 @@ namespace Wreckabulary
     /// <summary>Settled nearby letters float upright visually; the pooled rigidbody and collection point never move.</summary>
     public sealed class LetterPickupView : MonoBehaviour
     {
-        const float ViewDistanceSquared = 100f;
+        /// <summary>Loose letters stay lifted and readable across the whole house, not just 10 m from the camera.</summary>
+        // @trace AMD-021
+        public const float ViewDistance = 30f;
+        const float ViewDistanceSquared = ViewDistance * ViewDistance;
         static readonly Material[] glowMaterials = new Material[3];
         static readonly Quaternion GlyphFacesCamera = Quaternion.Euler(0f, 180f, 0f);
 

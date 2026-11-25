@@ -1,13 +1,13 @@
 # Boss Fight — Phase 1 Design Document (CONFIRMED & FROZEN)
 
 > Project: Wreckabulary · Unity `6000.6.3f1` · URP `17.6.0` · new Input System `1.20.0`
-> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen, playtest amendment v8** (see `docs/design-freeze.json`, version 8)
+> Authoring date: 2026-11-22 · Frozen: 2026-11-22 · Status: **frozen, playtest amendment v13** (see `docs/design-freeze.json`, version 13)
 > Scope: solo player, **one map (`LivingRoom`)**, **one boss (`Calculator`)**. Co-op and extra bosses are deferred batches.
 > Requirements in this doc are tagged with IDs (`MECH-…`, `NUM-…`, etc.); the confirmed ones are registered in `docs/design-freeze.json`.
 
 **Confirmed scope decisions (2026-11-22):** map = `LivingRoom` (the existing Dibs/Escape scene, no new arena); boss = `Calculator`; three shield words = `CALC` / `ULA` / `TOR` (sequential split of CALCULATOR — the first draft written as "CACL" was corrected to "CALC" by the user). All other items in this document remain as drafted; the assumptions list at the end records what was accepted vs deferred.
 
-## Playtest amendments v2–v8 — supersedes the original numbers below
+## Playtest amendments v2–v13 — supersedes the original numbers below
 
 After the first playable slice the user reported three problems: no damage reached the boss, the red circles were hard to read and kept interrupting spelling, and a single full-word box per layer was not fun. The following rules are now authoritative; older rows elsewhere in this document are historical draft text.
 
@@ -33,7 +33,16 @@ After the first playable slice the user reported three problems: no damage reach
 
 | `AMD-017` | `AMD-016` | The v7 relief went too far: mini repeat interval returns to **30 s** (first wave still **25 s**), and the post-break jump smash cooldown is **6 s**. Everything else stays. |
 
-Numbers still awaiting measurement: 240 HP / 7-hit TTK, the 1.6 s warning, the 30 s supply cadence, mini density, mini 42 HP / 2–3 hit TTK and the letter economy. `@trace AMD-001..017`.
+| `AMD-018` | `AMD-003`, `AMD-004`, `AMD-005`, `AMD-007` | **No per-shield letter summoning.** The greedy set-cover caches are deleted. Each supply drop delivers **3 random ordinary props** (`supplyPropsPerDrop`) from a general pool at the announced random spot; they are real furniture/items with their own full-word loot, never labelled letter boxes. Every run's loot differs. |
+
+| `AMD-019` | `MECH-006`, `AMD-008`, `AMD-012` | Boss and mini hitboxes **ignore collision with player bodies** (melee queries still find them), so a kinematic leap or waddling mini cannot shove someone through a wall. A mini **freezes for 0.8 s** after a bonk and cannot touch while frozen. Anyone outside house bounds is rescued to the arena. The Boss Fight bag cap is **10 letters**. |
+
+| `AMD-020` | `AMD-008`, `AMD-019`, `MECH-006` | Minis now stop at a **0.92 m stand-off ring** so they stay visible instead of walking inside the player model after collisions were disabled. If the player walks into one, it backs out even while frozen. Steps use occupancy checks so walls/props stay solid, bonks no longer teleport the mini 1.5 m, and spawn spots are clamped to a room. |
+
+| `AMD-021` | `AMD-019`, `AMD-020`, `UI-001` | The camera blocker-fade ignores **kinematic bodies** (boss and minis) and **loose letter tiles**, so crossing the camera-to-player sight line no longer makes waves or loot vanish. Ground letters stay lifted/readable out to **30 m**, and mini spawns clamp inside the player's current room instead of a distant random room. |
+| `AMD-022` | `AMD-007`, `AMD-018`, `NUM-005`, `UI-001` | Supply props **despawn 90 s after landing** (starters stay), so a long run no longer clutters the house. The **600 s limit is one run-wide clock** that no longer resets on phase changes. Reaching it ends the round with a **1–3 star rating** (clear time ≤ 150 s = ★★★, ≤ 300 s = ★★☆, otherwise ★☆☆) and **no loss screen**; defeating the boss uses the same rating. |
+
+Numbers still awaiting measurement: 240 HP / 7-hit TTK, the 1.6 s warning, the 30 s supply cadence, mini density, mini 42 HP / 2–3 hit TTK, stand-off ring, letter read distance, supply lifetime and star thresholds. `@trace AMD-001..022`.
 
 ---
 

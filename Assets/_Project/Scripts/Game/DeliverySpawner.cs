@@ -65,6 +65,30 @@ namespace Wreckabulary
             return box;
         }
 
+        /// <summary>
+        /// Boss Fight supply: ordinary smashable props, never a labelled letter box.
+        /// The caller supplies a general pool; the drop itself knows nothing about shield words.
+        /// </summary>
+        // @trace AMD-018
+        public Smashable[] DropPropsAt(Vector3 position, int count, string[] pool)
+        {
+            if (pool == null || pool.Length == 0 || count <= 0) return System.Array.Empty<Smashable>();
+            var candidates = new List<string>(pool);
+            var dropped = new List<Smashable>(count);
+            for (int i = 0; i < count && candidates.Count > 0; i++)
+            {
+                int pick = Random.Range(0, candidates.Count);
+                string word = candidates[pick];
+                candidates.RemoveAt(pick);
+                var at = position + new Vector3(Random.Range(-.8f, .8f), i * .5f, Random.Range(-.8f, .8f));
+                var prop = FurnitureCatalog.Spawn(word, at, Random.Range(0f, 360f), World.Transient);
+                if (!prop) continue;
+                prop.Drops = null; // break releases the prop's own full word
+                dropped.Add(prop);
+            }
+            return dropped.ToArray();
+        }
+
         Vector3 DropPoint()
         {
             var floors = Layout?.StoreyFloors();

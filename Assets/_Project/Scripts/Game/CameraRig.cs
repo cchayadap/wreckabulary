@@ -226,8 +226,16 @@ namespace Wreckabulary
             foreach (var renderer in unfade) faded.Remove(renderer);
         }
 
-        void FindOccluders(Vector3 feet, float now)
-        {
+    /// <summary>
+    /// Only solid dynamic scenery should be faded for the camera. Kinematic boss/mini hitboxes
+    /// and loose letter tiles are gameplay actors: hiding them makes waves and loot disappear.
+    /// </summary>
+    // @trace AMD-021
+    public static bool ShouldFadeOccluder(Rigidbody body) =>
+        body && !body.isKinematic && !body.GetComponent<LetterTile>();
+
+    void FindOccluders(Vector3 feet, float now)
+    {
             var origin = feet + Vector3.up * .4f;
             var delta = transform.position - origin;
             if (delta.sqrMagnitude < .001f) return;
@@ -240,6 +248,8 @@ namespace Wreckabulary
                 var body = blockers[i].rigidbody;
                 if (body)
                 {
+                    // Never fade a gameplay actor just because it crosses the camera-to-player line.
+                    if (!ShouldFadeOccluder(body)) continue;
                     bodyRenderers.Clear();
                     body.GetComponentsInChildren(bodyRenderers);
                     foreach (var renderer in bodyRenderers) faded[renderer] = now + FadeHold;

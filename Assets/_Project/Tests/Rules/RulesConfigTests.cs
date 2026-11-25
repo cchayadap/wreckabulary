@@ -25,7 +25,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(3, r.BossWords.Length);
             Assert.AreEqual(240f, r.BossMaxHealth);
             Assert.AreEqual(1.5f, r.BossVulnerability);
-            Assert.AreEqual(16, r.MaxLetters, "the longest word must fit the bag");
+            Assert.AreEqual(10, r.MaxLetters, "the bag is deliberately tight in Boss Fight");
             Assert.GreaterOrEqual(r.MaxLetters, r.BossWords.Max(w => w.Length));
             Assert.IsFalse(r.ClearOutEnabled, "clear-out would need an order in every house JSON");
 
@@ -46,10 +46,15 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(3, r.MaxAoe, "up to three circles at once");
             Assert.AreEqual(1, r.LettersLostOnHit, "a hit still matters but no longer wipes a word");
 
-            // @trace AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014, AMD-015, AMD-016, AMD-017
+            // @trace AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014, AMD-015, AMD-016, AMD-017, AMD-018, AMD-019, AMD-022
             Assert.AreEqual(20f, r.PrepSeconds, "the prepare countdown is twenty seconds");
             Assert.AreEqual(5, r.StarterProps, "only five props exist at the start");
             Assert.AreEqual(30f, r.SupplyDropSeconds, "one supply drop every thirty seconds");
+            Assert.AreEqual(3, r.SupplyPropsPerDrop, "each supply delivers a random handful of props");
+            Assert.AreEqual(90f, r.SupplyPropLifetimeSeconds, "old supplies despawn before the house fills up");
+            Assert.AreEqual(600f, r.RoundTimeLimitSeconds, "a long run limit keeps the fight unhurried");
+            Assert.AreEqual(150f, r.StarThreeSeconds);
+            Assert.AreEqual(300f, r.StarTwoSeconds, "three stars for a fast clear, one for a slow one");
             Assert.AreEqual(1, r.AoeBurstMin);
             Assert.AreEqual(3, r.AoeBurstMax);
             Assert.GreaterOrEqual(r.MaxAoe, r.AoeBurstMax);
@@ -64,6 +69,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.Greater(r.SmashRadius, 0f);
             Assert.Greater(r.SmashDamage, 0f);
             Assert.AreEqual(42f, r.MiniHealth, "minis need several hits to break");
+            Assert.AreEqual(.8f, r.MiniFreezeAfterHitSeconds, "a bonked mini pauses before chasing again");
             Assert.AreEqual(3f, r.EventWarnSeconds, "every timed event gets a 3-2-1 cue");
         }
 

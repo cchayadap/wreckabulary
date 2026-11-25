@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 13,
   "status": "frozen",
   "frozenAt": "2026-11-22",
   "amendedAt": "2026-11-23",
@@ -20,7 +20,12 @@
     { "id": "AMD-014", "reason": "user: minis die in one hit and drop the real shield word", "change": "Mini calculators have 42 HP and a world-space health bar; per-swing damage is capped at half their max HP so at least two hits are needed. Breaking one bursts exactly one random A-Z letter instead of CALC. Touch never removes player HP.", "affects": ["AMD-008", "NUM-003"] },
     { "id": "AMD-015", "reason": "user: delivery spot must change every game", "change": "The drop point is chosen during the countdown via DeliverySpawner.PickDropPoint and delivered at that exact point via DropAt. Restart reseeds the RNG stream from the clock plus a run counter, so rooms differ between games.", "affects": ["AMD-007", "AMD-013"] },
     { "id": "AMD-016", "reason": "user: the fight was too difficult after the latest changes", "change": "Loosen the pressure: mini calculators first appear 25 s into each DropAndPrevent phase (was 14 s) and then every 40 s (was 18 s); the post-shield jump smash cooldown is 12 s (was 5 s). Countdowns, ranges and damage are unchanged.", "affects": ["AMD-008", "AMD-010", "AMD-013", "NUM-003"] },
-    { "id": "AMD-017", "reason": "user: the loosening made the hit phase too boring", "change": "Bring some pressure back: mini repeat interval is 30 s (was 40 s; first wave stays at 25 s) and the post-shield jump smash cooldown is 6 s (was 12 s).", "affects": ["AMD-016", "AMD-008", "AMD-010"] }
+    { "id": "AMD-017", "reason": "user: the loosening made the hit phase too boring", "change": "Bring some pressure back: mini repeat interval is 30 s (was 40 s; first wave stays at 25 s) and the post-shield jump smash cooldown is 6 s (was 12 s).", "affects": ["AMD-016", "AMD-008", "AMD-010"] },
+    { "id": "AMD-018", "reason": "user: pre-spawning the exact shield letters every round is predictable; supplies must be random items", "change": "Remove per-shield greedy set-cover caches entirely. Supply drops deliver supplyPropsPerDrop (3) ordinary props picked at random from a general pool, at the announced random spot. Drops are real furniture/items with their own full-word loot, never labelled letter boxes.", "affects": ["AMD-003", "AMD-004", "AMD-005", "AMD-007", "AMD-015"] },
+    { "id": "AMD-019", "reason": "user: pushes could shove the player through a wall into the void; minis crowded too close; bag held 16 instead of 10", "change": "Boss and mini hitboxes ignore collision with player bodies (melee queries still see them); a bonked mini freezes for miniFreezeAfterHitSeconds (0.8 s) and cannot touch while frozen; BossFightDirector rescues any player outside house bounds back to the arena; BossFight maxLetters is 10.", "affects": ["MECH-006", "AMD-008", "AMD-012", "NUM-005"] },
+    { "id": "AMD-020", "reason": "user: after bodies started ignoring each other, a close mini looked as if it disappeared", "change": "Minis chase to a 0.92 m stand-off ring instead of walking into the player model, back out of any overlap even while frozen, use occupancy checks so steps never cross walls or props, and no longer teleport 1.5 m on a bonk. Mini spawn spots are clamped to a room so they cannot start outside the house.", "affects": ["AMD-008", "AMD-019", "MECH-006"] },
+    { "id": "AMD-021", "reason": "user: minis looked as if they never spawned and ground letters vanished when looking toward the boss", "change": "CameraRig never fades kinematic bodies (boss/mini hitboxes) or loose letter tiles; only solid dynamic scenery is faded for sight lines. Loose letters stay lifted/billboarded out to 30 m from the camera. Mini spawns clamp to the player's current room instead of a far random room.", "affects": ["AMD-019", "AMD-020", "UI-001"] },
+    { "id": "AMD-022", "reason": "user: a long fight buried the house in supply props; the time limit caused a loss the player does not want", "change": "Supply props despawn supplyPropLifetimeSeconds (90 s) after landing (starter props are permanent). The run limit is one run-wide clock, extended to 600 s; reaching it ends the round with a 1-3 star rating by clear time (150 s / 300 s thresholds) and no defeat wording. The timer no longer resets on phase changes.", "affects": ["AMD-007", "AMD-018", "NUM-005", "UI-001"] }
   ],
   "project": "Wreckabulary - Boss Fight",
   "items": [
@@ -61,6 +66,11 @@
     { "id": "AMD-014", "type": "mechanic", "name": "Mini calculators have 42 HP, a health bar, multi-hit deaths and one random A-Z letter on break", "confirmed": true },
     { "id": "AMD-015", "type": "mechanic", "name": "Supply drop spot is picked during the countdown and reseeded every run so deliveries differ per game", "confirmed": true },
     { "id": "AMD-016", "type": "mechanic", "name": "Mini calculators first appear at 25 s and repeat every 40 s; jump smash cooldown is 12 s after the shield breaks", "confirmed": true },
-    { "id": "AMD-017", "type": "mechanic", "name": "Mini repeat interval is 30 s and post-shield jump smash cooldown is 6 s to keep the fight lively", "confirmed": true }
+    { "id": "AMD-017", "type": "mechanic", "name": "Mini repeat interval is 30 s and post-shield jump smash cooldown is 6 s to keep the fight lively", "confirmed": true },
+    { "id": "AMD-018", "type": "mechanic", "name": "No per-shield letter caches; random ordinary props arrive in supply drops as full-word items, three per drop", "confirmed": true },
+    { "id": "AMD-019", "type": "mechanic", "name": "No physical shoving by boss/mini hitboxes, mini freezes 0.8 s after a bonk, out-of-house players are rescued, bag cap 10", "confirmed": true },
+    { "id": "AMD-020", "type": "mechanic", "name": "Minis keep a visible 0.92 m stand-off, back out of overlap, never teleport through walls and spawn only inside rooms", "confirmed": true },
+    { "id": "AMD-021", "type": "mechanic", "name": "Boss/minis/loose letters are exempt from camera blocker fading, letters stay readable to 30 m and minis spawn near the player's room", "confirmed": true },
+    { "id": "AMD-022", "type": "mechanic", "name": "Supply props expire after 90 s, the 600 s run limit is phase-independent and timeout gives a 1-3 star rating instead of a loss", "confirmed": true }
   ]
 }

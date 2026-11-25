@@ -10,21 +10,38 @@ namespace Wreckabulary.BossFight
     /// given player once per cooldown, recoils after contact, and refuses to hit an already-staggered
     /// player, so repeated contact can never chain-stun the player. Minis now have their own health
     /// bar and take several melee hits; breaking one yields a single random A-Z letter, never CALC.
+    /// After a bonk it freezes briefly and ignores player collisions so it cannot shove anyone
+    /// through a wall. It deliberately stops just short of the player: with collisions ignored,
+    /// walking into the player model made it look as if the mini vanished.
     /// </summary>
-    // @trace AMD-008, AMD-014
+    // @trace AMD-008, AMD-014, AMD-019, AMD-020
     [RequireComponent(typeof(Rigidbody))]
     public sealed class MiniCalculator : MonoBehaviour, IDamageable
     {
+        /// <summary>Closest centre distance to the player. Keeps the mini visibly outside the player model.</summary>
+        // @trace AMD-020
+        public const float StandoffDistance = .92f;
+        const float ClearanceRadius = .38f;
+        static readonly Collider[] occupancy = new Collider[12];
+        // NameToLayer is illegal in a static/constructor field initializer: defer to first runtime use.
+        // @trace AMD-020
+        int solidMask = -1;
+
         GameRules rules;
         Transform visual, hpFill, hpBack;
+        Collider hitbox;
         float bobOffset;
         float nextTouch;
+        float frozenUntil;
         float health, maxHealth;
         bool broken;
         readonly Dictionary<int, float> lastHitAt = new();
 
         public bool Broken => broken;
         public Vector3 Position => transform.position;
+        /// <summary>True for the short pause after a bonk, when the mini stops chasing.</summary>
+        // @trace AMD-019
+        public bool Frozen => Time.time < frozenUntil;
         /// <summary>Mini's own health, shown on its bar. Capped damage per swing guarantees several hits.</summary>
         // @trace AMD-014
         public float Health => health;
@@ -38,6 +55,7 @@ namespace Wreckabulary.BossFight
             health = maxHealth;
             bobOffset = Random.value * Mathf.PI * 2f;
             nextTouch = Time.time + .6f;
+            frozenUntil = 0f;
 
             // PlayerCombat.Strike ignores colliders without a Rigidbody - same lesson as the boss.
             // @trace AMD-001, AMD-008
@@ -50,9 +68,11 @@ namespace Wreckabulary.BossFight
             }
             body.isKinematic = true;
             body.useGravity = false;
-            if (!TryGetComponent(out SphereCollider hitbox)) hitbox = gameObject.AddComponent<SphereCollider>();
-            hitbox.center = new Vector3(0f, .45f, 0f);
-            hitbox.radius = .46f;
+            if (!TryGetComponent(out SphereCollider sphere)) sphere = gameObject.AddComponent<SphereCollider>();
+            sphere.center = new Vector3(0f, .45f, 0f);
+            sphere.radius = .46f;
+            hitbox = sphere;
+            BossController.IgnorePlayerBodies(hitbox); // never shove a player through a wall
 
             BuildVisual();
         }
@@ -104,6 +124,34 @@ namespace Wreckabulary.BossFight
             hpFill.localPosition = new Vector3(-.34f * (1f - ratio), 1.02f, -.1f);
         }
 
+        /// <summary>Ignore players (bodies deliberately pass through) and loose letter tiles.</summary>
+        // @trace AMD-020
+        static int SolidMask()
+        {
+            int mask = ~0;
+            int player = LayerMask.NameToLayer("Player");
+            if (player >= 0) mask &= ~(1 << player);
+            int tile = LayerMask.NameToLayer("Tile");
+            if (tile >= 0) mask &= ~(1 << tile);
+            return mask;
+        }
+
+        /// <summary>Never step into a wall or prop; otherwise a recoil can hide the mini in geometry.</summary>
+        // @trace AMD-020
+        bool CanOccupy(Vector3 at)
+        {
+            if (solidMask < 0) solidMask = SolidMask();
+            int found = Physics.OverlapSphereNonAlloc(at + Vector3.up * .45f, ClearanceRadius,
+                occupancy, solidMask, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < found; i++)
+            {
+                var c = occupancy[i];
+                if (!c || c == hitbox || c.transform.IsChildOf(transform)) continue;
+                return false;
+            }
+            return true;
+        }
+
         static void Piece(Transform parent, string name, PrimitiveType type, Vector3 at, Vector3 scale, int hex)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -122,23 +170,40 @@ namespace Wreckabulary.BossFight
         {
             if (broken || rules == null || delta <= 0f || !target || target.IsKnockedOut) return;
 
+            BossController.IgnorePlayerBodies(hitbox); // late joiners must not be shoved either
+            bool frozen = Frozen;
             Vector3 to = target.transform.position - transform.position;
             to.y = 0f;
             float distance = to.magnitude;
             if (distance > .01f)
             {
                 Vector3 flat = to / distance;
-                transform.position += flat * (rules.MiniSpeed * delta);
+                if (!frozen && distance > StandoffDistance)
+                {
+                    // Chase, but never cross the stand-off ring: it must stay visible beside the player.
+                    float step = Mathf.Min(rules.MiniSpeed * delta, distance - StandoffDistance);
+                    var next = transform.position + flat * step;
+                    if (CanOccupy(next)) transform.position = next;
+                }
+                else if (distance < StandoffDistance - .02f)
+                {
+                    // The player can now walk through the mini. Back out even while frozen, or the
+                    // mini disappears inside the player model. Never teleport - walls stay solid.
+                    float step = Mathf.Min(rules.MiniSpeed * 1.6f * delta, StandoffDistance - distance);
+                    var next = transform.position - flat * step;
+                    if (CanOccupy(next)) transform.position = next;
+                }
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(flat),
                     Mathf.Clamp01(8f * delta));
             }
             if (visual)
             {
-                visual.localPosition = Vector3.up * (.04f + Mathf.Sin(Time.time * 7f + bobOffset) * .05f);
-                visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Time.time * 5f + bobOffset) * 5f);
+                visual.localPosition = Vector3.up * (.04f + (frozen ? 0f : Mathf.Sin(Time.time * 7f + bobOffset) * .05f));
+                visual.localRotation = Quaternion.Euler(0f, 0f,
+                    frozen ? 12f : Mathf.Sin(Time.time * 5f + bobOffset) * 5f);
             }
 
-            if (distance <= .95f && Time.time >= nextTouch) Touch(target);
+            if (!frozen && distance <= .95f && Time.time >= nextTouch) Touch(target);
         }
 
         void Touch(PlayerController target)
@@ -172,8 +237,20 @@ namespace Wreckabulary.BossFight
             GameFeedback.Play(GameCue.Block);
             GameFeedback.Burst("Impact_Star", target.transform.position + Vector3.up * 1.1f, .45f);
 
-            transform.position -= away * 1.5f; // recoil so it cannot immediately touch again
+            // No teleport recoil: it used to shoot through a wall and vanish. The stand-off ring,
+            // the 0.8 s freeze and this cooldown already stop a second touch.
             nextTouch = now + rules.MiniHitCooldownSeconds;
+            FreezeAfterHit();
+        }
+
+        /// <summary>Stop chasing briefly after a bonk so the mini cannot crowd or keep pushing the player.</summary>
+        // @trace AMD-019
+        public void FreezeAfterHit()
+        {
+            float seconds = rules != null ? rules.MiniFreezeAfterHitSeconds : .8f;
+            if (seconds <= 0f) return;
+            frozenUntil = Mathf.Max(frozenUntil, Time.time + seconds);
+            nextTouch = Mathf.Max(nextTouch, frozenUntil);
         }
 
         /// <summary>Minis have real HP; damage per swing is capped so no single hit destroys one.</summary>

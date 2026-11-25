@@ -30,22 +30,39 @@ namespace Wreckabulary.BossFight
         TelegraphedAoE aoe;
         BossFightHud overlay;
 
+        /// <summary>A supply prop and the time at which it quietly despawns.</summary>
+        // @trace AMD-022
+        sealed class SupplyProp
+        {
+            public Smashable Prop;
+            public float ExpiresAt;
+        }
+
         readonly HashSet<int> hooked = new();
         readonly List<Smashable> props = new();
+        readonly List<SupplyProp> supplies = new();
         readonly HashSet<string> visited = new(StringComparer.Ordinal);
         readonly StringBuilder hudBuffer = new(256);
 
         static int runSerial;
         float began, phaseEnd, hudNext, slowUntil, roomCheck, nextSupply, nextMini, cueGoUntil;
-        int layer, nextLayer;
-        bool won, deliveryPicked, miniSpotPicked;
+        float runStart, clearSeconds;
+        int layer, nextLayer, stars;
+        bool won, timedOut, deliveryPicked, miniSpotPicked;
         Vector3 pendingDelivery, pendingMiniSpot;
         string deliveryRoom = "", miniRoom = "", clue = "";
+        bool boundsReady;
+        float boundsMinX, boundsMaxX, boundsMinZ, boundsMaxZ, voidY;
         readonly List<MiniCalculator> minis = new();
 
         public State Current { get; private set; }
         public BossController Boss => boss;
-        public float TimeLeft => Mathf.Max(0f, rules.RoundTimeLimitSeconds - (Time.time - began));
+        public int Stars => stars;
+        public float ClearSeconds => clearSeconds;
+        /// <summary>One run-wide clock: phase transitions must not reset the limit or the star timer.</summary>
+        // @trace AMD-022
+        public float TimeLeft => rules == null
+            ? 0f : Mathf.Max(0f, rules.RoundTimeLimitSeconds - (Time.time - runStart));
 
         public void Configure(PlayerJoinManager players, RoomBuilder builder,
             DeliverySpawner boxes, GameHud display)
@@ -171,6 +188,10 @@ namespace Wreckabulary.BossFight
             layer = 0;
             nextLayer = 0;
             won = false;
+            timedOut = false;
+            stars = 0;
+            clearSeconds = 0f;
+            runStart = Time.time;
             nextSupply = 0f;
             nextMini = 0f;
             deliveryPicked = false;
@@ -226,8 +247,9 @@ namespace Wreckabulary.BossFight
             {
                 nextSupply = Time.time + rules.SupplyDropSeconds;
                 nextMini = Time.time + rules.MiniFirstSeconds;
-                SpawnWordCaches(layer);
-                // @trace AMD-007, AMD-008
+                // No per-shield cache: every prop now arrives through the random supply drop.
+                // @trace AMD-007, AMD-008, AMD-018
+                clue = "Smash props and catch supply drops to collect letters.";
             }
             else if (next == State.Hit)
             {
@@ -245,6 +267,14 @@ namespace Wreckabulary.BossFight
                 slowUntil = 0f;
             }
 
+            RescueStrays();
+            // One run-wide limit. Reaching it ends the round with a star rating, never a defeat.
+            // @trace AMD-022
+            if (runStart > 0f && rules != null && Current != State.Result &&
+                Time.time >= runStart + rules.RoundTimeLimitSeconds)
+            {
+                Finish(false, true);
+            }
             Vector3 target = PlayerPosition();
             switch (Current)
             {
@@ -270,7 +300,6 @@ namespace Wreckabulary.BossFight
                 case State.DropAndPrevent:
                     hud.SetInstruction("FIND AND SPELL  " + names.WordFor(layer), clue);
                     TickHazards(target, layer, true, false);
-                    if (Time.time >= began + rules.RoundTimeLimitSeconds) Finish(false);
                     break;
 
                 case State.Stagger:
@@ -287,12 +316,11 @@ namespace Wreckabulary.BossFight
                     hud.SetInstruction("HIT THE CALCULATOR", clue);
                     TickHazards(target, 3, true, true);
                     if (boss.Health <= 0f) Finish(true);
-                    else if (Time.time >= began + rules.RoundTimeLimitSeconds) Finish(false);
                     break;
                 // @trace AMD-007, AMD-008, AMD-010
 
                 case State.Result:
-                    hud.SetInstruction(won ? "BOSS DEFEATED" : "THE CALCULATOR WINS",
+                    hud.SetInstruction((timedOut ? "TIME'S UP" : "BOSS DEFEATED") + " - " + stars + "/3 STARS",
                         "Press START to fight again");
                     if (joins.AnyStartPressed()) Restart();
                     break;
@@ -300,6 +328,8 @@ namespace Wreckabulary.BossFight
 
             TickEventCues();
             // @trace AMD-013
+            TickSupplyLifetime();
+            // @trace AMD-022
 
             if (Time.time >= hudNext)
             {
@@ -325,9 +355,11 @@ namespace Wreckabulary.BossFight
                 if (i == layer && Current == State.DropAndPrevent) hudBuffer.Append('<').Append(names.WordFor(i)).Append('>');
                 else hudBuffer.Append(names.WordFor(i));
             }
+            string starLine = StarGlyphs(stars) + "  " + stars + "/3 STARS";
             string resultText = Current == State.Result
-                ? (won ? "YOU WIN!\n" + names.Name + " is smashed.\nPress START to retry"
-                      : "YOU LOSE\nThe Calculator is still shielded.\nPress START to retry")
+                ? (!won
+                    ? "TIME'S UP\n" + starLine + "\n" + RoundManager.FormatTime(clearSeconds) + " fought  -  START to retry"
+                    : "BOSS DEFEATED!\n" + starLine + "\n" + RoundManager.FormatTime(clearSeconds) + " clear  -  START to retry")
                 : "";
             overlay.Refresh(shieldText, hudBuffer.ToString(), clue,
                 RoundManager.FormatTime(TimeLeft), boss.MaxHealth > 0f ? boss.Health / boss.MaxHealth : 0f,
@@ -343,16 +375,38 @@ namespace Wreckabulary.BossFight
             return hudBuffer.ToString();
         }
 
-        void Finish(bool victory)
+        /// <summary>Rating by clear time: fast runs get three stars, slow ones still finish with one.</summary>
+        // @trace AMD-022
+        public static int StarRating(float elapsedSeconds, GameRules gameRules)
+        {
+            if (gameRules == null) return 1;
+            if (elapsedSeconds <= gameRules.StarThreeSeconds) return 3;
+            if (elapsedSeconds <= gameRules.StarTwoSeconds) return 2;
+            return 1;
+        }
+
+        static string StarGlyphs(int count)
+        {
+            int n = Mathf.Clamp(count, 0, 3);
+            return new string('\u2605', n) + new string('\u2606', 3 - n);
+        }
+
+        /// <summary>Timeout is a rated finish, not a defeat: no loss wording anywhere in the result.</summary>
+        // @trace AMD-022
+        void Finish(bool victory, bool timeout = false)
         {
             won = victory;
+            timedOut = timeout;
+            clearSeconds = Mathf.Max(0f, Time.time - runStart);
+            stars = StarRating(clearSeconds, rules);
             aoe.CancelAll();
             ClearMinis();
             hud.HideCountdown();
             Time.timeScale = 1f;
             slowUntil = 0f;
             GameFeedback.Play(victory ? GameCue.Protect : GameCue.Out);
-            Debug.Log("[BossFight] finish win=" + victory + " hp=" + boss.Health);
+            Debug.Log("[BossFight] finish win=" + victory + " timeout=" + timeout +
+                      " stars=" + stars + " elapsed=" + clearSeconds.ToString("F1") + " hp=" + boss.Health);
             Advance(State.Result);
         }
 
@@ -361,6 +415,47 @@ namespace Wreckabulary.BossFight
             var box = room && room.Layout != null && room.Layout.Rooms.Count > 0 ? room.Layout.Rooms[0] : null;
             if (box == null) return Vector3.up * .2f;
             return new Vector3((box.MinX + box.MaxX) * .5f, box.FloorY + .2f, (box.MinZ + box.MaxZ) * .5f);
+        }
+
+        /// <summary>
+        /// Safety net: if a knock or a moving hitbox ever puts someone outside the house, put them
+        /// back at the arena instead of letting them fall into the void.
+        /// </summary>
+        // @trace MECH-006, AMD-019
+        void RescueStrays()
+        {
+            if (!boundsReady) CacheBounds();
+            if (!boundsReady || !joins) return;
+            foreach (var p in joins.Players)
+            {
+                if (!p || p.IsEliminated) continue;
+                var at = p.transform.position;
+                bool outside = at.y < voidY || at.x < boundsMinX || at.x > boundsMaxX ||
+                               at.z < boundsMinZ || at.z > boundsMaxZ;
+                if (!outside) continue;
+                p.Respawn(ArenaCentre());
+                p.Frozen = false;
+                overlay.Flash("BACK IN THE HOUSE!", new Color(.55f, .9f, .45f), .9f);
+                Debug.Log("[BossFight] rescued a player from outside the house at " + at);
+            }
+        }
+
+        void CacheBounds()
+        {
+            var rooms = room && room.Layout != null ? room.Layout.Rooms : null;
+            if (rooms == null || rooms.Count == 0) return;
+            boundsMinX = boundsMaxX = rooms[0].MinX;
+            boundsMinZ = boundsMaxZ = rooms[0].MinZ;
+            voidY = rooms[0].FloorY;
+            foreach (var r in rooms)
+            {
+                boundsMinX = Mathf.Min(boundsMinX, r.MinX - 2f);
+                boundsMaxX = Mathf.Max(boundsMaxX, r.MaxX + 2f);
+                boundsMinZ = Mathf.Min(boundsMinZ, r.MinZ - 2f);
+                boundsMaxZ = Mathf.Max(boundsMaxZ, r.MaxZ + 2f);
+                voidY = Mathf.Min(voidY, r.FloorY - 5f);
+            }
+            boundsReady = true;
         }
 
         PlayerController Human()
@@ -388,9 +483,9 @@ namespace Wreckabulary.BossFight
 
         /// <summary>
         /// The landing spot is picked during the 3-2-1 cue and its room is announced before the
-        /// box falls. A fresh random stream each restart keeps deliveries different every game.
+        /// props fall. Each drop is a random handful of ordinary items - no letter targeting.
         /// </summary>
-        // @trace AMD-007, AMD-013, AMD-015
+        // @trace AMD-007, AMD-013, AMD-015, AMD-018
         void TickSupplies()
         {
             if (nextSupply <= 0f) return;
@@ -407,14 +502,39 @@ namespace Wreckabulary.BossFight
             if (left > 0f) return;
 
             nextSupply = Time.time + rules.SupplyDropSeconds;
-            var box = deliveries.DropAt(false, pendingDelivery);
+            var dropped = deliveries.DropPropsAt(pendingDelivery, rules.SupplyPropsPerDrop, SupplyProps);
             deliveryPicked = false;
-            if (!box) return;
-            props.Add(box);
+            if (dropped.Length == 0) return;
+            props.AddRange(dropped);
+            // Supplies are temporary; starter props stay until smashed. A long run no longer
+            // buries the house in accumulated furniture.
+            // @trace AMD-022
+            float expires = Time.time + rules.SupplyPropLifetimeSeconds;
+            foreach (var prop in dropped) supplies.Add(new SupplyProp { Prop = prop, ExpiresAt = expires });
             Go("SUPPLY DROP - " + deliveryRoom);
             overlay.Flash("SUPPLY DROP!", new Color(.55f, .9f, .45f), .9f);
-            Popup.Show("SUPPLY DROP - " + deliveryRoom, box.transform.position + Vector3.up,
+            Popup.Show("SUPPLY DROP - " + deliveryRoom, pendingDelivery + Vector3.up,
                 new Color(.55f, .9f, .45f), 1.2f);
+            clue = "Supply items landed in " + deliveryRoom + " - smash them!";
+        }
+
+        /// <summary>Supply props quietly expire after their lifetime; smashed ones just leave the list.</summary>
+        // @trace AMD-022
+        void TickSupplyLifetime()
+        {
+            if (rules == null || rules.SupplyPropLifetimeSeconds <= 0f) return;
+            for (int i = supplies.Count - 1; i >= 0; i--)
+            {
+                var entry = supplies[i];
+                if (entry.Prop && Time.time < entry.ExpiresAt) continue;
+                if (entry.Prop)
+                {
+                    var at = entry.Prop.transform.position + Vector3.up * .5f;
+                    GameFeedback.Burst("Wood_Splinter", at, .3f, new Color(.8f, .82f, .86f), .3f);
+                    Destroy(entry.Prop.gameObject);
+                }
+                supplies.RemoveAt(i);
+            }
         }
 
         /// <summary>Mini calculators appear on a timer, chase the human, and can be smashed for letters.</summary>
@@ -453,12 +573,37 @@ namespace Wreckabulary.BossFight
             overlay.Flash("MINI CALCULATORS!", new Color(1f, .55f, .2f), .9f);
         }
 
+        /// <summary>
+        /// Mini spawns stay inside a room and near the player. A far random-room fallback made
+        /// waves look as if they never arrived; clamping the offset keeps them in view.
+        /// </summary>
+        // @trace AMD-020, AMD-021
         Vector3 MiniSpot(Vector3 at)
         {
             Vector2 dir = UnityEngine.Random.insideUnitCircle;
             if (dir.sqrMagnitude < .0001f) dir = Vector2.up;
             dir.Normalize();
-            return new Vector3(at.x + dir.x * 4.5f, ArenaCentre().y, at.z + dir.y * 4.5f);
+            var spot = new Vector3(at.x + dir.x * 4.5f, at.y, at.z + dir.y * 4.5f);
+            var rooms = room && room.Layout != null ? room.Layout.Rooms : null;
+            if (rooms == null || rooms.Count == 0) return spot;
+            foreach (var r in rooms)
+                if (r.Contains(spot.x, spot.z) && Mathf.Abs(r.FloorY - at.y) < RoomBox.StoreyTolerance)
+                    return spot;
+
+            var currentName = room.Layout.RoomAt(at.x, at.y, at.z);
+            var current = !string.IsNullOrEmpty(currentName) ? room.Layout.Room(currentName) : null;
+            if (current != null)
+            {
+                float insetX = Mathf.Min(1f, (current.MaxX - current.MinX) * .25f);
+                float insetZ = Mathf.Min(1f, (current.MaxZ - current.MinZ) * .25f);
+                return new Vector3(
+                    Mathf.Clamp(spot.x, current.MinX + insetX, current.MaxX - insetX),
+                    current.FloorY + .2f,
+                    Mathf.Clamp(spot.z, current.MinZ + insetZ, current.MaxZ - insetZ));
+            }
+            var home = rooms[UnityEngine.Random.Range(0, rooms.Count)];
+            return new Vector3((home.MinX + home.MaxX) * .5f, home.FloorY + .2f,
+                (home.MinZ + home.MaxZ) * .5f);
         }
 
         string RoomNameAt(Vector3 at)
@@ -567,104 +712,22 @@ namespace Wreckabulary.BossFight
             }
         }
 
-        // Ordinary furniture/items whose own letters can supply CALC / ULA / TOR.
-        // Short words are preferred so the full drops fit the 16-letter bag.
-        static readonly string[] CacheProps =
+        // General pool of recognisable items. No word is picked to satisfy a shield; drops are
+        // random each run, and each prop still releases its own complete word when smashed.
+        // Historical AMD-003/004/005 caches are replaced by this general pool.
+        // @trace AMD-003, AMD-004, AMD-005, AMD-018
+        public static readonly string[] SupplyProps =
         {
             "CLOCK", "CAKE", "BAT", "BALL", "TABLE", "LAMP", "BED", "SOFA",
             "BOOK", "APPLE", "MUG", "SPEAR", "SOAP", "SODA", "PIE", "BOMB", "BROOM", "PLATE",
         };
-        static readonly string[] DecoyProps = { "BOOK", "BED", "SOFA", "BAT" };
-
-        /// <summary>
-        /// Greedy set cover: picks a few ordinary props whose natural letters contain
-        /// every letter of the shield word, including duplicates (CALC needs two C's).
-        /// </summary>
-        // @trace AMD-005
-        public static List<string> CachePropsFor(string word)
-        {
-            var need = new Dictionary<char, int>();
-            foreach (char c in (word ?? "").ToUpperInvariant())
-            {
-                if (c < 'A' || c > 'Z') continue;
-                need.TryGetValue(c, out int count);
-                need[c] = count + 1;
-            }
-
-            var chosen = new List<string>();
-            var used = new HashSet<string>(StringComparer.Ordinal);
-            while (need.Count > 0)
-            {
-                string best = null;
-                int bestScore = int.MinValue;
-                foreach (string prop in CacheProps)
-                {
-                    if (used.Contains(prop)) continue;
-                    var left = new Dictionary<char, int>(need);
-                    int covered = 0;
-                    foreach (char c in prop)
-                    {
-                        if (!left.TryGetValue(c, out int count) || count <= 0) continue;
-                        covered++;
-                        if (count == 1) left.Remove(c); else left[c] = count - 1;
-                    }
-                    if (covered == 0) continue;
-                    int score = covered * 100 - prop.Length;
-                    if (score > bestScore) { bestScore = score; best = prop; }
-                }
-                if (best == null) break; // curated pool always covers CALC/ULA/TOR
-                chosen.Add(best);
-                used.Add(best);
-                foreach (char c in best)
-                {
-                    if (!need.TryGetValue(c, out int count)) continue;
-                    if (count == 1) need.Remove(c); else need[c] = count - 1;
-                }
-            }
-            return chosen;
-        }
-
-        /// <summary>
-        /// Shield letters hide inside ordinary items (CLOCK, CAKE, BAT, ...). A prop
-        /// keeps its look and releases ALL of its own letters - never a single fake letter.
-        /// </summary>
-        // @trace MECH-002, MECH-004, AMD-003, AMD-004, AMD-005
-        void SpawnWordCaches(int index)
-        {
-            string word = names.WordFor(index);
-            var box = RoomFor(index);
-            var caches = CachePropsFor(word);
-            var used = new HashSet<string>(caches, StringComparer.Ordinal);
-
-            for (int d = 0; d < 2; d++)
-            {
-                for (int t = 0; t < DecoyProps.Length; t++)
-                {
-                    string candidate = DecoyProps[(index * 2 + d + t) % DecoyProps.Length];
-                    if (!used.Add(candidate)) continue;
-                    caches.Add(candidate);
-                    break;
-                }
-            }
-
-            for (int i = 0; i < caches.Count; i++)
-            {
-                string propWord = caches[i];
-                var prop = FurnitureCatalog.Spawn(propWord, SpotInRoom(box, i, caches.Count), i * 53f, transform);
-                if (!prop) continue;
-                prop.Drops = null; // no override: smashing releases every letter in the prop's own word
-                props.Add(prop);
-            }
-            clue = word + " is hidden in the furniture in " + (box != null ? box.Name : "the house") + " - smash them!";
-            Debug.Log("[BossFight] caches for '" + word + "' in " + (box != null ? box.Name : "house") +
-                      ": " + string.Join(", ", caches));
-        }
 
         void ClearProps()
         {
             for (int i = 0; i < props.Count; i++)
                 if (props[i]) Destroy(props[i].gameObject);
             props.Clear();
+            supplies.Clear();
         }
     }
 }

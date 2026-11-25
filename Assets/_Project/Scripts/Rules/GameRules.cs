@@ -70,7 +70,7 @@ namespace Wreckabulary.Rules
         /// <summary>How many keys the Escape crew must find before the way out is revealed.</summary>
         public int EscapeKeys = 1;
 
-        // @trace NUM-001, NUM-002, NUM-003, NUM-005, AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014
+        // @trace NUM-001, NUM-002, NUM-003, NUM-005, AMD-006, AMD-007, AMD-008, AMD-010, AMD-012, AMD-013, AMD-014, AMD-022
         /// <summary>Boss Fight: the label shown on the boss bar and the three shield words.</summary>
         public string BossName = "";
         public string[] BossWords = System.Array.Empty<string>();
@@ -82,6 +82,14 @@ namespace Wreckabulary.Rules
         public float HitSeconds = 75f;
         public int StarterProps = 5;
         public float SupplyDropSeconds = 30f;
+        public int SupplyPropsPerDrop = 3; // @trace AMD-018
+        /// <summary>Supply props fade out this long after landing so a long run cannot clutter the house.</summary>
+        // @trace AMD-022
+        public float SupplyPropLifetimeSeconds = 90f;
+        /// <summary>Clear-time thresholds for the 3-star rating; slower clears still finish, with fewer stars.</summary>
+        // @trace AMD-022
+        public float StarThreeSeconds = 150f;
+        public float StarTwoSeconds = 300f;
         public float AoeWarnSeconds = 1.6f;
         public float AoeActiveSeconds = 0.45f;
         public float[] AoeRadiusByLayer = { 1.6f, 1.8f, 2f, 2.2f };
@@ -100,6 +108,7 @@ namespace Wreckabulary.Rules
         public float MiniStunSeconds = 0.18f;
         public float MiniKnockback = 3.5f;
         public float MiniHitCooldownSeconds = 3f;
+        public float MiniFreezeAfterHitSeconds = .8f; // @trace AMD-019
         public float MiniHealth = 42f;
         public float EventWarnSeconds = 3f;
         public float SmashEverySeconds = 6f; // @trace AMD-016, AMD-017
@@ -169,6 +178,10 @@ namespace Wreckabulary.Rules
             Need(LayerSeconds > 0f && HitSeconds > 0f, "layer and hit phases need a positive duration");
             Need(StarterProps >= 1, "starterProps must place at least one prop");
             Need(SupplyDropSeconds > 0f, "supplyDropSeconds must be positive");
+            Need(SupplyPropsPerDrop >= 1, "supplyPropsPerDrop must deliver at least one prop");
+            Need(SupplyPropLifetimeSeconds > 0f, "supplyPropLifetimeSeconds must be positive");
+            Need(StarThreeSeconds > 0f && StarTwoSeconds > StarThreeSeconds,
+                "star thresholds must rise from three stars to two stars");
             Need(AoeWarnSeconds > SlickDodgeWindow && SlickDodgeWindow >= 0f, "slickDodgeWindow must fit inside aoeWarnSeconds");
             Need(AoeActiveSeconds > 0f, "aoeActiveSeconds must be positive");
             Need(AoeBurstMin >= 1 && AoeBurstMax >= AoeBurstMin, "aoeBurstMax must be at least aoeBurstMin");
@@ -179,6 +192,7 @@ namespace Wreckabulary.Rules
             Need(MiniStunSeconds > 0f && MiniStunSeconds < .5f, "miniStunSeconds must be a brief stun");
             Need(MiniKnockback > 0f && MiniHitCooldownSeconds > MiniStunSeconds * 2f,
                 "miniHitCooldownSeconds must prevent chain stunning");
+            Need(MiniFreezeAfterHitSeconds >= 0f, "miniFreezeAfterHitSeconds cannot be negative");
             Need(MiniHealth > 0f, "miniHealth must be positive so minis survive more than one hit");
             Need(EventWarnSeconds > 0f, "eventWarnSeconds must be positive");
             Need(SmashEverySeconds > 0f && SmashWarnSeconds > 0f, "jump smash timings must be positive");
@@ -232,12 +246,13 @@ namespace Wreckabulary.Rules
             "roundsToWin", "respawn", "reconnectGrace", "roundTimeLimit", "clearOut", "notes",
             "exitNeedsKey", "keyAfterRooms", "randomExit", "exitKeys",
             "bossName", "bossWords", "bossMaxHealth", "bossVulnerability", "prepSeconds", "appearSeconds",
-            "layerSeconds", "hitSeconds", "starterProps", "supplyDropSeconds",
+            "layerSeconds", "hitSeconds", "starterProps", "supplyDropSeconds", "supplyPropsPerDrop",
+            "supplyPropLifetimeSeconds", "starThreeSeconds", "starTwoSeconds",
             "aoeWarnSeconds", "aoeActiveSeconds", "aoeRadiusByLayer",
             "aoeDamageByLayer", "aoeCooldownByLayer", "aoeBurstMin", "aoeBurstMax",
             "maxAoe", "lettersLostOnHit", "slickDodgeWindow",
             "miniFirstSeconds", "miniIntervalSeconds", "miniMaxAlive", "miniSpeed",
-            "miniStunSeconds", "miniKnockback", "miniHitCooldownSeconds", "miniHealth",
+            "miniStunSeconds", "miniKnockback", "miniHitCooldownSeconds", "miniFreezeAfterHitSeconds", "miniHealth",
             "eventWarnSeconds",
             "smashEverySeconds", "smashWarnSeconds", "smashRadius", "smashDamage",
         };
@@ -323,6 +338,10 @@ namespace Wreckabulary.Rules
             r.LayerSeconds = n["layerSeconds"].Float(r.LayerSeconds);
             r.StarterProps = n["starterProps"].Int(r.StarterProps);
             r.SupplyDropSeconds = n["supplyDropSeconds"].Float(r.SupplyDropSeconds);
+            r.SupplyPropsPerDrop = n["supplyPropsPerDrop"].Int(r.SupplyPropsPerDrop);
+            r.SupplyPropLifetimeSeconds = n["supplyPropLifetimeSeconds"].Float(r.SupplyPropLifetimeSeconds);
+            r.StarThreeSeconds = n["starThreeSeconds"].Float(r.StarThreeSeconds);
+            r.StarTwoSeconds = n["starTwoSeconds"].Float(r.StarTwoSeconds);
             r.AoeWarnSeconds = n["aoeWarnSeconds"].Float(r.AoeWarnSeconds);
             r.AoeActiveSeconds = n["aoeActiveSeconds"].Float(r.AoeActiveSeconds);
             if (n.Has("aoeRadiusByLayer")) r.AoeRadiusByLayer = n["aoeRadiusByLayer"].Floats(4);
@@ -340,6 +359,7 @@ namespace Wreckabulary.Rules
             r.MiniStunSeconds = n["miniStunSeconds"].Float(r.MiniStunSeconds);
             r.MiniKnockback = n["miniKnockback"].Float(r.MiniKnockback);
             r.MiniHitCooldownSeconds = n["miniHitCooldownSeconds"].Float(r.MiniHitCooldownSeconds);
+            r.MiniFreezeAfterHitSeconds = n["miniFreezeAfterHitSeconds"].Float(r.MiniFreezeAfterHitSeconds);
             r.MiniHealth = n["miniHealth"].Float(r.MiniHealth);
             r.EventWarnSeconds = n["eventWarnSeconds"].Float(r.EventWarnSeconds);
             r.SmashEverySeconds = n["smashEverySeconds"].Float(r.SmashEverySeconds);

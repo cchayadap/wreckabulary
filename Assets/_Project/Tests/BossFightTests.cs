@@ -17,6 +17,17 @@ namespace Wreckabulary.Tests
             BossWords = new[] { "CALC", "ULA", "TOR" },
         };
 
+        // @trace AMD-022
+        [TestCase(0f, 3)]
+        [TestCase(150f, 3)]
+        [TestCase(151f, 2)]
+        [TestCase(300f, 2)]
+        [TestCase(301f, 1)]
+        public void ClearTimeMapsToThreeStarRating(float elapsed, int expected)
+        {
+            Assert.AreEqual(expected, BossFightDirector.StarRating(elapsed, BossRules()));
+        }
+
         [Test]
         public void BossWordListKeepsEveryNormalRecipe()
         {
@@ -107,18 +118,33 @@ namespace Wreckabulary.Tests
                 "standing still and spelling must be safe; only stepping into a circle should hurt");
         }
 
-        [TestCase("CALC")]
-        [TestCase("ULA")]
-        [TestCase("TOR")]
-        public void CachePropsNaturallyContainTheWholeShieldWord(string shield)
+        [Test]
+        public void SupplyPoolIsGeneralNotShieldDriven()
         {
-            var props = BossFightDirector.CachePropsFor(shield);
-            Assert.IsNotEmpty(props, shield + " needs natural prop carriers");
-            string letters = string.Concat(props);
-            foreach (var group in shield.GroupBy(c => c))
-                Assert.GreaterOrEqual(letters.Count(c => c == group.Key), group.Count(),
-                    "props must naturally contain every " + group.Key + " needed by " + shield);
-            Assert.LessOrEqual(letters.Length, 12, "carriers should fit the bag without excessive junk");
+            var pool = BossFightDirector.SupplyProps;
+            Assert.Greater(pool.Length, 8, "supply drops need a broad random pool");
+            CollectionAssert.Contains(pool, "MUG", "the pool must still offer U naturally");
+            Assert.IsTrue(pool.All(w => w.All(c => c >= 'A' && c <= 'Z')),
+                "every supply item must be an ordinary word with its own letters");
+        }
+
+        [UnityTest]
+        public IEnumerator SupplyDropsArePropsNotLetterBoxes()
+        {
+            var host = new GameObject("Supply drop test");
+            var spawner = host.AddComponent<DeliverySpawner>();
+            spawner.Running = false;
+            yield return null;
+
+            var dropped = spawner.DropPropsAt(new Vector3(0f, 4f, 0f), 3, BossFightDirector.SupplyProps);
+            Assert.AreEqual(3, dropped.Length);
+            CollectionAssert.AllItemsAreUnique(dropped.Select(p => p.Word).ToArray());
+            foreach (var prop in dropped)
+            {
+                Assert.IsFalse(prop.name.StartsWith("Box ("), "a supply must look like an item, not a letter box");
+                Assert.AreEqual(prop.Word, prop.Drops, "smashing it must release its own full word");
+                Assert.IsNotNull(prop.GetComponent<LetterBuilt>(), "the prop keeps its visible word");
+            }
         }
 
         [UnityTest]
@@ -211,6 +237,72 @@ namespace Wreckabulary.Tests
                 "a mini drops exactly one letter, never the word CALC");
             Assert.GreaterOrEqual(released[0], 'A');
             Assert.LessOrEqual(released[0], 'Z');
+        }
+
+        // @trace AMD-019, AMD-020
+        [UnityTest]
+        public IEnumerator BonkedMiniFreezesAndHitboxesDoNotPushPlayers()
+        {
+            var player = Object.Instantiate(GameAssets.I.playerPrefab, Vector3.zero, Quaternion.identity);
+            player.Setup(0, new ScriptedBinding());
+            player.Respawn(Vector3.zero);
+            yield return null;
+
+            var rules = BossRules();
+            var bossGo = new GameObject("Boss push test");
+            var boss = bossGo.AddComponent<BossController>();
+            boss.Configure(rules, new BossNameCatalogue(rules), new Vector3(3f, 0f, 0f));
+            var miniGo = new GameObject("Mini push test");
+            var mini = miniGo.AddComponent<MiniCalculator>();
+            mini.Configure(rules, new Vector3(0f, .4f, 0f));
+
+            foreach (var body in player.GetComponents<Collider>())
+            {
+                Assert.IsTrue(Physics.GetIgnoreCollision(bossGo.GetComponent<Collider>(), body),
+                    "the boss hitbox must not physically shove players through walls");
+                Assert.IsTrue(Physics.GetIgnoreCollision(miniGo.GetComponent<Collider>(), body),
+                    "a mini must not physically shove players through walls");
+            }
+
+            Assert.IsFalse(mini.Frozen);
+            miniGo.transform.position = new Vector3(2f, .4f, 0f); // outside the stand-off ring
+            mini.FreezeAfterHit();
+            Assert.IsTrue(mini.Frozen, "a bonked mini pauses before chasing again");
+            var before = mini.Position;
+            mini.Tick(player, .5f);
+            Assert.AreEqual(before, mini.Position, "a frozen mini must stop chasing");
+
+            // With bodies ignored, a player can walk into a mini. It must back out, not vanish.
+            miniGo.transform.position = new Vector3(.4f, .4f, 0f);
+            for (int i = 0; i < 20; i++) mini.Tick(player, .05f);
+            Assert.GreaterOrEqual(Vector3.Distance(mini.Position, player.transform.position),
+                MiniCalculator.StandoffDistance - .05f,
+                "an overlapped mini steps back into view instead of hiding inside the player");
+        }
+
+        // @trace AMD-021
+        [UnityTest]
+        public IEnumerator GameplayActorsAreNotCameraBlockersAndLettersStayReadable()
+        {
+            var rules = BossRules();
+            var miniGo = new GameObject("Mini fade test");
+            var mini = miniGo.AddComponent<MiniCalculator>();
+            mini.Configure(rules, Vector3.zero);
+            var bossGo = new GameObject("Boss fade test");
+            var boss = bossGo.AddComponent<BossController>();
+            boss.Configure(rules, new BossNameCatalogue(rules), Vector3.zero);
+            var propGo = new GameObject("Solid prop fade test");
+            var propBody = propGo.AddComponent<Rigidbody>();
+
+            Assert.IsFalse(CameraRig.ShouldFadeOccluder(miniGo.GetComponent<Rigidbody>()),
+                "a mini crossing the camera line must not be faded away");
+            Assert.IsFalse(CameraRig.ShouldFadeOccluder(bossGo.GetComponent<Rigidbody>()),
+                "the boss must stay visible while being fought");
+            Assert.IsTrue(CameraRig.ShouldFadeOccluder(propBody),
+                "ordinary solid scenery can still fade for sight lines");
+            Assert.GreaterOrEqual(LetterPickupView.ViewDistance, 30f,
+                "ground letters must stay lifted across the whole house");
+            yield return null;
         }
 
         // @trace AMD-012, AMD-013

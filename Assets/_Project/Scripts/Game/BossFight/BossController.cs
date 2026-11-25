@@ -24,6 +24,7 @@ namespace Wreckabulary.BossFight
         const float LandSquashSeconds = .22f;
         readonly List<LineRenderer> shieldRings = new();
         Transform visual;
+        Collider hitbox;
 
         public event Action<int> LayerCracked;
         public event Action ShieldBroken;
@@ -61,12 +62,15 @@ namespace Wreckabulary.BossFight
                 body.useGravity = false;
                 body.mass = 100f;
             }
-            if (!GetComponent<Collider>())
+            var box = GetComponent<BoxCollider>();
+            if (!box)
             {
-                var hitbox = gameObject.AddComponent<BoxCollider>();
-                hitbox.center = new Vector3(0f, .95f, 0f);
-                hitbox.size = new Vector3(1.9f, 2.1f, 1.5f);
+                box = gameObject.AddComponent<BoxCollider>();
+                box.center = new Vector3(0f, .95f, 0f);
+                box.size = new Vector3(1.9f, 2.1f, 1.5f);
             }
+            hitbox = box;
+            IgnorePlayerBodies(hitbox);
 
             if (visual) Destroy(visual.gameObject);
             var root = new GameObject("Calculator visual");
@@ -159,8 +163,25 @@ namespace Wreckabulary.BossFight
             if (visual) visual.localScale = Vector3.one;
         }
 
+        /// <summary>
+        /// The hitbox stays solid for OverlapSphere strikes, but never physically shoves a player
+        /// through a wall during a leap. Query collisions are unaffected.
+        /// </summary>
+        // @trace AMD-019
+        public static void IgnorePlayerBodies(Collider collider)
+        {
+            if (!collider) return;
+            foreach (var player in World.Players)
+            {
+                if (!player) continue;
+                foreach (var body in player.GetComponents<Collider>())
+                    if (body) Physics.IgnoreCollision(collider, body, true);
+            }
+        }
+
         void Update()
         {
+            IgnorePlayerBodies(hitbox); // late joiners get the same protection
             if (leaping)
             {
                 float t = Mathf.Clamp01((Time.time - leapAt) / Mathf.Max(.01f, leapDuration));
