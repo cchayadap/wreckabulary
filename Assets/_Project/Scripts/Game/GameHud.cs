@@ -606,13 +606,13 @@ namespace Wreckabulary
             GlyphImage("Bag glyph", bagLetters, new Vector2(0f, 1f), new Vector2(0f, -4f), 28f, "bag", BagInk);
             for (int i = 0; i < TrayTiles; i++)
             {
-                var cell = bagCells[i] = MakeCell($"Big letter {i + 1}", bagLetters, new Vector2(40f + (i % TilesPerRow) * 62.5f, -(i / TilesPerRow) * 67.5f), new Vector2(55f, 60f), 33f);
+                var cell = bagCells[i] = MakeCell($"Big letter {i + 1}", bagLetters, new Vector2(BagLetterMargin + (i % TilesPerRow) * BagLetterStepX, -(i / TilesPerRow) * BagLetterStepY), new Vector2(BagLetterWide, BagLetterTall), 33f);
                 cell.face.pixelsPerUnitMultiplier = cell.edge.pixelsPerUnitMultiplier = 11f / 6.25f;
                 cell.ring = CreateImage("Ring", cell.face.transform, Vector2.zero, Vector2.zero, Vector2.zero, BagCellEdge);
                 Stretch(cell.ring.rectTransform); cell.ring.sprite = hairRing; cell.ring.type = Image.Type.Sliced;
                 cell.ring.pixelsPerUnitMultiplier = cell.face.pixelsPerUnitMultiplier;
             }
-            bagPanelCount = Text("Count", bagLetters, Vector2.one, new Vector2(0f, -133.5f), new Vector2(120f, 24f), 20f, BagInk, TextAlignmentOptions.Right);
+            bagPanelCount = Text("Count", bagLetters, Vector2.one, new Vector2(0f, -(BagLetterGridTall + BagLetterCountGap)), new Vector2(120f, 24f), 20f, BagInk, TextAlignmentOptions.Right);
             bagPanelCount.rectTransform.pivot = Vector2.one;
             bagHandsRow = Row("Hands");
             for (int i = 0; i < 2; i++)
@@ -711,7 +711,7 @@ namespace Wreckabulary
 
         HandView MakeBagHand(string label, RectTransform parent, Vector2 position, int slot, Action onTap)
         {
-            var size = new Vector2(181f, 145f);
+            var size = new Vector2(181f, BagHandTall);
             var rt = Panel(label, parent, new Vector2(0f, 1f), position, size, new Vector2(0f, 1f), BagCard);
             var view = new HandView { face = rt.GetComponent<Image>() };
             view.face.raycastTarget = true;
@@ -1409,13 +1409,20 @@ namespace Wreckabulary
 
         void LayoutBag(int effects)
         {
-            float y = 0f;
             static float Rows(int n) => n == 0 ? 0f : Mathf.Ceil(n / (float)ChipsPerRow) * (Chip + ChipGap) - ChipGap;
-            void Place(RectTransform row, float height)
+            var area = safe.rect;
+            float effectRows = Rows(effects);
+            float rest = BagLetterFoot + BagGap + BagHandTall + (effectRows > 0f ? BagGap + effectRows : 0f);
+            float mapTarget = BagDrag.MapTarget(area.width, BagSide + BagColumn + BagGap, BagGap, BagMapFloor, bookComfort, 188f, BookColumn);
+            float mapSize = BagDrag.MapSide(area.height - BagTop - BagBottom, rest, BagGap, BagMapFloor, mapTarget, BagColumn, BagLetterMargin, BagLetterGridWide, BagLetterGridTall);
+            float footprint = Mathf.Max(mapSize, BagColumn);
+            float letterScale = BagDrag.LetterScale(footprint, BagLetterMargin, BagLetterGridWide);
+            float y = 0f, inset = (footprint - BagColumn) * .5f;
+            void Place(RectTransform row, float x, float width, float height)
             {
                 row.gameObject.SetActive(height > 0f);
                 if (height <= 0f) return;
-                row.anchoredPosition = new Vector2(0f, -y); row.sizeDelta = new Vector2(BagColumn, height);
+                row.anchoredPosition = new Vector2(x, -y); row.sizeDelta = new Vector2(width, height);
                 y += height + BagGap;
             }
             void Flow(int count, Func<int, GameObject> chip)
@@ -1423,13 +1430,11 @@ namespace Wreckabulary
                 for (int i = 0; i < count; i++)
                     ((RectTransform)chip(i).transform).anchoredPosition = new Vector2(i % ChipsPerRow * (Chip + ChipGap), -(i / ChipsPerRow) * (Chip + ChipGap));
             }
-            Place(bagLetters, 155f); Place(bagHandsRow, 145f); Place(bagEffectsRow, Rows(effects));
+            Place(bagLetters, 0f, footprint, BagLetterFoot + BagLetterGridTall * letterScale);
+            Place(bagHandsRow, inset, BagColumn, BagHandTall); Place(bagEffectsRow, inset, BagColumn, effectRows);
+            PlaceBagLetters(letterScale);
             Flow(effects, i => effectChips[i].root);
-            bagColumn.sizeDelta = new Vector2(BagColumn, Mathf.Max(0f, y - BagGap));
-            var area = safe.rect;
-            float mapTarget = BagDrag.MapTarget(area.width, BagSide + BagColumn + BagGap, BagGap, BagMapFloor, bookComfort, 188f, BookColumn);
-            float mapSize = BagDrag.MapSide(area.height - BagTop - BagBottom, bagColumn.sizeDelta.y, BagGap, BagMapFloor, mapTarget);
-            float footprint = Mathf.Max(mapSize, BagColumn);
+            bagColumn.sizeDelta = new Vector2(footprint, Mathf.Max(0f, y - BagGap));
             float reserve = PlaceDropColumns(BagDrag.SideColumnWidth(area.width, footprint + 2f * BagGap + bookComfort));
             float binEdge = BagDrag.ColumnEdge + dropColumnWidth, between = area.width - 2f * binEdge - BagDrag.ColumnGap;
             float bookWidth = Mathf.Min(BookColumn, Mathf.Max(188f, between - footprint - 2f * BagGap));
@@ -1444,7 +1449,7 @@ namespace Wreckabulary
             bagMapArea.anchoredPosition = new Vector2(left + (footprint - mapSize) * .5f, -BagTop);
             bagMapArea.sizeDelta = new Vector2(mapSize, mapSize);
             bagColumn.anchorMin = bagColumn.anchorMax = bagColumn.pivot = new Vector2(0f, 1f);
-            bagColumn.anchoredPosition = new Vector2(left + (footprint - BagColumn) * .5f, -BagTop - mapSize - BagGap);
+            bagColumn.anchoredPosition = new Vector2(left, -BagTop - mapSize - BagGap);
             bagMapFrame.sizeDelta = Vector2.one * mapSize;
             bagMapShadow.sizeDelta = Vector2.one * (mapSize + 2f * 31f * 75f / 28f);
         }

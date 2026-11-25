@@ -179,9 +179,29 @@ namespace Wreckabulary.Rules.Tests
         [Test]
         public void TheMapShrinksFirstToFitTheInventoryUnderIt()
         {
-            Assert.AreEqual(375f, BagDrag.MapSide(940f, 324f, 24f, 325f, 375f), "room to spare keeps the column width");
-            Assert.AreEqual(340f, BagDrag.MapSide(688f, 324f, 24f, 325f, 375f), "a short screen shrinks the map");
-            Assert.AreEqual(325f, BagDrag.MapSide(500f, 324f, 24f, 325f, 375f), "never below its floor");
+            const float rest = 196.5f, gap = 24f, floor = 325f, column = 375f, margin = 40f, wide = 305f, tall = 127.5f;
+            Assert.AreEqual(514f, BagDrag.MapSide(940f, rest, gap, floor, 514f, column, margin, wide, tall), .01f, "room to spare keeps the target");
+            Assert.AreEqual(447.47f, BagDrag.MapSide(838.3f, rest, gap, floor, 713.6f, column, margin, wide, tall), .01f, "a short screen shrinks the map and the letters together");
+            Assert.AreEqual(465.59f, BagDrag.MapSide(940f, rest + gap + 52f, gap, floor, 514f, column, margin, wide, tall), .01f, "a row of effects takes its share");
+            Assert.AreEqual(339.46f, BagDrag.MapSide(700f, rest, gap, floor, 514f, column, margin, wide, tall), .01f, "narrower than the column, the letters stop shrinking");
+            Assert.AreEqual(floor, BagDrag.MapSide(600f, rest, gap, floor, 514f, column, margin, wide, tall), "never below its floor");
+        }
+
+        [Test]
+        public void TheLettersFillTheWidthOfTheMapAndStillFitUnderIt()
+        {
+            const float rest = 196.5f, gap = 24f, floor = 325f, column = 375f, margin = 40f, wide = 305f, tall = 127.5f;
+            Assert.AreEqual(1.554f, BagDrag.LetterScale(514f, margin, wide), .001f, "1280x720 and 1920x1080");
+            Assert.AreEqual(1.098f, BagDrag.LetterScale(column, margin, wide), .001f, "the narrowest column still fills its width");
+            for (float height = 560f; height <= 1400f; height += 7f)
+                foreach (float most in new[] { 325f, 514f, 713.6f })
+                {
+                    float map = BagDrag.MapSide(height, rest, gap, floor, most, column, margin, wide, tall);
+                    float footprint = System.Math.Max(map, column), scale = BagDrag.LetterScale(footprint, margin, wide);
+                    Assert.AreEqual(footprint, margin + wide * scale, .01f, height + " the grid ends at the right edge");
+                    Assert.GreaterOrEqual(scale, 1f, height + " never smaller than before");
+                    if (map > floor) Assert.LessOrEqual(map + gap + rest + tall * scale, height + .01f, height + " map, letters and hands fit the height");
+                }
         }
 
         [Test]
