@@ -97,7 +97,10 @@
     ["HOOP", "LID", "DISC"],
     ["HOOP", "CARPET"],
     ["COMPASS", "CLOCK", "LID", "PLATE", "SHIELD", "MIRROR"],
-    ["COMPASS", "HELMET"]
+    ["COMPASS", "HELMET"],
+    ["SATCHEL", "BOX", "CRATE", "CHEST"],
+    ["SATCHEL", "BOOK"],
+    ["SATCHEL", "BOOT", "SOCK"]
   ],
   "items": {
     "ANCHOR": { "cobalt": { "share": 0.555 }, "yellow": { "share": 0.184 }, "scarlet": { "share": 0.124 }, "wood_light": { "share": 0.071 }, "white": { "share": 0.066 } },
@@ -177,6 +180,7 @@
     "RAMP": { "teal": { "share": 0.78 }, "yellow": { "share": 0.163 }, "metal": { "share": 0.039 }, "scarlet": { "share": 0.018 } },
     "ROBOT": { "cobalt": { "share": 0.31 }, "yellow": { "share": 0.277 }, "teal": { "share": 0.217 }, "dark": { "share": 0.172 }, "white": { "share": 0.025 } },
     "ROCKET": { "yellow": { "share": 0.44 }, "navy": { "share": 0.267 }, "scarlet": { "share": 0.198 }, "metal": { "share": 0.086 }, "glass": { "share": 0.009 } },
+    "SATCHEL": { "scarlet": { "share": 0.59 }, "cobalt": { "share": 0.307 }, "yellow": { "share": 0.055 }, "white": { "share": 0.025 }, "dark": { "share": 0.023 } },
     "SHELF": { "wood_light": { "share": 0.29, "to": "toy_teal" }, "wood_dark": { "share": 0.276 }, "wood": { "share": 0.244 }, "blue": { "share": 0.073, "to": "toy_blue" }, "red": { "share": 0.063, "to": "toy_red" }, "green": { "share": 0.053, "to": "toy_green" } },
     "SHIELD": { "blue": { "share": 0.549, "to": "toy_blue" }, "gold": { "share": 0.409 }, "wood_dark": { "share": 0.022 }, "ivory": { "share": 0.02, "to": "toy_red" } },
     "SLIME": { "lime": { "share": 0.643 }, "magenta": { "share": 0.268 }, "white": { "share": 0.089 } },

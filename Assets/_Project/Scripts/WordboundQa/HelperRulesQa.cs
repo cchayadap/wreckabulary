@@ -147,7 +147,7 @@ namespace Wreckabulary.Qa
             };
         }
 
-        static IEnumerable<ItemDefinition> RealHelpers() => GameConfig.Current.Items.All.Where(i => i.Enabled && i.Family == HandlingFamily.Helper);
+        static IEnumerable<ItemDefinition> RealHelpers() => GameConfig.Current.Items.All.Where(i => i.Enabled && i.Family == HandlingFamily.Helper && !GameConfig.Current.BagRows.Holds(i));
 
         ItemDefinition WallItem => GameConfig.Current.Items.All.FirstOrDefault(i => i.Enabled && HelperBook.IsWall(i)) ?? items[WallId];
 

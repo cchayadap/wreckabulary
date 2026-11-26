@@ -40,6 +40,7 @@ namespace Wreckabulary
         {
             SummonedThing.ClearAll();
             foreach (var player in Players) if (player) player.ClearReversal();
+            LetterInventory.ClearAllBonusRows();
             if (!transient) return;
             foreach (var shot in transient.GetComponentsInChildren<Projectile>(true)) Object.Destroy(shot.gameObject);
             foreach (var shot in transient.GetComponentsInChildren<HelperShot>(true)) Object.Destroy(shot.gameObject);

@@ -327,6 +327,9 @@ MonoBehaviour:
   - key: Items/ROCKET
     model: {fileID: 8146724493565267901, guid: 06d71b5368bd39248802c6cd8d6626b1, type: 3}
     clips: []
+  - key: Items/SATCHEL
+    model: {fileID: 2025674553697341403, guid: a766c161c03808a448d0026078846d4d, type: 3}
+    clips: []
   - key: Items/SHELF
     model: {fileID: -927199367670048503, guid: 283f8147e6b915e471aed884bdb5c302, type: 3}
     clips: []

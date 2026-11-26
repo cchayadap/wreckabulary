@@ -124,6 +124,7 @@ namespace Wreckabulary.Rules
             new ItemHold { Id = "RAMP", Turn = new[] { 0f, 90f, 0f } },
             new ItemHold { Id = "ROBOT", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "ROCKET", Turn = new[] { -ThrustLean, 180f, 0f } },
+            new ItemHold { Id = "SATCHEL", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "SHELF", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "SLIME", Turn = new[] { 0f, 180f, 0f } },
             new ItemHold { Id = "SOCK", Turn = new[] { 0f, 180f, 0f } },

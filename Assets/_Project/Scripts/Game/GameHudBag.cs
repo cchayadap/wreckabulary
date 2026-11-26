@@ -13,6 +13,8 @@ namespace Wreckabulary
         public const float BagLetterMargin = 40f, BagLetterWide = 55f, BagLetterTall = 60f, BagLetterStepX = 62.5f, BagLetterStepY = 67.5f;
         public const float BagLetterGridWide = (TilesPerRow - 1) * BagLetterStepX + BagLetterWide;
         public const float BagLetterGridTall = (TrayTiles / TilesPerRow - 1) * BagLetterStepY + BagLetterTall;
+
+        public static float BagLetterGridTallFor(int rows) => BagRows.GridTall(rows, BagLetterStepY, BagLetterTall);
         const float BagLetterCountGap = 6f, BagLetterFoot = 27.5f, BagHandTall = 145f;
         const float BookCardGap = 12f, BookPadding = 8f, BookColumnStep = 200f;
         const int BookComfortColumns = 3;
@@ -130,7 +132,7 @@ namespace Wreckabulary
             trayGhost = BuildDragGhost("Tray drag ghost", safe, new Vector2(TrayTileWide, TrayTileTall), TrayTileFont, true);
         }
 
-        void PlaceBagLetters(float scale)
+        void PlaceBagLetters(float scale, float gridTall)
         {
             for (int i = 0; i < bagCells.Length; i++)
             {
@@ -138,7 +140,7 @@ namespace Wreckabulary
                 holder.anchoredPosition = new Vector2(BagLetterMargin + i % TilesPerRow * BagLetterStepX * scale, -(i / TilesPerRow) * BagLetterStepY * scale);
                 holder.localScale = Vector3.one * scale;
             }
-            bagPanelCount.rectTransform.anchoredPosition = new Vector2(0f, -(BagLetterGridTall * scale + BagLetterCountGap));
+            bagPanelCount.rectTransform.anchoredPosition = new Vector2(0f, -(gridTall * scale + BagLetterCountGap));
             if (bagGhost != null) bagGhost.cell.face.transform.parent.localScale = Vector3.one * scale;
         }
 

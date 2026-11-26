@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Wreckabulary.Rules;
 
 namespace Wreckabulary
 {
@@ -13,12 +14,17 @@ namespace Wreckabulary
         PlayerController controller;
 
         public IReadOnlyList<char> Letters => letters;
-        public int Capacity => controller && controller.Health ? controller.Health.Rules.MaxLetters : Match.Rules.MaxLetters;
+        public int BaseCapacity => controller && controller.Health ? controller.Health.Rules.MaxLetters : Match.Rules.MaxLetters;
+        public int BonusRows { get; private set; }
+        public int Capacity => BagRows.Capacity(BaseCapacity, BonusRows);
+        public int ShownCells => BagRows.ShownCells(Capacity, TotalCount);
+        public int ShownRows => BagRows.RowsFor(ShownCells);
+        public bool CanAddRow => BagRows.CanAddRow(BaseCapacity, BonusRows);
         public int Count => letters.Count;
         public int ReservedCount { get; set; }
         public int TotalCount => Count + ReservedCount;
         public bool IsEmpty => letters.Count == 0;
-        public bool IsFull => TotalCount >= Capacity;
+        public bool IsFull => !BagRows.CanPickUp(TotalCount, Capacity);
 
         public bool Collects { get; set; } = true;
 
@@ -26,11 +32,48 @@ namespace Wreckabulary
         public bool SpellsFree => FreeSpelling && controller && controller.Binding is not BotBinding;
 
         public event Action Changed;
+        public static event Action<LetterInventory> RowsChanged;
+        static readonly List<LetterInventory> Live = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void ForgetFreeSpelling() => FreeSpelling = false;
+        static void ForgetFreeSpelling()
+        {
+            FreeSpelling = false;
+            Live.Clear();
+            RowsChanged = null;
+        }
 
         void Awake() => controller = GetComponent<PlayerController>();
+
+        void OnEnable() { if (!Live.Contains(this)) Live.Add(this); }
+
+        void OnDestroy() => Live.Remove(this);
+
+        public bool AddBonusRow()
+        {
+            if (!CanAddRow) return false;
+            BonusRows = BagRows.AddRow(BaseCapacity, BonusRows);
+            Changed?.Invoke();
+            RowsChanged?.Invoke(this);
+            return true;
+        }
+
+        public void ClearBonusRows()
+        {
+            if (BonusRows == 0) return;
+            BonusRows = 0;
+            Changed?.Invoke();
+            RowsChanged?.Invoke(this);
+        }
+
+        public static void ClearAllBonusRows()
+        {
+            for (int i = Live.Count - 1; i >= 0; i--)
+            {
+                if (Live[i]) Live[i].ClearBonusRows();
+                else Live.RemoveAt(i);
+            }
+        }
 
         void FixedUpdate()
         {

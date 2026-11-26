@@ -19,8 +19,37 @@ namespace Wreckabulary.Rules.Tests
         }
 
         static readonly HelperBook Helpers = HelperBook.FromJson(TestData.Read("items_house.json"));
+        static readonly BagRowBook Bags = BagRowBook.FromJson(TestData.Read("items_house.json"));
 
-        static RecipeSheetText Sheet(string id) => RecipeSheet.Build(Items.Get(id), Tuning, Helpers);
+        static RecipeSheetText Sheet(string id) => RecipeSheet.Build(Items.Get(id), Tuning, Helpers, Bags);
+
+        [Test]
+        public void ABagItemSaysItAddsARowForTheRoundAndTakesNoHand()
+        {
+            var bags = new BagRowBook();
+            bags.Add(new BagRowSpec { Id = "QABAG", Rows = 1 });
+            var item = new ItemDefinition { Id = "QABAG", Enabled = true, Consumable = true, Family = HandlingFamily.Helper, Hands = 1 };
+            var sheet = RecipeSheet.Build(item, Tuning, Helpers, bags);
+            Assert.AreEqual("QABAG", sheet.Name);
+            Assert.AreEqual("Bag upgrade", sheet.Kind);
+            Assert.AreEqual("Adds a row of letter slots for this round. Takes no hand.", sheet.Effects[0]);
+            Assert.AreEqual("5 letter slots", Row(sheet, "Adds"));
+            Assert.AreEqual("This round", Row(sheet, RecipeSheet.Lasts));
+            Assert.AreEqual("Once", Row(sheet, RecipeSheet.Uses));
+            Assert.AreEqual("No hand", Row(sheet, RecipeSheet.Hand));
+            Assert.AreEqual("Toy that acts alone", RecipeSheet.Build(item, Tuning, Helpers).Kind, "without the bag book it is read as a plain helper");
+            var chips = RecipeFacts.Chips(item, Tuning, bags);
+            Assert.AreEqual(1, chips.Count);
+            Assert.AreEqual("+5 slots", chips[0].Label);
+            Assert.AreEqual(FactKind.Role, chips[0].Kind);
+            CollectionAssert.IsEmpty(RecipeFacts.Chips(item, Tuning), "no chip without the book");
+            int effectChars = RecipeSheet.EffectLines * RecipeSheet.MaxChars(RecipeSheet.TextWidth, RecipeSheet.EffectFont);
+            int kindChars = RecipeSheet.MaxChars(RecipeSheet.KindWidth, RecipeSheet.KindFont);
+            int valueChars = RecipeSheet.MaxChars(RecipeSheet.ValueWidth, RecipeSheet.RowFont);
+            Assert.LessOrEqual(sheet.Effects[0].Length, effectChars);
+            Assert.LessOrEqual(sheet.Kind.Length, kindChars);
+            foreach (var row in sheet.Rows) Assert.LessOrEqual(row.Value.Length, valueChars, row.ToString());
+        }
 
         [Test]
         public void ToysThatActAloneSayWhatTheyDoAndHowLong()
@@ -136,7 +165,7 @@ namespace Wreckabulary.Rules.Tests
             var families = new HashSet<HandlingFamily>();
             foreach (var item in Items.Enabled)
             {
-                var sheet = RecipeSheet.Build(item, Tuning, Helpers);
+                var sheet = RecipeSheet.Build(item, Tuning, Helpers, Bags);
                 families.Add(item.Family);
                 Assert.AreEqual(item.Id, sheet.Name);
                 Assert.AreNotEqual("Gear", sheet.Kind, item.Id + " has a family case");
@@ -160,7 +189,7 @@ namespace Wreckabulary.Rules.Tests
                     Assert.LessOrEqual(effect.Length, effectChars, $"{item.Id}: '{effect}'");
                     Assert.IsTrue(!char.IsLower(effect[0]) && (effect.EndsWith(".") || effect.EndsWith("!")), $"{item.Id}: a sentence: '{effect}'");
                 }
-                Assert.AreEqual(item.IsTwoHanded ? "Two hands" : "One hand", Row(sheet, RecipeSheet.Hand));
+                Assert.AreEqual(Bags.Holds(item) ? "No hand" : item.IsTwoHanded ? "Two hands" : "One hand", Row(sheet, RecipeSheet.Hand));
                 if (item.Consumable) Assert.AreEqual("Once", Row(sheet, RecipeSheet.Uses));
             }
             foreach (var family in new[] { HandlingFamily.MeleeSwing, HandlingFamily.MeleeThrust, HandlingFamily.Thrown, HandlingFamily.Shield,
@@ -175,7 +204,7 @@ namespace Wreckabulary.Rules.Tests
             foreach (var item in Items.Enabled)
             {
                 var allowed = Allowed(item);
-                foreach (var row in RecipeSheet.Build(item, Tuning, Helpers).Rows)
+                foreach (var row in RecipeSheet.Build(item, Tuning, Helpers, Bags).Rows)
                     foreach (System.Text.RegularExpressions.Match number in System.Text.RegularExpressions.Regex.Matches(row.Value, @"\d+(\.\d+)?"))
                         Assert.IsTrue(allowed.Contains(number.Value), $"{item.Id} {row.Label} shows {number.Value}, which is not in its data");
             }
@@ -191,6 +220,7 @@ namespace Wreckabulary.Rules.Tests
             if (item.Use is { } u) values.AddRange(new[] { u.Amount, (u.Amount - 1f) * 100f, u.Seconds, u.ChannelSeconds });
             if (item.Ranged is { } r) values.AddRange(new[] { r.Damage, r.FullDamage, r.Speed, r.FullSpeed, r.DrawSeconds });
             if (Helpers.TryGet(item.Id, out var h)) values.AddRange(new[] { h.Damage, h.Strikes, h.Slow * 100f, h.SlowSeconds, h.Speed, h.Seconds, h.Health });
+            if (Bags.TryGet(item.Id, out var bag)) values.Add(bag.Rows * BagRows.SlotsPerRow);
             var set = new HashSet<string>(StringComparer.Ordinal);
             foreach (float v in values) { set.Add(RecipeSheet.N(v)); set.Add(RecipeSheet.N(v, "0")); }
             return set;

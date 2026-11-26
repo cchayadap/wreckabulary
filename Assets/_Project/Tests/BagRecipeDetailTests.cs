@@ -70,7 +70,7 @@ namespace Wreckabulary.Tests
             yield return new WaitForSecondsRealtime(.12f);
             player.Inventory.Set(letters);
             var safe = (RectTransform)hud.transform.Find("Safe HUD");
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             yield return TestScenes.WaitUntil(() => hud.BagOpen, Slow, "the bag");
             yield return new WaitForSecondsRealtime(.2f);
             Canvas.ForceUpdateCanvases();

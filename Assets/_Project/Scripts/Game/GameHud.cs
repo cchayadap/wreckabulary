@@ -52,7 +52,7 @@ namespace Wreckabulary
         static readonly ProfilerMarker RefreshMarker = new("Hud.Refresh");
         const float BagTop = 105f, BagSide = 35f, BagBottom = 35f, BagColumn = 375f, BookColumn = 840f, BagGap = 24f;
         const float Chip = 52f, ChipGap = 10f;
-        const float VitalsX = 39f, VitalsY = 38f, TrayY = 52f, AsideVitalsY = 276f;
+        const float VitalsX = BagRows.VitalsX, VitalsY = BagRows.VitalsY, TrayY = BagRows.TrayBottom, AsideVitalsY = BagRows.AsideVitalsY;
         const float VitalsBarX = 46f, VitalsCrossX = 17f, VitalsCross = 33f, EffectsWidth = 320f, EffectsHeight = 26f, EffectsSize = 18f, EffectsGap = 6f;
         const float SideGap = 12f, SideRowHeight = 54f, SideRowGap = 6f, RoomHeight = 64f, RoomGap = 16f;
         const float ObjectiveWidth = 252f, ObjectiveMinHeight = 48f;
@@ -70,8 +70,10 @@ namespace Wreckabulary
         readonly List<TouchStick> sticks = new();
         readonly Dictionary<TouchAction, (TouchActionButton button, TextMeshProUGUI label)> skillButtons = new();
         readonly StringBuilder sb = new();
-        const int TrayTiles = 10, TilesPerRow = 5;
-        readonly LetterCell[] trayCells = new LetterCell[TrayTiles], bagCells = new LetterCell[TrayTiles];
+        const int TrayTiles = BagRows.BaseCells, TilesPerRow = BagRows.SlotsPerRow, MostTrayTiles = BagRows.MostCells;
+        readonly LetterCell[] trayCells = new LetterCell[MostTrayTiles], bagCells = new LetterCell[MostTrayTiles];
+        int trayRows = BagRows.BaseRows, bagRows = BagRows.BaseRows, poppedRow = -1;
+        float rowPopAt = float.NegativeInfinity;
         readonly HandView[] hands = new HandView[2], bagHands = new HandView[2];
         IReadOnlyList<PlayerController> players;
         Func<PlayerController, int> wins;
@@ -93,7 +95,7 @@ namespace Wreckabulary
         readonly List<Image> crosshairTicks = new();
         GameObject drawMeter;
         RectTransform drawFill;
-        TextMeshProUGUI aliveText, hintText, bagPanelCount, touchToggle, spellKey, bagKey;
+        TextMeshProUGUI aliveText, hintText, bagPanelCount, touchToggle;
         TextMeshProUGUI craftStatus, buildLabel, spellHint;
         long spellHintKey = long.MinValue;
         SpellNeeds spellHintNeeds;
@@ -115,7 +117,7 @@ namespace Wreckabulary
         readonly List<char> spare = new();
         readonly Dictionary<string, Texture2D> glyphs = new(StringComparer.Ordinal);
         RectTransform bagColumn, bagLetters, bagHandsRow, bagEffectsRow, bagMapFrame, bagMapShadow, bagMapArea, bagBook, bagBackdrop, pauseShade;
-        RectTransform spellCap, bagCap, roomBacking;
+        RectTransform roomBacking;
         TextMeshProUGUI bookLine;
         string bookWord;
         bool bookFree;
@@ -133,7 +135,7 @@ namespace Wreckabulary
         string matchShown, layoutShown, objectiveShown, roomShown = "\u0000";
         int roundShown, targetShown, aliveShown = int.MinValue, effectsShown = int.MinValue, keyVersion = -1;
         InputBinding keyBinding;
-        string spellLabel = "", spellHintLabel = "", bagLabel = "", interactLabel = "";
+        string spellHintLabel = "", interactLabel = "";
         bool hubScene;
         Sprite tileRing;
         HouseLayout practice;
@@ -398,39 +400,22 @@ namespace Wreckabulary
 
         void BuildTray()
         {
-            tray = Rect("Letter bag", safe, new Vector2(.5f, 0f), new Vector2(0f, 52f), new Vector2(500f, 176f));
+            tray = Rect("Letter bag", safe, new Vector2(.5f, 0f), new Vector2(0f, BagRows.TrayBottom), new Vector2(BagRows.TrayWidth, BagRows.TrayBaseHeight));
             tray.pivot = new Vector2(.5f, 0f);
             for (int i = 0; i < 2; i++)
             {
                 int slot = i;
-                hands[i] = MakeHand($"Gear slot {i + 1}", tray, new Vector2(324f, 94f - i * 94f), new Vector2(176f, 82f), i, () => { if (!BagDragging) SelectHand(slot); });
+                hands[i] = MakeHand($"Gear slot {i + 1}", tray, new Vector2(BagRows.HandX, BagRows.HandY(i, BagRows.BaseRows)), new Vector2(BagRows.HandWide, BagRows.HandTall), i, () => { if (!BagDragging) SelectHand(slot); });
             }
-            TextMeshProUGUI Shortcut(string label, float x, Action action, out RectTransform cap)
-            {
-                var button = MakeButton(label, tray, Vector2.zero, new Vector2(x, 0f), new Vector2(120f, 40f), "", action, Color.clear);
-                cap = Panel("Key cap", button.transform, new Vector2(0f, .5f), new Vector2(36f, 0f), new Vector2(40f, 32f), new Vector2(0f, .5f), KeyPill);
-                cap.SetSiblingIndex(0);
-                var key = button.GetComponentInChildren<TextMeshProUGUI>();
-                key.rectTransform.anchorMin = key.rectTransform.anchorMax = key.rectTransform.pivot = new Vector2(0f, .5f);
-                key.rectTransform.anchoredPosition = new Vector2(36f, 0f);
-                key.rectTransform.sizeDelta = new Vector2(40f, 32f);
-                key.fontSize = 20f; key.color = OnGame;
-                key.enableAutoSizing = true; key.fontSizeMin = 14f; key.fontSizeMax = 20f;
-                return key;
-            }
-            spellKey = Shortcut("Spell key", 20f, OpenComposer, out spellCap);
-            SpellGlyph(spellKey.transform.parent);
-            bagKey = Shortcut("Bag link", 150f, () => SetBagPinned(!bagPinned), out bagCap);
-            AddHudShadow(GlyphImage("Glyph", bagKey.transform.parent, new Vector2(0f, .5f), new Vector2(17f, 0f), 25f, "book", OnGame));
             spellHint = Text("Spell hint", tray, new Vector2(0f, 1f), new Vector2(0f, 8f), new Vector2(310f, 30f), 23f, OnGame, TextAlignmentOptions.BottomLeft);
             spellHint.rectTransform.pivot = Vector2.zero;
             spellHint.overflowMode = TextOverflowModes.Ellipsis;
             OnGameText(spellHint); AddHudShadow(spellHint);
             spellHint.text = "";
             spellHint.gameObject.SetActive(false);
-            for (int i = 0; i < TrayTiles; i++)
+            for (int i = 0; i < MostTrayTiles; i++)
             {
-                var cell = trayCells[i] = MakeCell($"Letter {i + 1}", tray, new Vector2((i % TilesPerRow) * 62f, -(i / TilesPerRow) * 70f), new Vector2(TrayTileWide, TrayTileTall), TrayTileFont);
+                var cell = trayCells[i] = MakeCell($"Letter {i + 1}", tray, new Vector2(BagRows.CellX(i), BagRows.CellTop(i)), new Vector2(TrayTileWide, TrayTileTall), TrayTileFont);
                 cell.outline = CreateImage("Outline", cell.face.transform, Vector2.zero, Vector2.zero, Vector2.zero, CellRim);
                 Stretch(cell.outline.rectTransform); cell.outline.sprite = hairRing; cell.outline.type = Image.Type.Sliced;
             }
@@ -605,7 +590,7 @@ namespace Wreckabulary
             RectTransform Row(string label) { var row = Rect(label, bagColumn, new Vector2(0f, 1f), Vector2.zero, new Vector2(BagColumn, 0f)); row.pivot = new Vector2(0f, 1f); return row; }
             bagLetters = Row("Letters");
             GlyphImage("Bag glyph", bagLetters, new Vector2(0f, 1f), new Vector2(0f, -4f), 28f, "bag", BagInk);
-            for (int i = 0; i < TrayTiles; i++)
+            for (int i = 0; i < MostTrayTiles; i++)
             {
                 var cell = bagCells[i] = MakeCell($"Big letter {i + 1}", bagLetters, new Vector2(BagLetterMargin + (i % TilesPerRow) * BagLetterStepX, -(i / TilesPerRow) * BagLetterStepY), new Vector2(BagLetterWide, BagLetterTall), 33f);
                 cell.face.pixelsPerUnitMultiplier = cell.edge.pixelsPerUnitMultiplier = 11f / 6.25f;
@@ -779,7 +764,7 @@ namespace Wreckabulary
         {
             var config = GameConfig.Current;
             if (!config.Items.TryGet(word, out var item)) return;
-            var chips = RecipeFacts.Chips(item, config.Tuning);
+            var chips = RecipeFacts.Chips(item, config.Tuning, config.BagRows);
             var sized = new List<(RecipeChip chip, float width)>();
             float total = 0f;
             foreach (var chip in chips)
@@ -854,16 +839,6 @@ namespace Wreckabulary
             return image;
         }
 
-        void SpellGlyph(Transform parent)
-        {
-            var tile = Panel("Glyph", parent, new Vector2(0f, .5f), new Vector2(17f, 0f), new Vector2(24f, 26f), new Vector2(.5f, .5f), Tile);
-            tile.localRotation = Quaternion.Euler(0f, 0f, -6f);
-            var face = tile.GetComponent<Image>(); face.pixelsPerUnitMultiplier = 11f / 4f;
-            AddHudShadow(face);
-            var letter = Text("Letter", tile, new Vector2(.5f, .5f), Vector2.zero, new Vector2(24f, 26f), 19f, Ink);
-            letter.text = "A"; letter.fontStyle = FontStyles.Bold;
-        }
-
         Texture2D Glyph(string name)
         {
             if (!glyphs.TryGetValue(name, out var texture)) glyphs[name] = texture = Resources.Load<Texture2D>("UI/Glyphs/" + name);
@@ -918,12 +893,15 @@ namespace Wreckabulary
 
         public void ToggleBag() => SetBagPinned(!bagPinned);
 
+        static string BagRowLine(string word) =>
+            GameConfig.Current.Items.TryGet(word, out var item) && GameConfig.Current.BagRows != null ? GameConfig.Current.BagRows.CardLine(item) : null;
+
         void ShowBookLine(string word)
         {
             if (!bookLine) return;
             bookWord = word;
             bool free = word == null && bookFree;
-            string effect = word == null ? null : GameConfig.Current.Tuning?.Describe(word);
+            string effect = word == null ? null : BagRowLine(word) ?? GameConfig.Current.Tuning?.Describe(word);
             bookLine.text = word == null ? (free ? FreeBookLine : "") : $"{word} · {(string.IsNullOrEmpty(effect) ? "no extra effect" : effect)}";
         }
 
@@ -997,6 +975,7 @@ namespace Wreckabulary
             bool crossed = aiming && !rig.Looking;
             if (crosshair && crosshair.activeSelf != crossed) crosshair.SetActive(crossed);
             RefreshDrawMeter();
+            PopNewRow();
             bool thirdPerson = rig && rig.isActiveAndEnabled && rig.IsThirdPerson;
             if (thirdPerson != trayAside) { trayAside = thirdPerson; ApplySafeArea(); }
             LearnTips(thirdPerson); FadeTip();
@@ -1020,22 +999,11 @@ namespace Wreckabulary
             if (keyVersion == KeyBindings.Version && keyBinding == binding) return;
             keyVersion = KeyBindings.Version; keyBinding = binding;
             var keys = DesktopBinding.Shared;
-            spellLabel = binding is GamepadBinding or KeyboardBinding ? SpellKeyLabel(binding) : ControlHints.KeyOf(keys.SpellBox);
             spellHintLabel = SpellKeyLabel(binding);
-            bagLabel = BagKeyLabel(binding);
             interactLabel = binding switch { GamepadBinding => "RT", TouchBinding => "GRAB", _ => ControlHints.KeyOf(keys.Interact) };
-            FitCap(spellKey, spellCap, spellLabel);
-            FitCap(bagKey, bagCap, bagLabel);
             spellHintKey = long.MinValue;
         }
 
-        static void FitCap(TextMeshProUGUI key, RectTransform cap, string label)
-        {
-            if (!key || !cap) return;
-            key.text = label;
-            float width = Mathf.Clamp(key.GetPreferredValues(label, 999f, 32f).x + 16f, 32f, 78f);
-            key.rectTransform.sizeDelta = cap.sizeDelta = new Vector2(width, 32f);
-        }
         void RefreshDrawMeter()
         {
             if (!drawMeter) return;
@@ -1229,12 +1197,43 @@ namespace Wreckabulary
             if (!shown) return;
             for (int i = 0; i < 2; i++) ShowHand(hands[i], i, false);
             var inv = LocalPlayer.Inventory;
+            LayTray(inv.ShownRows);
             FillCells(trayCells, inv);
             var summon = LocalPlayer.Summoner;
             craftProgress.transform.parent.gameObject.SetActive(summon.IsCrafting);
             craftProgress.fillAmount = summon.CraftProgress;
             RefreshSpellHint(inv, summon);
         }
+
+        void LayTray(int rows)
+        {
+            if (rows == trayRows) return;
+            int was = trayRows;
+            trayRows = rows;
+            tray.sizeDelta = new Vector2(BagRows.TrayWidth, BagRows.TrayHeight(rows));
+            for (int i = 0; i < hands.Length; i++)
+                ((RectTransform)hands[i].face.transform).anchoredPosition = new Vector2(BagRows.HandX, BagRows.HandY(i, rows));
+            if (rows > was) { poppedRow = was; rowPopAt = Time.unscaledTime; }
+            ApplySafeArea();
+        }
+
+        void PopNewRow()
+        {
+            if (poppedRow < 0) return;
+            float since = Time.unscaledTime - rowPopAt;
+            var scale = Vector3.one * BagRows.RowPop(since);
+            for (int i = poppedRow * TilesPerRow; i < MostTrayTiles; i++)
+            {
+                var cell = trayCells[i];
+                if (cell == null) continue;
+                cell.face.transform.localScale = scale;
+                cell.edge.transform.localScale = scale;
+            }
+            if (since >= BagRows.RowPopSeconds) poppedRow = -1;
+        }
+
+        public int TrayRows => trayRows;
+        public int BagRowsShown => bagRows;
         void RefreshSpellHint(LetterInventory inv, Summoner summon)
         {
             bool quiet = summon.IsCrafting || summon.IsSpelling || (craftRoot && craftRoot.activeSelf);
@@ -1293,10 +1292,11 @@ namespace Wreckabulary
         {
             ArrangeLetters(inv);
             var crafting = LocalPlayer.Summoner.IsCrafting ? LocalPlayer.Summoner.CraftWord ?? "" : "";
+            int shown = inv.ShownCells;
             for (int i = 0; i < cells.Length; i++)
             {
                 var cell = cells[i];
-                cell.face.transform.parent.gameObject.SetActive(i < inv.Capacity);
+                cell.face.transform.parent.gameObject.SetActive(i < shown);
                 bool held = i < bagOrder.Count, reserved = !held && i < bagOrder.Count + inv.ReservedCount;
                 int r = i - bagOrder.Count;
                 cell.face.color = held ? Tile : reserved ? Reserved : cell.ring ? BagCell : EmptyCell;
@@ -1411,9 +1411,12 @@ namespace Wreckabulary
             float effectRows = Rows(effects);
             float rest = BagLetterFoot + BagGap + BagHandTall + (effectRows > 0f ? BagGap + effectRows : 0f);
             float mapTarget = BagDrag.MapTarget(area.width, BagSide + BagColumn + BagGap, BagGap, BagMapFloor, bookComfort, 188f, BookColumn);
-            float mapSize = BagDrag.MapSide(area.height - BagTop - BagBottom, rest, BagGap, BagMapFloor, mapTarget, BagColumn, BagLetterMargin, BagLetterGridWide, BagLetterGridTall);
+            bagRows = LocalPlayer ? LocalPlayer.Inventory.ShownRows : BagRows.BaseRows;
+            float gridTall = BagLetterGridTallFor(bagRows);
+            var fit = BagRows.Fit(area.height - BagTop - BagBottom, rest, BagGap, BagMapFloor, mapTarget, BagColumn, BagLetterMargin, BagLetterGridWide, gridTall);
+            float mapSize = fit.Map;
             float footprint = Mathf.Max(mapSize, BagColumn);
-            float letterScale = BagDrag.LetterScale(footprint, BagLetterMargin, BagLetterGridWide);
+            float letterScale = fit.Scale;
             float y = 0f, inset = (footprint - BagColumn) * .5f;
             void Place(RectTransform row, float x, float width, float height)
             {
@@ -1427,9 +1430,9 @@ namespace Wreckabulary
                 for (int i = 0; i < count; i++)
                     ((RectTransform)chip(i).transform).anchoredPosition = new Vector2(i % ChipsPerRow * (Chip + ChipGap), -(i / ChipsPerRow) * (Chip + ChipGap));
             }
-            Place(bagLetters, 0f, footprint, BagLetterFoot + BagLetterGridTall * letterScale);
+            Place(bagLetters, 0f, footprint, BagLetterFoot + gridTall * letterScale);
             Place(bagHandsRow, inset, BagColumn, BagHandTall); Place(bagEffectsRow, inset, BagColumn, effectRows);
-            PlaceBagLetters(letterScale);
+            PlaceBagLetters(letterScale, gridTall);
             Flow(effects, i => effectChips[i].root);
             bagColumn.sizeDelta = new Vector2(footprint, Mathf.Max(0f, y - BagGap));
             float reserve = PlaceDropColumns(BagDrag.SideColumnWidth(area.width, footprint + 2f * BagGap + bookComfort));
@@ -1500,7 +1503,7 @@ namespace Wreckabulary
             var coverMax = new Vector2(1f + (lastWidth - lastSafe.xMax) / safeWidth, 1f + (lastHeight - lastSafe.yMax) / safeHeight);
             foreach (var cover in new[] { bagBackdrop, resultShade }) if (cover) { cover.anchorMin = coverMin; cover.anchorMax = coverMax; }
             bool portrait = lastWidth < lastHeight, touch = TouchControlsShown, aside = trayAside && !portrait && !touch;
-            if (vitals) vitals.anchoredPosition = new Vector2(VitalsX, touch ? (portrait ? 420f : 250f) : aside ? AsideVitalsY : VitalsY);
+            if (vitals) vitals.anchoredPosition = new Vector2(VitalsX, touch ? (portrait ? 420f : 250f) : aside ? AsideVitalsY + BagRows.TrayLift(trayRows) : VitalsY);
             if (tray)
             {
                 tray.anchorMin = tray.anchorMax = tray.pivot = portrait ? new Vector2(0f, 1f) : aside ? Vector2.zero : new Vector2(.5f, 0f);

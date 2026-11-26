@@ -36,10 +36,15 @@ namespace Wreckabulary.Rules
     {
         public const int MaxChips = 2;
 
-        public static List<RecipeChip> Chips(ItemDefinition item, HouseTuning tuning)
+        public static List<RecipeChip> Chips(ItemDefinition item, HouseTuning tuning, BagRowBook bags = null)
         {
             var chips = new List<RecipeChip>();
             if (item == null) return chips;
+            if (bags != null && bags.Holds(item))
+            {
+                chips.Add(new RecipeChip(BagRows.Chip, FactKind.Role));
+                return chips;
+            }
             if (tuning != null)
                 foreach (var trait in tuning.TraitsOf(item.Id))
                     if (chips.Count < MaxChips) chips.Add(new RecipeChip(TraitLabel(trait), (FactKind)Enum.Parse(typeof(FactKind), trait.Kind.ToString())));

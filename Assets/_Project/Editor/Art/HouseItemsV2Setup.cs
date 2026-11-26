@@ -26,7 +26,7 @@ namespace Wreckabulary.EditorTools
             "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT",
             "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB",
             "ROBOT", "RABBIT", "TERRIER", "BLASTER", "CHOMPER", "PATROL", "CONE", "BLOCKS", "SPIKES", "TRAP",
-            "SPINNER", "FLIPPER", "HOOP", "COMPASS" };
+            "SPINNER", "FLIPPER", "HOOP", "COMPASS", "SATCHEL" };
 
         [Serializable] sealed class Rebuilt { public string script, sha256; public long bytes; public int triangles; }
         [Serializable] sealed class Entry

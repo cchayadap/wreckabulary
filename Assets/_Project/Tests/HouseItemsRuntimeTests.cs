@@ -54,8 +54,10 @@ namespace Wreckabulary.Tests
         static IEnumerable<string> UseItems => Ids(HandlingFamily.Heal, HandlingFamily.Buff);
         static IEnumerable<string> RangedItems => Ids(HandlingFamily.Ranged);
         static IEnumerable<string> StashItems => Ids(HandlingFamily.Utility);
-        static IEnumerable<string> HelperItems => Ids(HandlingFamily.Helper);
-        static IEnumerable<string> PosedItems =>ItemHolds.All.Select(h => h.Id).ToArray();
+        static bool IsBag(string id) => GameConfig.Current.BagRows.Holds(id);
+        static IEnumerable<string> HelperItems => Ids(HandlingFamily.Helper).Where(id => !IsBag(id)).ToArray();
+        static IEnumerable<string> BagItems => House().All.Where(i => IsBag(i.Id)).Select(i => i.Id).ToArray();
+        static IEnumerable<string> PosedItems => ItemHolds.All.Select(h => h.Id).Where(id => !IsBag(id)).ToArray();
         static IEnumerable<string> TurnedShieldItems => ShieldItems.Where(id => ItemHolds.For(id) != null).ToArray();
 
         static PlayerController Spawn(int seat, Vector3 at, out ScriptedBinding input)
@@ -97,6 +99,19 @@ namespace Wreckabulary.Tests
             return held;
         }
 
+        static void SpellBag(PlayerController player, string id)
+        {
+            player.Inventory.ClearBonusRows();
+            int before = player.Inventory.Capacity;
+            player.Inventory.Set(id);
+            Assert.IsTrue(player.Summoner.Summon(id), id + " is spelled from its letters");
+            Assert.AreEqual(0, player.Inventory.Count, id + " spends exactly its letters");
+            Assert.AreEqual(1, player.Inventory.BonusRows, id + " adds its row");
+            Assert.AreEqual(before + BagRows.SlotsPerRow, player.Inventory.Capacity, id + " adds five letter slots");
+            Assert.IsFalse(player.Combat.Weapon, id + " never sits in a hand");
+            player.Inventory.ClearBonusRows();
+        }
+
         [Test]
         public void HouseItemsAreLiveInHouseModesButStayOutOfTheSharedCatalogue()
         {
@@ -118,7 +133,8 @@ namespace Wreckabulary.Tests
         public void EveryHouseItemHasAFamilyCase()
         {
             CollectionAssert.AreEquivalent(House().All.Select(i => i.Id),
-                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(PatchItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems).Concat(HelperItems),
+                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(PatchItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems).Concat(HelperItems)
+                    .Concat(BagItems),
                 "add a runtime case for any new handling family");
         }
 
@@ -132,7 +148,8 @@ namespace Wreckabulary.Tests
             foreach (var item in House().All)
             {
                 p.Combat.ResetForRound();
-                Craft(p, item.Id);
+                if (IsBag(item.Id)) SpellBag(p, item.Id);
+                else Craft(p, item.Id);
                 yield return null;
             }
             p.Combat.ResetForRound();
@@ -364,6 +381,41 @@ namespace Wreckabulary.Tests
         }
 
         const float WallGrace = 3f, HelperCalm = 1.5f;
+
+        [UnityTest]
+        public IEnumerator BagItemsAreSpentOnSpellingAndNeverHeld([ValueSource(nameof(BagItems))] string id)
+        {
+            Assert.IsTrue(GameConfig.Current.BagRows.TryGet(id, out var spec), id + " has a bag block in items_house.json");
+            string modeBefore = Match.ModeOverride;
+            Match.ModeOverride = HouseModes.Dibs;
+            try
+            {
+                var p = Spawn(0, Vector3.zero, out _);
+                yield return Frames(3);
+                Assert.IsTrue(p.Combat.TryEquip(CatalogGear.Create(Live("BAT"))));
+                Assert.IsTrue(p.Combat.TryEquip(CatalogGear.Create(Live("BLADE"))));
+                Assert.IsFalse(p.Combat.HasFreeGearSlot, "both hands are full");
+                var first = p.Combat.GearIn(0);
+                var second = p.Combat.GearIn(1);
+                int capacity = p.Inventory.Capacity;
+                p.Inventory.Set(id);
+                Assert.IsTrue(p.Summoner.Summon(id), id + " is spelled with both hands full");
+                yield return Frames(2);
+                Assert.AreEqual(0, p.Inventory.Count, id + " spends exactly its letters");
+                Assert.AreEqual(spec.Rows, p.Inventory.BonusRows, id + " adds its rows");
+                Assert.AreEqual(capacity + spec.Rows * BagRows.SlotsPerRow, p.Inventory.Capacity, id + " adds five slots a row");
+                Assert.AreSame(first, p.Combat.GearIn(0), id + " leaves both hands as they were");
+                Assert.AreSame(second, p.Combat.GearIn(1));
+                Assert.AreEqual(0, HelperAgent.All.Count, id + " is not a toy that acts alone");
+                Assert.AreEqual(0, DeployedGear.CountFor(p), id + " places nothing");
+                Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " drops no letters");
+            }
+            finally
+            {
+                Match.ModeOverride = modeBefore;
+                LetterInventory.ClearAllBonusRows();
+            }
+        }
 
         [UnityTest]
         public IEnumerator HelpersLeaveTheHandAndActOnTheirOwn([ValueSource(nameof(HelperItems))] string id)

@@ -11,7 +11,7 @@ from mathutils import Matrix, Vector
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from house_item_shapes import (PARTS, banded, box, box_of, box_uv, cylinder, densify, ellipse, ellipsoid, fit, gathered, interpolate, join, lathe,
-                               fan_badge, lobed, mesh_bounds, move, preview, prism, pumpkin, reset, rounded_rect, slab, spline, star, stats, taper, torus,
+                               fan_badge, lobed, mesh_bounds, move, preview, prism, pumpkin, reset, ring, rounded_rect, slab, spline, star, stats, taper, torus,
                                tube)
 
 REPO = Path(__file__).resolve().parents[2]
@@ -23,7 +23,7 @@ WORDS = ("RAKE", "TEAPOT", "LID", "TOMATO", "ROCKET", "MARBLE", "LADDER", "PADDL
          "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT",
          "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB",
          "ROBOT", "RABBIT", "TERRIER", "BLASTER", "CHOMPER", "PATROL", "CONE", "BLOCKS", "SPIKES", "TRAP",
-         "SPINNER", "FLIPPER", "HOOP", "COMPASS")
+         "SPINNER", "FLIPPER", "HOOP", "COMPASS", "SATCHEL")
 FIT_WARNING = 0.05
 FIT_LIMIT = 0.12
 BOUNDS_TOLERANCE = 2e-4
@@ -1341,6 +1341,105 @@ def build_compass(size):
     back_decal("back_dot", trim, ellipse(0.018, 0.018, 0, 0, 16), 0.031, 0.034, (0, 0, cz - 0.075))
 
 
+def u_path(half, bottom, top, radius, inset, steps=6):
+    h, b, r = half - inset, bottom + inset, radius - inset
+    left = [(-h, top)] + [(-h + r - r * math.cos(math.pi / 2 * s / steps), b + r - r * math.sin(math.pi / 2 * s / steps)) for s in range(steps + 1)]
+    right = [(h - r + r * math.sin(math.pi / 2 * s / steps), b + r - r * math.cos(math.pi / 2 * s / steps)) for s in range(steps + 1)] + [(h, top)]
+    return left + right
+
+
+def resample(points, spacing, margin):
+    lengths = [0.0]
+    for (x0, z0), (x1, z1) in zip(points, points[1:]):
+        lengths.append(lengths[-1] + math.hypot(x1 - x0, z1 - z0))
+    count = int((lengths[-1] - 2 * margin) / spacing) + 1
+    start = (lengths[-1] - spacing * (count - 1)) / 2
+    out = []
+    for k in range(count):
+        d = start + spacing * k
+        i = max(j for j in range(len(lengths) - 1) if lengths[j] <= d)
+        t = (d - lengths[i]) / max(lengths[i + 1] - lengths[i], 1e-9)
+        (x0, z0), (x1, z1) = points[i], points[i + 1]
+        out.append((x0 + (x1 - x0) * t, z0 + (z1 - z0) * t, math.atan2(z1 - z0, x1 - x0)))
+    return out
+
+
+def arc(cx, cz, radius, start, end, steps):
+    return [(cx + radius * math.cos(math.radians(start + (end - start) * s / steps)), cz + radius * math.sin(math.radians(start + (end - start) * s / steps)))
+            for s in range(steps + 1)]
+
+
+def flat_strap(name, mat, path, thickness, x, width):
+    out, back = [], []
+    for i, (y, z) in enumerate(path):
+        (y0, z0), (y1, z1) = path[max(i - 1, 0)], path[min(i + 1, len(path) - 1)]
+        length = math.hypot(y1 - y0, z1 - z0)
+        ny, nz = -(z1 - z0) / length, (y1 - y0) / length
+        out.append((-(y + ny * thickness / 2), z + nz * thickness / 2))
+        back.append((-(y - ny * thickness / 2), z - nz * thickness / 2))
+    return move(slab(name, mat, out + list(reversed(back)), x - width / 2, x + width / 2, bevel=(0.002, 1)), (0, 0, -math.pi / 2))
+
+
+SATCHEL_LETTERS = {
+    "A": [[(-0.017, -0.018), (0.0, 0.026), (0.017, -0.018)], [(-0.009, -0.003), (0.009, -0.003)]],
+    "B": [[(-0.012, -0.018), (-0.012, 0.026), (0.003, 0.026)] + arc(0.003, 0.0155, 0.0105, 90, -90, 6) + [(-0.012, 0.005), (0.005, 0.005)]
+          + arc(0.005, -0.0065, 0.0115, 90, -90, 6) + [(-0.012, -0.018)]],
+    "C": [arc(0.003, 0.004, 0.02, 48, 312, 12)],
+}
+
+
+def build_satchel(size):
+    body, trim, gold, mark, ink = "scarlet_Classic", "cobalt_Classic", "yellow_Classic", "white_Classic", "dark_Classic"
+    width, height, half = 0.34, 0.26, 0.06
+    outline = rounded_rect(width, height, 0.045, 0.035, 0.0, 6)
+    slab("body", body, outline, -half, half, bevel=(0.014, 3))
+    for y in (-half, half):
+        tube("seam", trim, [(x, y, z) for x, z in rounded_rect(width, height, 0.045, 0.035, 0.0, 3)], 0.0055, 6, closed=True, reference=Vector((0, 1, 0)))
+    flap_half, flap_bottom, flap_top, flap_round = 0.176, 0.105, 0.258, 0.055
+    front = half + 0.009
+    slab("flap", body, rounded_rect(2 * flap_half, flap_top - flap_bottom, flap_round, 0.004, flap_bottom, 6), half - 0.004, front, bevel=(0.004, 2))
+    cylinder("roll", body, 0.013, 2 * flap_half, (0, half - 0.002, flap_top), "X", 20, bevel=0.003)
+    for side in (-1, 1):
+        torus("roll_cap", trim, 0.0105, 0.0035, (side * flap_half, half - 0.002, flap_top), "X", 12, 4)
+    edge = u_path(flap_half, flap_bottom, flap_top - 0.012, flap_round, 0.0)
+    tube("piping", trim, [(x, front, z) for x, z in edge], 0.0055, 8, reference=Vector((0, 1, 0)))
+    for x, z, angle in resample(u_path(flap_half, flap_bottom, flap_top - 0.02, flap_round, 0.016), 0.027, 0.004):
+        ellipsoid("stitch", mark, (x, front + 0.0005, z), (0.0056, 0.0024, 0.002), 6, 3, (0, -angle, 0))
+    buckle_z, strap_top = 0.112, 0.252
+    for side in (-1, 1):
+        x = side * 0.088
+        box("strap", trim, (0.034, 0.008, strap_top - buckle_z), (x, front + 0.002, (strap_top + buckle_z) / 2), 0.003, 1)
+        outer = [(x + u, z) for u, z in rounded_rect(0.052, 0.046, 0.009, 0.009, buckle_z - 0.023, 2)]
+        inner = [(x + u, z) for u, z in rounded_rect(0.034, 0.028, 0.004, 0.004, buckle_z - 0.014, 2)]
+        ring("buckle", gold, outer, inner, front + 0.004, front + 0.012, bevel=(0.002, 1))
+        box("buckle_bar", gold, (0.036, 0.006, 0.0055), (x, front + 0.008, buckle_z), 0.0015, 1)
+        box("strap_tail", trim, (0.03, 0.007, buckle_z - 0.03), (x, half + 0.0015, (buckle_z + 0.03) / 2), 0.003, 1)
+        for z in (0.074, 0.054):
+            ellipsoid("hole", ink, (x, half + 0.005, z), (0.0042, 0.0016, 0.0042), 6, 3)
+        box("keeper", gold, (0.04, 0.006, 0.012), (x, half + 0.0045, 0.038), 0.002, 1)
+    front_decal("star", gold, star(5, 0.03, 0.0125), front - 0.001, front + 0.0035, (0, 0, 0.18))
+    mouth_y = 0.004
+    ellipsoid("mouth", ink, (0, mouth_y, height + 0.0005), (0.122, 0.031, 0.002), 24, 3)
+    torus("mouth_rim", trim, (0.122, 0.031), 0.0055, (0, mouth_y, height), "Z", 24, 4)
+    tile, thick, tilt = 0.076, 0.022, 0.12
+    for letter, tile_mat, ink_mat, x, z, lean in (("A", gold, body, 0.07, 0.292, 0.24), ("B", mark, trim, 0.0, 0.3, -0.04), ("C", trim, gold, -0.071, 0.29, -0.26)):
+        parts = [box("tile", tile_mat, (tile, thick, tile), (0, 0, 0), 0.009, 2)]
+        for stroke in SATCHEL_LETTERS[letter]:
+            parts.append(tube("letter", ink_mat, [(-u, thick / 2 + 0.001, v + 0.008) for u, v in stroke], 0.0048, 6, reference=Vector((0, 1, 0))))
+        for part in parts:
+            move(part, (tilt, lean, 0), (x, mouth_y, z))
+    hy = -0.046
+    handle = spline([(-0.085, hy, height - 0.004), (-0.08, hy, 0.305), (-0.05, hy, 0.343), (0, hy, 0.355), (0.05, hy, 0.343), (0.08, hy, 0.305),
+                     (0.085, hy, height - 0.004)], 3)
+    tube("handle", body, handle, 0.0125, 8, reference=Vector((0, 1, 0)))
+    for side in (-1, 1):
+        box("tab", trim, (0.038, 0.026, 0.014), (side * 0.085, hy, height + 0.003), 0.003, 1)
+        ellipsoid("rivet", gold, (side * 0.085, hy + 0.0135, height + 0.003), (0.005, 0.003, 0.005), 8, 4)
+    for side in (-1, 1):
+        flat_strap("back_strap", trim, spline([(-0.05, 0.248), (-0.074, 0.222), (-0.082, 0.16), (-0.078, 0.09), (-0.057, 0.045)], 2), 0.01, side * 0.09, 0.034)
+    back_decal("back_star", gold, star(5, 0.032, 0.0135), half - 0.001, half + 0.0035, (0, 0, 0.15))
+
+
 BUILDERS = {"RAKE": build_rake, "TEAPOT": build_teapot, "LID": build_lid, "TOMATO": build_tomato, "ROCKET": build_rocket,
             "MARBLE": build_marble, "LADDER": build_ladder, "PADDLE": build_paddle, "CHILI": build_chili, "DISC": build_disc,
             "HELMET": build_helmet, "LEMON": build_lemon, "TORCH": build_torch, "CARPET": build_carpet, "SLIME": build_slime,
@@ -1351,7 +1450,8 @@ BUILDERS = {"RAKE": build_rake, "TEAPOT": build_teapot, "LID": build_lid, "TOMAT
             "PLANE": build_plane, "PAINT": build_paint, "CASTLE": build_castle, "MALLET": build_mallet, "CRAB": build_crab,
             "ROBOT": build_robot, "RABBIT": build_rabbit, "TERRIER": build_terrier, "BLASTER": build_blaster, "CHOMPER": build_chomper,
             "PATROL": build_patrol, "CONE": build_cone, "BLOCKS": build_blocks, "SPIKES": build_spikes, "TRAP": build_trap,
-            "SPINNER": build_spinner, "FLIPPER": build_flipper, "HOOP": build_hoop, "COMPASS": build_compass}
+            "SPINNER": build_spinner, "FLIPPER": build_flipper, "HOOP": build_hoop, "COMPASS": build_compass,
+            "SATCHEL": build_satchel}
 
 
 def manifest():

@@ -75,6 +75,7 @@ namespace Wreckabulary
         public IReadOnlyDictionary<string, HouseLayout> Houses { get; }
         public HouseTuning Tuning { get; private set; }
         public HelperBook Helpers { get; private set; } = new HelperBook();
+        public BagRowBook BagRows { get; private set; } = new BagRowBook();
 
         static GameConfig current;
 
@@ -122,19 +123,21 @@ namespace Wreckabulary
             if (!string.IsNullOrEmpty(houseModes)) book.Layer(houseModes, "modes_house.json");
             HouseTuning tuning = null;
             var helpers = new HelperBook();
+            var bags = new BagRowBook();
             if (!string.IsNullOrEmpty(houseItems))
             {
                 catalogue.Expand(ItemCatalogue.FromJson(houseItems, houseItemsName ?? "items_house.json"));
                 tuning = HouseTuning.FromJson(houseItems, houseItemsName ?? "items_house.json");
                 tuning.Apply(catalogue, book);
                 helpers = HelperBook.FromJson(houseItems, houseItemsName ?? "items_house.json");
+                bags = BagRowBook.FromJson(houseItems, houseItemsName ?? "items_house.json");
             }
             var config = new GameConfig(
                 book,
                 catalogue,
                 HouseLayout.FromJson(house, houseName),
                 WardrobeCatalogue.FromJson(wardrobe, wardrobeName),
-                maps?.ToDictionary(m => m.Key, m => HouseLayout.FromJson(m.Value, $"house_{m.Key}.json"))) { Tuning = tuning, Helpers = helpers };
+                maps?.ToDictionary(m => m.Key, m => HouseLayout.FromJson(m.Value, $"house_{m.Key}.json"))) { Tuning = tuning, Helpers = helpers, BagRows = bags };
             var problems = config.Validate();
             if (problems.Count > 0)
                 throw new InvalidOperationException($"The game data has {problems.Count} problem(s):\n" + string.Join("\n", problems));
@@ -154,7 +157,8 @@ namespace Wreckabulary
                 problems.AddRange(entry.Value.Validate(Items).Select(p => $"house_{entry.Key}: " + p));
             problems.AddRange(Wardrobe.Validate().Select(p => "wardrobe: " + p));
             if (Tuning != null) problems.AddRange(Tuning.Validate(Items, Rules.Defaults).Select(p => "tuning: " + p));
-            problems.AddRange(Helpers.Validate(Items).Select(p => "helpers: " + p));
+            problems.AddRange(Helpers.Validate(Items, BagRows).Select(p => "helpers: " + p));
+            problems.AddRange(BagRows.Validate(Items, Helpers).Select(p => "bagrows: " + p));
 
             foreach (var rules in AllRules())
             {

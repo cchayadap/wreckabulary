@@ -87,20 +87,14 @@ namespace Wreckabulary.Tests
 
             var tray = safe.Find("Letter bag");
             Assert.IsTrue(tray.gameObject.activeSelf);
-            for (int i = 1; i <= 10; i++) Assert.IsNotNull(tray.Find($"Letter {i}"), $"tray cell {i}");
-            Assert.IsNull(tray.Find("Letter 11"), "Two rows of five, like the browser bag.");
+            for (int i = 1; i <= 10; i++) Assert.IsTrue(tray.Find($"Letter {i}").gameObject.activeSelf, $"tray cell {i}");
+            Assert.IsFalse(tray.Find("Letter 11").gameObject.activeSelf, "Two rows of five, like the browser bag.");
+            Assert.AreEqual(176f, ((RectTransform)tray).sizeDelta.y, .5f, "two rows keep today's tray");
             player.Inventory.Set("");
             yield return new WaitForSecondsRealtime(0.12f);
             Assert.IsTrue(tray.Find("Letter 10/Face/Outline").GetComponent<Image>().enabled, "An empty cell keeps a dark edge over light floors.");
-            var spellGlyph = tray.Find("Spell key/Glyph");
-            Assert.IsNull(spellGlyph.GetComponent<RawImage>(), "Q no longer uses the bag glyph that reads as a padlock.");
-            Assert.AreEqual("A", spellGlyph.Find("Letter").GetComponent<TMPro.TMP_Text>().text, "Q shows a letter tile.");
-            foreach (var shortcut in new[] { "Spell key", "Bag link" })
-            {
-                var cap = tray.Find(shortcut + "/Key cap").GetComponent<Image>();
-                Assert.Less(cap.color.r, .2f, shortcut + " key sits on a dark pill");
-                Assert.Greater(cap.color.a, .7f, shortcut);
-            }
+            Assert.IsNull(tray.Find("Spell key"), "No key hint chips under the letter slots.");
+            Assert.IsNull(tray.Find("Bag link"), "No key hint chips under the letter slots.");
             Assert.IsNotNull(safe.Find("Side column/Minimap"));
             Assert.IsNotNull(safe.Find("Side column/Timer"));
             Assert.IsNotNull(safe.Find("Side column/Alive/Count"), "A head count sits before the timer, as on the web.");
@@ -126,10 +120,10 @@ namespace Wreckabulary.Tests
             Assert.AreEqual(1, player.Combat.ActiveSlot, "Tapping a hand slot picks that hand.");
 
             Assert.IsFalse(hud.BagOpen);
-            tray.Find("Bag link").GetComponent<Button>().onClick.Invoke();
-            Assert.IsTrue(hud.BagOpen, "The bag link pins the bag and map panel.");
+            hud.ToggleBag();
+            Assert.IsTrue(hud.BagOpen, "Toggling pins the bag and map panel.");
             Assert.IsNotNull(safe.Find("Bag panel/House/Map area/Big map"));
-            tray.Find("Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             Assert.IsFalse(hud.BagOpen);
             yield return TheBagIsTheWebsDarkGlass(hud, player);
 
@@ -174,8 +168,9 @@ namespace Wreckabulary.Tests
                 Assert.AreEqual(ControlTips.Text(ControlTips.Tip.Move, binding), tip.text);
                 StringAssert.DoesNotContain("WASD", tip.text, "One key per device: the pad's own.");
                 var tray = hud.transform.Find("Safe HUD/Letter bag");
-                Assert.AreEqual("Y", tray.Find("Spell key").GetComponentInChildren<TMPro.TMP_Text>().text);
-                Assert.AreEqual("RB", tray.Find("Bag link").GetComponentInChildren<TMPro.TMP_Text>().text);
+                Assert.IsNull(tray.Find("Spell key"), "no key hint chips for a pad either");
+                Assert.IsNull(tray.Find("Bag link"), "no key hint chips for a pad either");
+                Assert.AreEqual("RB", GameHud.BagKeyLabel(binding));
                 Assert.AreEqual("‹", tray.Find("Gear slot 1/Key").GetComponent<TMPro.TMP_Text>().text);
                 Assert.AreEqual("›", tray.Find("Gear slot 2/Key").GetComponent<TMPro.TMP_Text>().text);
                 Assert.IsFalse(hud.BagOpen);
@@ -249,9 +244,8 @@ namespace Wreckabulary.Tests
         static IEnumerator TheBagIsTheWebsDarkGlass(GameHud hud, PlayerController player)
         {
             var safe = hud.transform.Find("Safe HUD");
-            var link = safe.Find("Letter bag/Bag link").GetComponent<Button>();
             player.Inventory.Set("BALL");
-            link.onClick.Invoke();
+            hud.ToggleBag();
             yield return new WaitForSecondsRealtime(0.2f);
             Assert.IsTrue(hud.BagOpen);
 
@@ -303,7 +297,7 @@ namespace Wreckabulary.Tests
             }
             player.Summoner.CancelCraft();
 
-            link.onClick.Invoke();
+            hud.ToggleBag();
             Assert.IsTrue(hud.BagOpen);
             safe.Find("Bag panel/Close bag").GetComponent<Button>().onClick.Invoke();
             Assert.IsFalse(hud.BagOpen, "The x closes it.");
@@ -316,7 +310,7 @@ namespace Wreckabulary.Tests
             var hud = new GameObject("Recipe line HUD", typeof(Canvas)).AddComponent<GameHud>();
             yield return null;
             var safe = (RectTransform)hud.transform.Find("Safe HUD");
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             var book = safe.Find("Bag panel/Recipe book");
             var line = book.Find("Book line").GetComponent<TMPro.TMP_Text>();
             var cards = book.Find("View/Cards");
@@ -360,7 +354,7 @@ namespace Wreckabulary.Tests
             var hud = new GameObject("Recipe key HUD", typeof(Canvas)).AddComponent<GameHud>();
             yield return null;
             var safe = (RectTransform)hud.transform.Find("Safe HUD");
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             yield return TestScenes.WaitUntil(() => hud.BagOpen, 10f, "the bag");
             yield return new WaitForSecondsRealtime(0.12f);
             Canvas.ForceUpdateCanvases();
@@ -422,7 +416,7 @@ namespace Wreckabulary.Tests
             yield return new WaitForSecondsRealtime(.12f);
             player.Inventory.Set("BALL");
             var safe = (RectTransform)hud.transform.Find("Safe HUD");
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             var book = (RectTransform)safe.Find("Bag panel/Recipe book");
             var view = (RectTransform)book.Find("View");
             var cards = (RectTransform)view.Find("Cards");
@@ -1704,10 +1698,10 @@ namespace Wreckabulary.Tests
                 part.GetWorldCorners(corners);
                 Assert.Less(corners[1].y, barBottom - 11f * hud.UiCanvas.scaleFactor, name + " sits below the player bar's plate.");
             }
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             yield return new WaitForSecondsRealtime(0.2f);
             Assert.AreEqual(0f, bar.GetComponent<CanvasGroup>().alpha, "The bar steps aside under the bag.");
-            safe.Find("Letter bag/Bag link").GetComponent<Button>().onClick.Invoke();
+            hud.ToggleBag();
             yield return new WaitForSecondsRealtime(0.12f);
             Assert.AreEqual(1f, bar.GetComponent<CanvasGroup>().alpha);
             hud.SetScoreboard(new[] { you }, _ => 0, 3, true);

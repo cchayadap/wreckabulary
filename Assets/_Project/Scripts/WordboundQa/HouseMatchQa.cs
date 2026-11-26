@@ -260,7 +260,7 @@ namespace Wreckabulary.Qa
         {
             var events = EventSystem.current;
             if (!events) throw new QaFailException("The match HUD has no EventSystem to focus a recipe card.");
-            Click(HudButton("Bag link"));
+            hud.ToggleBag();
             yield return context.WaitUntil(() => hud.BagOpen, 10, "the recipe book to open");
             var root = HudRoot();
             var cards = root.GetComponentsInChildren<Button>(true).Where(b => b.transform.parent && b.transform.parent.name == "Cards").ToList();

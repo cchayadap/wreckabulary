@@ -45,7 +45,7 @@ namespace Wreckabulary.Rules
 
         public bool TryGet(string id, out HelperSpec spec) => specs.TryGetValue(id ?? "", out spec);
 
-        public List<string> Validate(ItemCatalogue items)
+        public List<string> Validate(ItemCatalogue items, BagRowBook bags = null)
         {
             var problems = new List<string>();
             foreach (var spec in ordered)
@@ -63,7 +63,7 @@ namespace Wreckabulary.Rules
                     walls.Add(item);
                     problems.AddRange(HelperCaps.CheckWall(item));
                 }
-                if (item.Family != HandlingFamily.Helper) continue;
+                if (item.Family != HandlingFamily.Helper || (bags != null && bags.Holds(item) && !specs.ContainsKey(item.Id))) continue;
                 string p = item.Id + ": ";
                 if (!specs.ContainsKey(item.Id)) problems.Add(p + "is a Helper recipe without a helper block.");
                 if (!item.Consumable) problems.Add(p + "a helper is used up when released, so it must be consumable.");
