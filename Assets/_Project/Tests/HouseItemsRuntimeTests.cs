@@ -54,6 +54,7 @@ namespace Wreckabulary.Tests
         static IEnumerable<string> UseItems => Ids(HandlingFamily.Heal, HandlingFamily.Buff);
         static IEnumerable<string> RangedItems => Ids(HandlingFamily.Ranged);
         static IEnumerable<string> StashItems => Ids(HandlingFamily.Utility);
+        static IEnumerable<string> HelperItems => Ids(HandlingFamily.Helper);
         static IEnumerable<string> PosedItems =>ItemHolds.All.Select(h => h.Id).ToArray();
         static IEnumerable<string> TurnedShieldItems => ShieldItems.Where(id => ItemHolds.For(id) != null).ToArray();
 
@@ -117,7 +118,7 @@ namespace Wreckabulary.Tests
         public void EveryHouseItemHasAFamilyCase()
         {
             CollectionAssert.AreEquivalent(House().All.Select(i => i.Id),
-                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(PatchItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems),
+                MeleeItems.Concat(ThrownItems).Concat(ShieldItems).Concat(DeployItems).Concat(PatchItems).Concat(UseItems).Concat(RangedItems).Concat(StashItems).Concat(HelperItems),
                 "add a runtime case for any new handling family");
         }
 
@@ -325,6 +326,17 @@ namespace Wreckabulary.Tests
                     run.Next.move = Vector2.zero;
                     break;
                 }
+                case DeployEffect.SlowField when GameConfig.Current.Tuning?.Trait(id, TraitKind.Reverse)?.Delivery == TraitDelivery.InZone:
+                {
+                    Assert.IsNotNull(gear.GetComponent<ReverseZone>(), id + " lays a reversing zone");
+                    Assert.IsNull(gear.GetComponent<DeployedPowerField>(), id + " reverses instead of slowing");
+                    var inside = Spawn(1, body.position + Vector3.forward * (stats.Radius * 0.5f), out _);
+                    Physics.SyncTransforms();
+                    yield return TestScenes.WaitUntil(() => inside.Reversed != ReverseMode.None, 2f, id + " reverses whoever steps inside");
+                    Assert.AreEqual(0f, inside.SlowLeft, id + " does not slow anyone");
+                    Assert.AreEqual(ReverseMode.None, p.Reversed, id + " never reverses its maker");
+                    break;
+                }
                 case DeployEffect.WindField:
                 case DeployEffect.SlowField:
                 {
@@ -347,6 +359,41 @@ namespace Wreckabulary.Tests
                     break;
             }
             Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " keeps its letters while placed");
+            if (stats.LifetimeSeconds <= 0f) yield break;
+            yield return TestScenes.WaitUntil(() => DeployedGear.CountFor(p) == 0, stats.LifetimeSeconds + WallGrace, id + " is a wall that always ends");
+        }
+
+        const float WallGrace = 3f, HelperCalm = 1.5f;
+
+        [UnityTest]
+        public IEnumerator HelpersLeaveTheHandAndActOnTheirOwn([ValueSource(nameof(HelperItems))] string id)
+        {
+            Assert.IsTrue(GameConfig.Current.Helpers.TryGet(id, out var spec), id + " has a helper block in items_house.json");
+            var p = Spawn(0, Vector3.zero, out var input);
+            yield return Frames(3);
+            p.FaceTowards(Vector3.forward);
+            Craft(p, id);
+
+            input.Next.attack = true;
+            yield return TestScenes.WaitUntil(() => HelperAgent.All.Count == 1, HelperAgent.PlaceSeconds + 2f, id + " leaves the hand by the attack button");
+            yield return Frames(2);
+            var agent = HelperAgent.All[0];
+            Assert.IsFalse(p.Combat.Weapon, id + " left the hand");
+            Assert.AreEqual(id, agent.Word);
+            Assert.AreSame(spec, agent.Spec, id + " acts by its own helper block");
+            Assert.AreSame(p, agent.Maker);
+            Assert.AreEqual(1, DeployedGear.CountFor(p), id + " counts against the placed limit");
+            Assert.AreEqual(spec.IsTrap, agent.GetComponent<HelperTrap>() != null, id + " lies flat as a trap only when it is one");
+            var offset = World.Flat(agent.transform.position - p.Body.position);
+            Assert.Greater(Vector3.Dot(offset.normalized, Vector3.forward), 0.9f, id + " goes down in front of its maker");
+            yield return TestScenes.WaitUntil(() => agent.IsArmed, HelperBrain.ArmSeconds + 1f, id + " arms after a moment");
+            if (spec.Bites == HelperBite.Enemies)
+            {
+                yield return new WaitForSeconds(HelperCalm);
+                Assert.AreEqual(p.Health.Max, p.Health.Current, 0.01f, id + " never bites its own maker");
+                Assert.IsTrue(agent && !agent.IsEnding, id + " is still out with nobody to fight");
+            }
+            Assert.AreEqual(0, TilePool.Instance.Active.Count, id + " drops no letters");
         }
 
         const float Wound = 40f, BowTargetGap = 4f;

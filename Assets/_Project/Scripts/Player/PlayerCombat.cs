@@ -57,7 +57,7 @@ namespace Wreckabulary
         const float MinCarryRadius = .08f, MaxCarryRadius = 1.1f;
         const float PlayerFitShrink = .9f, PlayerSpotGap = .1f, PlayerSweepRadius = .3f;
         const int DepenetratePasses = 3;
-        const float DeployReach = 1.6f;
+        public const float DeployReach = 1.6f;
         static int CarryMask => World.GroundMask & Physics.DefaultRaycastLayers;
         static int SpaceMask => World.TileLayer >= 0 ? Physics.DefaultRaycastLayers & ~(1 << World.TileLayer) : Physics.DefaultRaycastLayers;
 
@@ -422,6 +422,7 @@ namespace Wreckabulary
         bool Grabbable(Rigidbody rb)
         {
             if (!rb || rb == controller.Body || rb == held || rb.GetComponent<LetterTile>()) return false;
+            if (rb.TryGetComponent(out HelperAgent _)) return false;
             if (rb.TryGetComponent(out PlayerController player)) return !player.IsHeld && !player.IsEliminated;
             if (rb.TryGetComponent(out LetterStash stash) && stash.CanOpen(controller))
                 return stash.WantsExchange(controller) || (stash.IsEmpty && HasFreeGearSlot && rb.TryGetComponent(out HeldWeapon chest) && !chest.IsHeld && !chest.IsSpent);
@@ -735,8 +736,39 @@ namespace Wreckabulary
                 Popup.Show($"{limit} ALREADY PLACED", controller.OverheadPosition + Vector3.up * 0.4f, Color.white, 2.5f);
                 return false;
             }
+            if (HelperAgent.RefusesCover(controller, item)) return false;
             StartCoroutine(PlaceAfterChannel(gear));
             return true;
+        }
+
+        public bool ReleaseHelper()
+        {
+            var gear = Weapon;
+            var item = gear ? gear.Definition : null;
+            if (!controller.CanAct || controller.IsDodging || IsReviving || IsChanneling || (controller.Summoner && (controller.Summoner.IsCrafting || controller.Summoner.IsSpelling))
+                || !HelperAgent.SpecFor(item, out var spec) || HelperAgent.RefusesRelease(controller, item, spec)) return false;
+            StartCoroutine(ReleaseAfterChannel(gear, spec));
+            return true;
+        }
+
+        IEnumerator ReleaseAfterChannel(HeldWeapon gear, HelperSpec spec)
+        {
+            deploying = true;
+            controller.GetComponent<PlayerAppearance>()?.Play("Place", HelperAgent.PlaceSeconds);
+            controller.MoveScale = controller.Health.Rules.CraftMoveSpeed;
+            float ready = Time.time + HelperAgent.PlaceSeconds;
+            while (Time.time < ready)
+            {
+                while (Time.timeScale <= 0f) yield return null;
+                if (!controller.CanAct || controller.IsDodging || Weapon != gear) { deploying = false; controller.MoveScale = 1f; yield break; }
+                yield return null;
+            }
+            deploying = false;
+            controller.MoveScale = 1f;
+            if (!controller.CanAct || controller.IsDodging || Weapon != gear || HelperAgent.RefusesRelease(controller, gear.Definition, spec)) yield break;
+            int locked = HelperAgent.AimedLockFor(controller, spec);
+            var body = PlaceInFront();
+            HelperAgent.Launch(body.gameObject, gear.Definition, spec, controller, locked);
         }
 
         IEnumerator PlaceAfterChannel(HeldWeapon gear)
@@ -754,21 +786,14 @@ namespace Wreckabulary
             deploying = false;
             controller.MoveScale = 1f;
             if (!controller.CanAct || controller.IsDodging || Weapon != gear || DeployedGear.CountFor(controller) >= controller.Health.Rules.MaxDeployed) yield break;
+            if (HelperAgent.RefusesCover(controller, gear.Definition)) yield break;
             ApplyDeployment(gear);
         }
 
         void ApplyDeployment(HeldWeapon gear)
         {
             var item = gear.Definition;
-            var body = held;
-            Release(Vector3.zero);
-            var handSpot = body.position;
-            var placedAt = transform.position + controller.Facing * DeployReach;
-            var placedFacing = Quaternion.LookRotation(controller.Facing);
-            body.transform.SetPositionAndRotation(placedAt, placedFacing);
-            body.position = placedAt;
-            body.rotation = placedFacing;
-            SettleReleasedBody(body, false, false, handSpot);
+            var body = PlaceInFront();
             if (item.Thrown != null)
             {
                 DeployedGear.Register(gear.gameObject, controller);
@@ -784,6 +809,20 @@ namespace Wreckabulary
             }
             body.isKinematic = true;
             DeployedGear.Attach(gear, controller);
+        }
+
+        Rigidbody PlaceInFront()
+        {
+            var body = held;
+            Release(Vector3.zero);
+            var handSpot = body.position;
+            var placedAt = transform.position + controller.Facing * DeployReach;
+            var placedFacing = Quaternion.LookRotation(controller.Facing);
+            body.transform.SetPositionAndRotation(placedAt, placedFacing);
+            body.position = placedAt;
+            body.rotation = placedFacing;
+            SettleReleasedBody(body, false, false, handSpot);
+            return body;
         }
 
         public void Drop()

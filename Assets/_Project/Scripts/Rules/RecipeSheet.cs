@@ -43,11 +43,14 @@ namespace Wreckabulary.Rules
         public static float TextWidth => Width - 2f * Pad;
         public static float KindWidth => Width - 2f * Pad - Picture - HeadGap;
 
-        public static RecipeSheetText Build(ItemDefinition item, HouseTuning tuning)
+        public static RecipeSheetText Build(ItemDefinition item, HouseTuning tuning, HelperBook helpers = null)
         {
             if (item == null) return null;
             var tier = RecipeDifficulty.TierOf(item.Id);
-            var (kind, rows) = Family(item);
+            var (kind, rows) = Reverses(item, tuning) ? ("Reverse zone to place", new Action<ItemDefinition, List<SheetRow>>(ReversingZone)) : Family(item);
+            HelperSpec helper = null;
+            if (helpers != null && item.Family == HandlingFamily.Helper) helpers.TryGet(item.Id, out helper);
+            if (helper != null) kind = HelperKind(helper);
             var sheet = new RecipeSheetText
             {
                 Name = item.Id,
@@ -57,11 +60,35 @@ namespace Wreckabulary.Rules
                 Kind = kind,
             };
             rows(item, sheet.Rows);
+            if (helper != null) HelperRows(helper, sheet.Rows);
             if (item.Consumable) sheet.Rows.Add(new SheetRow(Uses, "Once"));
             sheet.Rows.Add(new SheetRow(Hand, item.IsTwoHanded ? "Two hands" : "One hand"));
             sheet.Effects.AddRange(Effects(item, tuning));
+            string does = helper != null ? helper.CardLine() : HelperBook.WallLine(item);
+            if (does != null)
+            {
+                if (sheet.Effects.Count == 1 && sheet.Effects[0] == NoEffect) sheet.Effects.Clear();
+                sheet.Effects.Insert(0, Sentence(does));
+            }
             return sheet;
         }
+
+        static string HelperKind(HelperSpec helper) =>
+            helper.IsTrap ? "Trap to place" : helper.Moves ? "Toy that chases" : helper.Attack == HelperAttack.Shot ? "Turret to place" : "Guard to place";
+
+        static void HelperRows(HelperSpec helper, List<SheetRow> rows)
+        {
+            if (helper.Hurts)
+                rows.Add(new SheetRow("Damage", helper.Attack == HelperAttack.Burst
+                    ? N(helper.Damage) + " to all near, once"
+                    : N(helper.Damage) + " a hit, " + Count(helper.Strikes, "hit")));
+            if (helper.Slows) rows.Add(new SheetRow("Slows", $"to {P(helper.Slow)} for {S(helper.SlowSeconds)}"));
+            if (helper.Moves) rows.Add(new SheetRow("Speed", N(helper.Speed) + " m/s"));
+            rows.Add(new SheetRow(Lasts, S(helper.Seconds)));
+            rows.Add(new SheetRow(Toughness, N(helper.Health)));
+        }
+
+        static void None(ItemDefinition item, List<SheetRow> rows) { }
 
         public static string Kind(ItemDefinition item) => Family(item).kind;
 
@@ -79,6 +106,7 @@ namespace Wreckabulary.Rules
             HandlingFamily.Buff => (item.Use != null && item.Use.Effect == UseEffect.Speed ? "Speed boost" : "Bubble shield", Buff),
             HandlingFamily.Heal => ("Heal", Heal),
             HandlingFamily.Utility => ("Team stash to place", Stash),
+            HandlingFamily.Helper => ("Toy that acts alone", None),
             _ => ("Gear", Any),
         };
 
@@ -94,7 +122,8 @@ namespace Wreckabulary.Rules
         {
             var effects = new List<string>();
             if (item != null && tuning != null)
-                foreach (var trait in tuning.TraitsOf(item.Id)) effects.Add(Sentence(trait.Describe()));
+                foreach (var trait in tuning.TraitsOf(item.Id))
+                    effects.Add(trait.Kind == TraitKind.Reverse ? Reversal.Sentence(trait) : Sentence(trait.Describe()));
             if (effects.Count == 0) effects.Add(NoEffect);
             return effects;
         }
@@ -104,7 +133,7 @@ namespace Wreckabulary.Rules
             if (string.IsNullOrWhiteSpace(phrase)) return "";
             string text = phrase.Trim();
             text = char.ToUpperInvariant(text[0]) + text.Substring(1);
-            return text.EndsWith(".", StringComparison.Ordinal) ? text : text + ".";
+            return text.EndsWith(".", StringComparison.Ordinal) || text.EndsWith("!", StringComparison.Ordinal) ? text : text + ".";
         }
 
         static void Swung(ItemDefinition item, List<SheetRow> rows)
@@ -189,6 +218,19 @@ namespace Wreckabulary.Rules
                     rows.Add(new SheetRow(Size, N(d.Radius) + " m radius"));
                     break;
             }
+            if (d.LifetimeSeconds > 0f) rows.Add(new SheetRow(Lasts, S(d.LifetimeSeconds)));
+            rows.Add(new SheetRow(SetUp, S(d.PlaceSeconds)));
+            if (!item.Consumable) rows.Add(new SheetRow(Toughness, N(item.Durability)));
+        }
+
+        static bool Reverses(ItemDefinition item, HouseTuning tuning) =>
+            item.Family == HandlingFamily.DeployZone && item.Deploy != null
+            && tuning?.Trait(item.Id, TraitKind.Reverse) is { Delivery: TraitDelivery.InZone };
+
+        static void ReversingZone(ItemDefinition item, List<SheetRow> rows)
+        {
+            var d = item.Deploy;
+            rows.Add(new SheetRow(Size, N(d.Radius) + " m radius"));
             if (d.LifetimeSeconds > 0f) rows.Add(new SheetRow(Lasts, S(d.LifetimeSeconds)));
             rows.Add(new SheetRow(SetUp, S(d.PlaceSeconds)));
             if (!item.Consumable) rows.Add(new SheetRow(Toughness, N(item.Durability)));

@@ -23,6 +23,7 @@ namespace Wreckabulary.Rules
         Heal,
         Ranged,
         Utility,
+        Helper,
     }
 
     public sealed class MeleeStats

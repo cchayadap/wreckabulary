@@ -129,6 +129,7 @@ namespace Wreckabulary
             var owner = user.GetComponent<PlayerController>();
             if (definition != null)
             {
+                if (definition.Family == HandlingFamily.Helper) { user.ReleaseHelper(); return; }
                 if (definition.Use != null) { StartCoroutine(ConsumeAfterChannel(user, owner)); return; }
                 if (definition.Ranged != null) { StartCoroutine(DrawAndFire(user, owner)); return; }
                 if (definition.Thrown != null) { user.Throw(); return; }

@@ -74,6 +74,9 @@ namespace Wreckabulary
 
         float staggerUntil, slideUntil, slipperyUntil, floatyUntil, autoWalkUntil;
         float slowUntil, slow = 1f;
+        readonly ReversalClock reversal = new();
+        string reversedBy;
+        ReversalMarker marker;
         readonly Dictionary<float, float> boosts = new();
         readonly List<float> expiredBoosts = new();
         float jumpWantedUntil, dodgeWantedUntil, dodgeUntil, dodgeSpeed;
@@ -149,6 +152,7 @@ namespace Wreckabulary
                 Binding.ReadHouse(ref Commands);
                 if (Binding is not TouchBinding && TouchBinding.Shared.IsOverlayFor(Binding.Id))
                     TouchBinding.Shared.Merge(ref Commands);
+                ReverseMove();
                 if (ShooterView) ApplyLook();
             }
             if (Commands.jump) jumpWantedUntil = Time.time + pressBuffer;
@@ -182,6 +186,7 @@ namespace Wreckabulary
 
             if (Time.time < dodgeWantedUntil) TryDodge();
             if (Time.time < jumpWantedUntil) TryJump();
+            SpreadRaisedReversal();
 
             if (!Grounded)
             {
@@ -342,6 +347,50 @@ namespace Wreckabulary
             slowUntil = Time.time + seconds;
         }
         public void MakeSlippery(float seconds) => slipperyUntil = Time.time + seconds;
+
+        public ReverseMode Reversed => reversal.ModeAt(Time.time);
+        public float ReversedLeft => Reversed == ReverseMode.None ? 0f : reversal.LeftAt(Time.time);
+        public string ReversedBy => Reversed == ReverseMode.None ? null : reversedBy;
+
+        public bool Reverse(ReverseMode mode, float seconds, string word)
+        {
+            if (Frozen || IsKnockedOut || IsHeld || !isActiveAndEnabled) return false;
+            if (!reversal.Apply(mode, seconds, Time.time)) return false;
+            reversedBy = word;
+            if (!marker && !TryGetComponent(out marker)) marker = gameObject.AddComponent<ReversalMarker>();
+            marker.Initialize(this);
+            return true;
+        }
+
+        public void ClearReversal()
+        {
+            reversal.Clear();
+            reversedBy = null;
+        }
+
+        public Vector2 SteerReversed(Vector2 move)
+        {
+            float x = move.x, y = move.y;
+            Reversal.BotSteer(Reversed, reversal.ReversedFor(Time.time), ref x, ref y);
+            return new Vector2(x, y);
+        }
+
+        void ReverseMove()
+        {
+            var mode = Reversed;
+            if (mode == ReverseMode.None) return;
+            float x = Commands.move.x, y = Commands.move.y;
+            Reversal.Apply(mode, ref x, ref y);
+            Commands.move = new Vector2(x, y);
+        }
+
+        void SpreadRaisedReversal()
+        {
+            if (!CanAct || !Health || !Combat || !Combat.IsBlocking || !Combat.Weapon) return;
+            var trait = GameConfig.Current.Tuning?.Trait(Combat.Weapon.word, TraitKind.Reverse);
+            if (trait == null || trait.Delivery != TraitDelivery.WhileRaised) return;
+            ReverseZone.Spread(trait, Combat.Weapon.word, transform.position, trait.Radius, Index, Team, Health.Rules.FriendlyFire, true);
+        }
         public void MakeFloaty(float seconds) => floatyUntil = Time.time + seconds;
 
         public void AutoWalk(Vector3 direction, float seconds)
@@ -358,6 +407,7 @@ namespace Wreckabulary
 
         public void ApplyLifeState(LifeState state, Vector3 push = default)
         {
+            ClearReversal();
             if (state == LifeState.Eliminated)
             {
                 if (tumbling) return;
@@ -412,6 +462,7 @@ namespace Wreckabulary
             boosts.Clear();
             slowUntil = 0f;
             slow = 1f;
+            ClearReversal();
             jumpWantedUntil = dodgeWantedUntil = dodgeUntil = 0f;
             lastJumpAt = float.NegativeInfinity;
             MoveScale = 1f;

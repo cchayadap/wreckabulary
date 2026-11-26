@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Wreckabulary.Rules
 {
-    public enum FactKind { Role, Bleed, Heavy, Daze, Guard, Swift, Crush }
+    public enum FactKind { Role, Bleed, Heavy, Daze, Guard, Swift, Crush, Reverse }
 
     public readonly struct RecipeChip
     {
@@ -53,10 +53,12 @@ namespace Wreckabulary.Rules
 
         public static string TraitLabel(ItemTrait trait) => trait.Delivery switch
         {
-            TraitDelivery.BuildUp => $"{trait.Kind} {Ordinal(trait.Every)}",
-            TraitDelivery.Chance => $"{trait.Kind} {trait.Chance * 100f:0}%",
-            _ => trait.Kind.ToString(),
+            TraitDelivery.BuildUp => $"{TraitName(trait)} {Ordinal(trait.Every)}",
+            TraitDelivery.Chance => $"{TraitName(trait)} {trait.Chance * 100f:0}%",
+            _ => TraitName(trait),
         };
+
+        static string TraitName(ItemTrait trait) => trait.Kind == TraitKind.Reverse ? Reversal.Chip(trait.Turn) : trait.Kind.ToString();
 
         public static string RoleLabel(ItemDefinition item)
         {

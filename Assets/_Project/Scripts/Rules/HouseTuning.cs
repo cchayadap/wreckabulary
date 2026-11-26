@@ -6,9 +6,9 @@ namespace Wreckabulary.Rules
 {
     public enum RecipeTier { Common, Uncommon, Rare, Epic }
 
-    public enum TraitKind { Bleed, Heavy, Daze, Guard, Swift, Crush }
+    public enum TraitKind { Bleed, Heavy, Daze, Guard, Swift, Crush, Reverse }
 
-    public enum TraitDelivery { EveryHit, Chance, BuildUp, OverTime, WhileHeld }
+    public enum TraitDelivery { EveryHit, Chance, BuildUp, OverTime, WhileHeld, InZone, WhileRaised }
 
     public sealed class ItemTrait
     {
@@ -18,10 +18,19 @@ namespace Wreckabulary.Rules
         public float Chance = 1f;
         public int Every = 1;
         public int Stacks = 1;
+        public ReverseMode Turn;
+        public float Radius;
+        public bool Inside;
 
         public bool Held => Kind is TraitKind.Guard or TraitKind.Swift;
 
+        public bool Area => Kind == TraitKind.Reverse && (Radius > 0f || Inside);
+
+        public bool OnHit => !Held && !Area;
+
         public TraitDelivery Delivery => Held ? TraitDelivery.WhileHeld
+            : Kind == TraitKind.Reverse && Radius > 0f ? TraitDelivery.WhileRaised
+            : Kind == TraitKind.Reverse && Inside ? TraitDelivery.InZone
             : Every > 1 ? TraitDelivery.BuildUp
             : Chance < 1f ? TraitDelivery.Chance
             : Kind == TraitKind.Bleed ? TraitDelivery.OverTime
@@ -37,11 +46,15 @@ namespace Wreckabulary.Rules
                 TraitKind.Guard => $"-{Amount * 100f:0}% damage",
                 TraitKind.Swift => $"+{(Amount - 1f) * 100f:0}% speed",
                 TraitKind.Crush => $"crushes x{Amount:0.##}",
+                TraitKind.Reverse when Area => Reversal.Effect(Turn),
+                TraitKind.Reverse => $"{Reversal.Effect(Turn)} for {Seconds:0.#} s",
                 _ => Kind.ToString().ToLowerInvariant(),
             };
             return Delivery switch
             {
                 TraitDelivery.WhileHeld => "while held: " + effect,
+                TraitDelivery.WhileRaised => $"while raised: {effect} for you and everyone within {Radius:0.#} m",
+                TraitDelivery.InZone => $"inside: {effect}, and for {Seconds:0.#} s after",
                 TraitDelivery.BuildUp => $"every {Ordinal(Every)} hit {effect}",
                 TraitDelivery.Chance => $"{Chance * 100f:0}% chance: {effect}",
                 _ => effect,
@@ -135,11 +148,14 @@ namespace Wreckabulary.Rules
                 tuning.traits[id] = entry["traits"].Items.Select(n => new ItemTrait
                 {
                     Kind = ItemCatalogue.ParseEnum<TraitKind>(n["kind"]),
-                    Amount = n["amount"].Float(),
+                    Amount = n["amount"].Float(0f),
                     Seconds = n["seconds"].Float(0f),
                     Chance = n["chance"].Float(1f),
                     Every = n["every"].Int(1),
                     Stacks = n["stacks"].Int(1),
+                    Turn = n.Has("mode") ? ItemCatalogue.ParseEnum<ReverseMode>(n["mode"]) : ReverseMode.None,
+                    Radius = n["radius"].Float(0f),
+                    Inside = n["inside"].Bool(false),
                 }).ToList();
             }
             return tuning;
@@ -202,6 +218,8 @@ namespace Wreckabulary.Rules
                 {
                     string bad = t.Kind switch
                     {
+                        TraitKind.Reverse => ReverseProblem(t, item, tier, list),
+                        _ when t.Turn != ReverseMode.None || t.Radius != 0f || t.Inside => "only a reversal has a mode, a radius or a zone",
                         TraitKind.Bleed when t.Amount <= 0f || t.Amount > 3f || t.Seconds <= 0f || t.Seconds > 4f => "bleed needs 0-3 damage a second for up to 4 s",
                         TraitKind.Bleed when t.Stacks < 1 || t.Stacks > 3 || t.Amount * t.Stacks > 4.5f => "a bleed deepens at most 3 times and to at most 4.5 damage a second",
                         TraitKind.Heavy when t.Amount <= 1f || t.Amount > 1.5f => "heavy multiplies knockback by more than 1 and at most 1.5",
@@ -216,7 +234,7 @@ namespace Wreckabulary.Rules
                         _ => null,
                     };
                     if (bad != null) problems.Add($"{item.Id}: {bad}.");
-                    if (!t.Held && item.Melee == null && item.Thrown == null)
+                    if (t.OnHit && item.Melee == null && item.Thrown == null)
                         problems.Add($"{item.Id}: {t.Kind} needs a hit to land; it has no melee or thrown stats.");
                     if (t.Kind == TraitKind.Crush && item.Melee == null)
                         problems.Add($"{item.Id}: crush is a melee build-up; it has no melee stats.");
@@ -232,6 +250,33 @@ namespace Wreckabulary.Rules
             problems.AddRange(Inversions(items.Enabled.Where(Swung).ToList(), "damage before it breaks", MeleeLifetime));
             problems.AddRange(Inversions(items.Enabled.Where(Thrown).ToList(), "thrown damage", i => i.Thrown.Damage));
             return problems;
+        }
+
+        static string ReverseProblem(ItemTrait t, ItemDefinition item, RecipeTier tier, IReadOnlyList<ItemTrait> list)
+        {
+            if (t.Turn == ReverseMode.None) return "a reversal names its mode: Mirror, Flip or Turnabout";
+            if (t.Chance <= 0f || t.Chance > 1f) return "chance must be above 0 and at most 1";
+            if (t.Every < 1 || t.Every > 5) return "a build-up lands every 1st to 5th hit";
+            if (t.Stacks != 1) return "only a bleed can stack";
+            if (t.Inside && t.Radius > 0f) return "a reversal works inside a zone or around a raised shield, not both";
+            if (t.Area && (t.Chance < 1f || t.Every > 1)) return "an area reversal is constant; it has no chance or build-up";
+            if (t.Inside)
+            {
+                if (item.Family != HandlingFamily.DeployZone || item.Deploy == null) return "a zone reversal needs a placed zone";
+                if (t.Seconds <= 0f || t.Seconds > Reversal.MaxZoneTailSeconds) return $"a zone reversal lingers for up to {Reversal.MaxZoneTailSeconds:0.#} s after leaving";
+                return null;
+            }
+            if (t.Radius > 0f)
+            {
+                if (item.Shield == null) return "a raised reversal needs a shield to hold up";
+                if (t.Radius > Reversal.MaxRaisedRadius) return $"a raised reversal reaches at most {Reversal.MaxRaisedRadius:0.#} m";
+                if (t.Seconds <= 0f || t.Seconds > Reversal.MaxRaisedTailSeconds) return $"a raised reversal lingers for up to {Reversal.MaxRaisedTailSeconds:0.#} s";
+                return null;
+            }
+            float cap = Reversal.MaxSeconds(tier, list.Where(o => o != t && o.OnHit).Select(o => o.Kind));
+            if (cap <= 0f) return $"{tier} words cannot reverse anyone";
+            if (t.Seconds <= 0f || t.Seconds > cap + 1e-3f) return $"{tier} words reverse for at most {cap:0.#} s";
+            return null;
         }
 
         static bool Swung(ItemDefinition item) => item.Melee != null && item.Use == null && item.Thrown == null && item.Deploy == null

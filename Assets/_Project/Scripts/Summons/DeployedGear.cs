@@ -8,6 +8,8 @@ namespace Wreckabulary
     {
         static readonly List<DeployedGear> Active = new();
         public PlayerController Owner { get; private set; }
+        public static IReadOnlyList<DeployedGear> All => Active;
+        public ItemDefinition Definition => definition;
         ItemDefinition definition;
         bool registered;
         Transform marker;
@@ -35,6 +37,7 @@ namespace Wreckabulary
                 gear.gameObject.AddComponent<LetterStash>().Open(owner);
                 return;
             }
+            if (ReverseZone.TryAttach(component, gear, owner)) return;
             if (stats.Effect is DeployEffect.WindField or DeployEffect.SlowField)
             {
                 component.field = gear.gameObject.AddComponent<DeployedPowerField>();

@@ -24,6 +24,8 @@ namespace Wreckabulary.Rules
         public const float TelegraphSeconds = .45f, DodgeMargin = .8f, ThreatArcSlack = 25f, ReactionSeconds = .15f, GuardSeconds = 1f;
         public const float SafeToSpell = 4f, CloseQuarters = 3f, ShootRange = 9f;
         public const float FlatLift = .3f, LobLift = 4f, LaunchHeight = 1.1f, LowestHit = .25f, HighestHit = 1.6f;
+        public const float HelperReach = 2f, HelperPatience = 4f, HelperRest = 6f, HelperDodgeLead = .1f, TrapMargin = .45f, TrapProbe = .85f;
+        public const float ObstacleNormal = .6f;
 
         public static bool Throws(ItemDefinition held) => held != null && held.Use == null && held.Thrown != null;
 
@@ -53,6 +55,19 @@ namespace Wreckabulary.Rules
 
         public static bool Threatens(MeleeStats swing, float distance, float degreesOffFacing) =>
             Telegraphed(swing) && distance <= swing.Reach + DodgeMargin && degreesOffFacing <= swing.ArcDegrees * .5f + ThreatArcSlack;
+
+        public static bool AvoidsHelper(bool bites, HelperPhase phase, float distance, float range, float windup) =>
+            bites && phase == HelperPhase.WindUp && windup >= ReactionSeconds + HelperDodgeLead && distance <= range + DodgeMargin;
+
+        public static bool SmashesHelper(bool armed, bool bites, bool ending, float distance, float chasedSeconds) =>
+            armed && bites && !ending && distance <= HelperReach && chasedSeconds < HelperPatience;
+
+        public static bool GivesUpOnHelper(float chasedSeconds) => chasedSeconds >= HelperPatience;
+
+        public static bool StepsAroundTrap(bool bites, bool isTrap, bool ending, float distance, float radius) =>
+            bites && isTrap && !ending && distance <= radius + TrapMargin;
+
+        public static bool SteersAround(float surfaceNormalY) => surfaceNormalY < ObstacleNormal;
 
         public static bool Helps(IReadOnlyList<char> bag, char letter, IEnumerable<string> wanted)
         {

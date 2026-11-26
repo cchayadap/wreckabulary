@@ -10,7 +10,7 @@ from mathutils import Matrix, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from house_item_shapes import (banded, box, box_of, box_uv, cylinder, densify, ellipse, ellipsoid, fit, gathered, interpolate, join, lathe,
+from house_item_shapes import (PARTS, banded, box, box_of, box_uv, cylinder, densify, ellipse, ellipsoid, fit, gathered, interpolate, join, lathe,
                                fan_badge, lobed, mesh_bounds, move, preview, prism, pumpkin, reset, rounded_rect, slab, spline, star, stats, taper, torus,
                                tube)
 
@@ -21,7 +21,9 @@ SCRIPT = "Tools/AssetPipeline/build_house_items_v2.py"
 WORDS = ("RAKE", "TEAPOT", "LID", "TOMATO", "ROCKET", "MARBLE", "LADDER", "PADDLE", "CHILI", "DISC",
          "HELMET", "LEMON", "TORCH", "CARPET", "SLIME", "SPOON", "TENT", "PEAR", "SOCK", "HOSE",
          "RACKET", "MELON", "PIANO", "TONIC", "BRICK", "PENCIL", "RAMP", "OIL", "DOOR", "BOOT",
-         "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB")
+         "ANCHOR", "POTION", "FENCE", "CAMERA", "LATTE", "PLANE", "PAINT", "CASTLE", "MALLET", "CRAB",
+         "ROBOT", "RABBIT", "TERRIER", "BLASTER", "CHOMPER", "PATROL", "CONE", "BLOCKS", "SPIKES", "TRAP",
+         "SPINNER", "FLIPPER", "HOOP", "COMPASS")
 FIT_WARNING = 0.05
 FIT_LIMIT = 0.12
 BOUNDS_TOLERANCE = 2e-4
@@ -898,6 +900,447 @@ def build_crab(size):
     box("tag", thread, (0.034, 0.005, 0.024), (0.05, -0.097, 0.07), 0.002, 1, (0, 0, -0.45))
 
 
+def hinged(objects, angle, hinge):
+    for o in objects:
+        move(o, (angle, 0, 0), hinge)
+
+
+def googly(prefix, white, ink, at, radius, look=(0.0, 1.0, 0.0)):
+    x, y, z = at
+    ellipsoid(prefix + "_eye", white, at, (radius, radius * 0.8, radius), 14, 7)
+    ellipsoid(prefix + "_pupil", ink, (x + look[0] * radius * 0.3, y + radius * 0.72, z + look[2] * radius * 0.3), (radius * 0.48, radius * 0.22, radius * 0.48), 10, 5)
+    ellipsoid(prefix + "_glint", white, (x - radius * 0.12, y + radius * 0.9, z + radius * 0.22), (radius * 0.16, radius * 0.06, radius * 0.16), 6, 3)
+
+
+def build_robot(size):
+    body, panel, head, mark, ink = "cobalt_Classic", "yellow_Classic", "teal_Classic", "white_Classic", "dark_Classic"
+    trim, metal = head, ink
+    for side in (-1, 1):
+        box("foot", ink, (0.085, 0.13, 0.048), (side * 0.062, 0.015, 0.024), 0.018, 2)
+        box("toe_cap", panel, (0.07, 0.03, 0.03), (side * 0.062, 0.078, 0.03), 0.01, 2)
+        cylinder("leg", metal, 0.022, 0.06, (side * 0.062, 0.0, 0.075), "Z", 14, bevel=0)
+        torus("leg_ring", metal, 0.024, 0.004, (side * 0.062, 0.0, 0.08), "Z", 14, 3)
+    box("body", body, (0.24, 0.18, 0.21), (0, 0, 0.205), 0.035, 3)
+    box("belt", panel, (0.245, 0.185, 0.026), (0, 0, 0.115), 0.01, 2)
+    box("panel", panel, (0.15, 0.016, 0.115), (0, 0.091, 0.215), 0.008, 2)
+    for k, x in enumerate((-0.042, 0.0, 0.042)):
+        cylinder("button", trim, 0.0125, 0.012, (x, 0.101, 0.182), "Y", 14, bevel=0)
+        ellipsoid("button_shine", mark, (x - 0.004, 0.1075, 0.186), (0.003, 0.0015, 0.003), 6, 3)
+    cylinder("dial", mark, 0.024, 0.008, (-0.03, 0.1, 0.235), "Y", 20, bevel=0)
+    box("needle", ink, (0.004, 0.003, 0.02), (-0.026, 0.105, 0.24), 0, rotation=(0, 0.6, 0))
+    for k in range(3):
+        box("grille", ink, (0.04, 0.004, 0.006), (0.04, 0.1, 0.225 + 0.014 * k), 0.0015, 1)
+    front_decal("star", mark, star(5, 0.022, 0.009), 0.088, 0.093, (0.085, 0, 0.272))
+    cylinder("neck", metal, 0.034, 0.03, (0, 0, 0.322), "Z", 18, bevel=0.004)
+    box("head", head, (0.205, 0.165, 0.13), (0, 0, 0.395), 0.04, 3)
+    ellipsoid("dome", head, (0, 0, 0.452), (0.07, 0.06, 0.03), 18, 6)
+    box("visor_frame", ink, (0.17, 0.01, 0.074), (0, 0.081, 0.4), 0.008, 2)
+    for side in (-1, 1):
+        googly("robot", mark, ink, (side * 0.039, 0.077, 0.402), 0.026)
+
+    tube("smile", ink, [(0.03 * math.cos(math.radians(a)), 0.086, 0.36 + 0.012 * math.sin(math.radians(a))) for a in range(200, 345, 18)], 0.0035, 5,
+         reference=Vector((0, 1, 0)))
+    for side in (-1, 1):
+        cylinder("ear", panel, 0.026, 0.022, (side * 0.112, 0, 0.395), "X", 16, bevel=0)
+        ellipsoid("ear_cap", mark, (side * 0.124, 0, 0.395), (0.006, 0.012, 0.012), 8, 4)
+    cylinder("antenna", metal, 0.006, 0.07, (0, 0, 0.5), "Z", 8, bevel=0)
+    ellipsoid("antenna_ball", panel, (0, 0, 0.545), (0.022, 0.022, 0.022), 14, 7)
+    for side in (-1, 1):
+        ellipsoid("shoulder", panel, (side * 0.13, 0.0, 0.27), (0.034, 0.034, 0.034), 12, 6)
+        arm = spline([(side * 0.135, 0.0, 0.265), (side * 0.155, 0.04, 0.22), (side * 0.155, 0.1, 0.2)], 3)
+        taper("arm", body, arm, interpolate([0.024, 0.021, 0.019], len(arm)), 10, Vector((1, 0, 0)))
+        torus("cuff", head, 0.021, 0.005, (side * 0.155, 0.098, 0.2), "Y", 14, 4)
+        ellipsoid("mitten", panel, (side * 0.155, 0.13, 0.2), (0.032, 0.03, 0.036), 12, 6)
+        ellipsoid("thumb", panel, (side * 0.13, 0.125, 0.212), (0.012, 0.014, 0.016), 8, 4)
+    cylinder("key_shaft", panel, 0.009, 0.04, (0, -0.108, 0.235), "Y", 10, bevel=0)
+    for side in (-1, 1):
+        ellipsoid("key_bow", panel, (side * 0.03, -0.132, 0.235), (0.032, 0.009, 0.022), 12, 6)
+    ellipsoid("key_hub", panel, (0, -0.132, 0.235), (0.012, 0.012, 0.012), 10, 5)
+
+
+def build_rabbit(size):
+    fur, inner, tail, ink, bow = "magenta_Classic", "pink_Classic", "white_Classic", "dark_Classic", "yellow_Classic"
+    paw, nose, seam = tail, inner, ink
+    ellipsoid("body", fur, (0, -0.005, 0.11), (0.1, 0.108, 0.108), 22, 11)
+    ellipsoid("belly", inner, (0, 0.06, 0.1), (0.068, 0.05, 0.075), 18, 9)
+    for side in (-1, 1):
+        ellipsoid("haunch", fur, (side * 0.07, -0.02, 0.07), (0.045, 0.075, 0.06), 12, 6)
+        ellipsoid("foot", paw, (side * 0.065, 0.045, 0.022), (0.04, 0.075, 0.024), 14, 7)
+        for k in (-1, 0, 1):
+            ellipsoid("toe_pad", inner, (side * 0.065 + k * 0.014, 0.115, 0.028), (0.008, 0.004, 0.008), 6, 3)
+        ellipsoid("paw", fur, (side * 0.045, 0.088, 0.135), (0.026, 0.03, 0.03), 12, 6)
+    ellipsoid("head", fur, (0, 0.03, 0.275), (0.088, 0.08, 0.08), 22, 11)
+    for side in (-1, 1):
+        ellipsoid("cheek", fur, (side * 0.04, 0.07, 0.25), (0.04, 0.035, 0.035), 12, 6)
+        ellipsoid("muzzle", tail, (side * 0.017, 0.1, 0.25), (0.024, 0.016, 0.019), 12, 6)
+        googly("rabbit", tail, ink, (side * 0.042, 0.088, 0.292), 0.019)
+        for k, lift in enumerate((-0.01, 0.0, 0.01)):
+            tube("whisker", tail, [(side * 0.03, 0.105, 0.25 + lift), (side * 0.07, 0.1, 0.252 + lift * 1.8), (side * 0.112, 0.09, 0.256 + lift * 2.8)], 0.0018, 4)
+        ear = (side * 0.036, 0.015, 0.425)
+        lean = side * 0.2
+        move(ellipsoid("ear", fur, (0, 0, 0), (0.032, 0.02, 0.095), 14, 8), (0.12, lean, 0), ear)
+        move(ellipsoid("ear_inner", inner, (0, 0.011, -0.004), (0.019, 0.012, 0.074), 12, 6), (0.12, lean, 0), ear)
+    ellipsoid("nose", nose, (0, 0.113, 0.266), (0.013, 0.008, 0.01), 10, 5)
+    tube("mouth", ink, [(-0.012, 0.11, 0.236), (0, 0.113, 0.243), (0.012, 0.11, 0.236)], 0.0022, 4)
+    ellipsoid("tail", tail, (0, -0.112, 0.085), (0.036, 0.034, 0.036), 14, 7)
+    for side in (-1, 1):
+        ellipsoid("bow", bow, (side * 0.03, 0.098, 0.198), (0.03, 0.012, 0.021), 12, 6, (0, side * 0.25, 0))
+    ellipsoid("bow_knot", bow, (0, 0.106, 0.198), (0.011, 0.01, 0.012), 8, 4)
+    for k in range(9):
+        a = math.radians(-100 + 25 * k)
+        x, z = 0.064 * math.sin(a), 0.1 + 0.071 * math.cos(a)
+        y = -0.005 + 0.108 * math.sqrt(max(0.0, 1 - (x / 0.1) ** 2 - ((z - 0.11) / 0.108) ** 2)) + 0.001
+        box("stitch", seam, (0.004, 0.004, 0.012), (x, y, z), 0, rotation=(0, a + math.pi / 2, 0))
+    for k in range(5):
+        y = -0.025 + 0.025 * k
+        box("crown_stitch", seam, (0.012, 0.004, 0.003), (0, y, 0.275 + 0.08 * math.sqrt(max(0.0, 1 - ((y - 0.03) / 0.08) ** 2)) + 0.001), 0)
+
+
+def build_terrier(size):
+    coat, bib, nose, collar, ear = "orange_Classic", "white_Classic", "dark_Classic", "teal_Classic", "wood_light_Classic"
+    tag = bib
+    ellipsoid("body", coat, (0, -0.01, 0.15), (0.075, 0.13, 0.077), 20, 10)
+    ellipsoid("chest", bib, (0, 0.098, 0.128), (0.04, 0.03, 0.045), 12, 6)
+    ellipsoid("saddle", ear, (0, -0.05, 0.2), (0.058, 0.07, 0.03), 14, 7)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cylinder("leg", coat, 0.026, 0.09, (sx * 0.046, sy * 0.075, 0.07), "Z", 12, bevel=0.006, top=0.023)
+            ellipsoid("paw", bib, (sx * 0.046, sy * 0.075 + 0.01, 0.017), (0.028, 0.036, 0.017), 10, 5)
+    ellipsoid("head", coat, (0, 0.135, 0.245), (0.068, 0.066, 0.068), 20, 10)
+    box("muzzle", ear, (0.07, 0.066, 0.05), (0, 0.195, 0.218), 0.022, 3)
+    for side in (-1, 1):
+        ellipsoid("beard", bib, (side * 0.016, 0.208, 0.197), (0.02, 0.026, 0.016), 10, 5)
+        ellipsoid("brow", nose, (side * 0.03, 0.193, 0.285), (0.016, 0.006, 0.005), 8, 4, (0, side * -0.3, 0))
+        googly("terrier", bib, nose, (side * 0.03, 0.185, 0.265), 0.016)
+        move(ellipsoid("ear", ear, (0, 0, 0), (0.03, 0.009, 0.036), 12, 6), (-0.75, 0, side * 0.45), (side * 0.05, 0.15, 0.3))
+    ellipsoid("nose", nose, (0, 0.229, 0.232), (0.019, 0.013, 0.014), 12, 6)
+    tube("mouth", nose, [(-0.016, 0.226, 0.2), (-0.006, 0.229, 0.196), (0.0, 0.229, 0.2), (0.006, 0.229, 0.196), (0.016, 0.226, 0.2)], 0.0024, 4)
+    ellipsoid("tuft", ear, (0, 0.135, 0.313), (0.024, 0.028, 0.015), 12, 6)
+    ellipsoid("tuft", ear, (0.012, 0.118, 0.307), (0.016, 0.02, 0.012), 10, 5)
+    taper("tail", coat, spline([(0, -0.13, 0.18), (0, -0.145, 0.23), (0, -0.138, 0.27)], 3), interpolate([0.016, 0.013, 0.01], 7), 10, Vector((1, 0, 0)))
+    ellipsoid("tail_tip", ear, (0, -0.138, 0.272), (0.012, 0.012, 0.014), 8, 4)
+    move(torus("collar", collar, 0.05, 0.01, (0, 0, 0), "Z", 24, 6), (-0.9, 0, 0), (0, 0.11, 0.205))
+    ellipsoid("bone_end", tag, (-0.012, 0.15, 0.155), (0.009, 0.006, 0.009), 8, 4)
+    ellipsoid("bone_end", tag, (0.012, 0.15, 0.155), (0.009, 0.006, 0.009), 8, 4)
+    box("bone", tag, (0.024, 0.007, 0.01), (0, 0.15, 0.155), 0.002, 1)
+
+
+def build_blaster(size):
+    shell, base, post, dart, ink = "scarlet_Classic", "lime_Classic", "yellow_Classic", "white_Classic", "dark_Classic"
+    barrel, ring, sight = base, post, ink
+    lathe("base", base, densify([(0, 0.0), (0.145, 0.0), (0.152, 0.012), (0.145, 0.035), (0.12, 0.065), (0.08, 0.085), (0.04, 0.092), (0, 0.093)], 1), segments=36)
+    torus("base_ring", ring, 0.148, 0.011, (0, 0, 0.02), "Z", 36, 5)
+    for k in range(6):
+        a = 2 * math.pi * (k + 0.5) / 6
+        ellipsoid("rivet", post, (0.126 * math.cos(a), 0.126 * math.sin(a), 0.052), (0.011, 0.011, 0.007), 8, 3)
+    cylinder("post", post, 0.032, 0.08, (0, 0, 0.125), "Z", 20, bevel=0.005)
+    torus("post_ring", ring, 0.034, 0.006, (0, 0, 0.1), "Z", 20, 4)
+    for side in (-1, 1):
+        box("yoke", post, (0.016, 0.07, 0.07), (side * 0.093, -0.005, 0.2), 0.006, 2)
+    box("head", shell, (0.16, 0.17, 0.125), (0, 0, 0.225), 0.038, 3)
+    cylinder("barrel", barrel, 0.042, 0.14, (0, 0.13, 0.215), "Y", 28, bevel=0.006)
+    for y in (0.115, 0.17):
+        torus("barrel_band", post, 0.043, 0.006, (0, y, 0.215), "Y", 24, 4)
+    torus("muzzle", barrel, 0.043, 0.01, (0, 0.2, 0.215), "Y", 28, 6)
+    cylinder("bore", ink, 0.03, 0.006, (0, 0.2, 0.215), "Y", 20, bevel=0)
+    cylinder("dart", dart, 0.022, 0.03, (0, 0.205, 0.215), "Y", 16, bevel=0)
+    ellipsoid("dart_tip", dart, (0, 0.225, 0.215), (0.023, 0.014, 0.023), 14, 6)
+    torus("dart_band", barrel, 0.0225, 0.004, (0, 0.214, 0.215), "Y", 16, 4)
+    box("sight", sight, (0.026, 0.07, 0.026), (0, 0.03, 0.302), 0.007, 2)
+    box("sight_post", sight, (0.012, 0.012, 0.03), (0, 0.06, 0.322), 0.003, 1)
+    for side in (-1, 1):
+        tube("handle", post, spline([(side * 0.08, -0.06, 0.2), (side * 0.125, -0.085, 0.215), (side * 0.13, -0.11, 0.24), (side * 0.08, -0.1, 0.255)], 3), 0.011, 8)
+        move(prism("star", dart, star(5, 0.028, 0.012), -0.003, 0.003, bevel=(0.001, 1)), (0, side * math.pi / 2, 0), (side * 0.0815, 0.0, 0.232))
+    for side in (-1, 1):
+        googly("blaster", dart, ink, (side * 0.052, 0.085, 0.266), 0.018)
+    box("vent", ink, (0.07, 0.006, 0.008), (0, -0.087, 0.24), 0.002, 1)
+    box("vent", ink, (0.07, 0.006, 0.008), (0, -0.087, 0.222), 0.002, 1)
+
+
+def build_chomper(size):
+    gum, tooth, shoe, key, tongue = "magenta_Classic", "white_Classic", "cobalt_Classic", "yellow_Classic", "scarlet_Classic"
+    ink, band, warning = shoe, tooth, tongue
+    for side in (-1, 1):
+        ellipsoid("shoe", shoe, (side * 0.062, 0.02, 0.024), (0.044, 0.07, 0.026), 16, 8)
+        ellipsoid("shoe_toe", shoe, (side * 0.062, 0.07, 0.03), (0.034, 0.03, 0.024), 12, 6)
+        cylinder("ankle", key, 0.016, 0.03, (side * 0.062, 0.0, 0.055), "Z", 12, bevel=0)
+        for k in range(3):
+            box("lace", key, (0.03, 0.006, 0.005), (side * 0.062, 0.05 + 0.012 * k, 0.046 - 0.004 * k), 0.002, 1, (0.5, 0, 0))
+    banded("stripes", [warning, band], [(0, 0.062), (0.112, 0.062), (0.118, 0.068), (0.118, 0.088), (0.112, 0.094), (0, 0.094)], segments=36, period=6, stripe=3)
+    box("lower_jaw", gum, (0.21, 0.17, 0.06), (0, 0, 0.115), 0.03, 3)
+    ellipsoid("tongue", tongue, (0, 0.012, 0.145), (0.062, 0.06, 0.016), 18, 8)
+    tooth_row = [(-0.072, 0.07), (-0.044, 0.078), (-0.015, 0.082), (0.015, 0.082), (0.044, 0.078), (0.072, 0.07)]
+    for k, (x, y) in enumerate(tooth_row):
+        big = 1.25 if k == 3 else 1.0
+        box("tooth", tooth, (0.024, 0.016, 0.026 * big), (x, y, 0.153 + 0.013 * (big - 1)), 0.0075, 2)
+    for side in (-1, 1):
+        for y in (0.04, 0.008):
+            box("molar", tooth, (0.018, 0.022, 0.022), (side * 0.087, y, 0.152), 0.007, 2)
+    hinge = (0, -0.07, 0.15)
+    upper = []
+    upper.append(box("upper_jaw", gum, (0.21, 0.17, 0.065), (0, 0.07, 0.035), 0.03, 3))
+    for k, (x, y) in enumerate(tooth_row):
+        big = 1.3 if k == 2 else 1.0
+        upper.append(box("tooth", tooth, (0.024, 0.016, 0.026 * big), (x, y + 0.07, -0.006 - 0.013 * (big - 1)), 0.0075, 2))
+    for side in (-1, 1):
+        for y in (0.11, 0.078):
+            upper.append(box("molar", tooth, (0.018, 0.022, 0.022), (side * 0.087, y, -0.003), 0.007, 2))
+    for side in (-1, 1):
+        upper.append(ellipsoid("lid", gum, (side * 0.045, 0.045, 0.07), (0.034, 0.03, 0.03), 14, 7))
+    eyes_from = len(PARTS)
+    for side in (-1, 1):
+        googly("chomper", tooth, ink, (side * 0.045, 0.072, 0.088), 0.026)
+    upper += PARTS[eyes_from:]
+    upper.append(ellipsoid("brow", ink, (-0.045, 0.085, 0.118), (0.022, 0.006, 0.005), 10, 4, (0, 0.3, 0)))
+    upper.append(ellipsoid("brow", ink, (0.045, 0.085, 0.118), (0.022, 0.006, 0.005), 10, 4, (0, -0.3, 0)))
+    hinged(upper, 0.44, hinge)
+    cylinder("key_shaft", key, 0.008, 0.03, (0.12, -0.02, 0.115), "X", 10, bevel=0)
+    for side in (-1, 1):
+        ellipsoid("key_bow", key, (0.142, -0.02 + side * 0.028, 0.115), (0.008, 0.03, 0.02), 12, 6)
+    ellipsoid("key_hub", key, (0.142, -0.02, 0.115), (0.01, 0.011, 0.011), 8, 4)
+
+
+def build_patrol(size):
+    shell, tyre, glass, lamp, siren = "cobalt_Classic", "dark_Classic", "glass_Classic", "yellow_Classic", "scarlet_Classic"
+    band, metal, light = lamp, tyre, shell
+    box("chassis", shell, (0.2, 0.33, 0.085), (0, 0, 0.09), 0.032, 3)
+    box("cabin", shell, (0.17, 0.17, 0.075), (0, -0.025, 0.165), 0.03, 3)
+    for side in (-1, 1):
+        box("door_band", band, (0.006, 0.2, 0.03), (side * 0.1, 0.0, 0.095), 0.003, 1)
+        box("side_window", glass, (0.006, 0.12, 0.045), (side * 0.083, -0.025, 0.172), 0.008, 2)
+        move(prism("badge", siren, star(5, 0.024, 0.01), -0.003, 0.003, bevel=(0.001, 1)), (0, side * math.pi / 2, 0), (side * 0.104, 0.0, 0.095))
+        for y in (-0.105, 0.105):
+            cylinder("tyre", tyre, 0.048, 0.034, (side * 0.104, y, 0.048), "X", 24, bevel=0.008)
+            cylinder("hub", lamp, 0.03, 0.006, (side * 0.121, y, 0.048), "X", 16, bevel=0.002)
+            ellipsoid("hub_cap", siren, (side * 0.124, y, 0.048), (0.004, 0.011, 0.011), 8, 4)
+        googly("patrol", lamp, tyre, (side * 0.058, 0.162, 0.098), 0.027)
+        box("tail_light", siren, (0.04, 0.008, 0.02), (side * 0.06, -0.166, 0.1), 0.004, 1)
+    slab("windscreen", glass, [(-0.072, 0.135), (0.072, 0.135), (0.065, 0.195), (-0.065, 0.195)], 0.058, 0.064)
+    slab("rear_window", glass, [(-0.072, 0.135), (0.072, 0.135), (0.065, 0.195), (-0.065, 0.195)], -0.114, -0.108)
+    box("grille", tyre, (0.07, 0.006, 0.028), (0, 0.166, 0.078), 0.004, 1)
+    for y in (0.17, -0.17):
+        box("bumper", shell, (0.19, 0.02, 0.026), (0, y, 0.058), 0.009, 2)
+
+    box("light_bar", lamp, (0.14, 0.04, 0.018), (0, -0.025, 0.21), 0.006, 2)
+
+    ellipsoid("siren", siren, (-0.04, -0.025, 0.226), (0.028, 0.017, 0.016), 14, 7)
+    ellipsoid("siren", light, (0.04, -0.025, 0.226), (0.028, 0.017, 0.016), 14, 7)
+    cylinder("flag_pole", metal, 0.003, 0.09, (0.07, -0.13, 0.17), "Z", 6, bevel=0)
+    move(slab("flag", band, [(0.0, 0.0), (0.05, -0.008), (0.06, -0.017), (0.05, -0.026), (0.0, -0.034)], -0.0025, 0.0025, bevel=(0.001, 1)),
+         (0, 0, -math.pi / 2), (0.07, -0.13, 0.212))
+    ellipsoid("pole_knob", lamp, (0.07, -0.13, 0.217), (0.006, 0.006, 0.006), 8, 4)
+
+
+def build_cone(size):
+    cone, band, foot, bar, stripe, mark = "orange_Classic", "white_Classic", "navy_Classic", "yellow_Classic", "dark_Classic", "white_Classic"
+    tilt = {0: 0.0, 1: 0.0, 2: -0.07}
+    for k, x in enumerate((-0.52, 0.0, 0.52)):
+        parts_from = len(PARTS)
+        box("foot", foot, (0.23, 0.23, 0.028), (0, 0, 0.014), 0.01, 2)
+        torus("foot_ring", band, 0.122, 0.006, (0, 0, 0.03), "Z", 24, 4)
+        lathe("cone", cone, [(0.12, 0.028), (0.118, 0.045), (0.03, 0.43), (0.022, 0.445), (0, 0.447)], segments=32)
+        for z0, z1 in ((0.17, 0.215), (0.29, 0.325)):
+            r0, r1 = 0.118 - 0.088 * (z0 - 0.045) / 0.385 + 0.003, 0.118 - 0.088 * (z1 - 0.045) / 0.385 + 0.003
+            lathe("reflector", band, [(r0 - 0.003, z0), (r0, z0 + 0.002), (r1, z1 - 0.002), (r1 - 0.003, z1)], segments=32)
+        torus("clamp", bar, 0.03, 0.01, (0, 0, 0.45), "Z", 18, 5)
+        for o in PARTS[parts_from:]:
+            move(o, (0, tilt[k], 0), (x, 0, 0))
+    box("bar", bar, (1.18, 0.045, 0.07), (0, 0, 0.475), 0.015, 2)
+    for k in range(10):
+        x = -0.5 + 0.11 * k
+        if abs(x) < 0.08:
+            continue
+        for y0, y1 in ((0.022, 0.026), (-0.026, -0.022)):
+            slab("stripe", stripe, [(x, 0.443), (x + 0.04, 0.443), (x + 0.07, 0.507), (x + 0.03, 0.507)], y0, y1)
+    front_decal("bang", mark, rounded_rect(0.016, 0.038, 0.007, 0.007, -0.019, 3), 0.022, 0.027, (0, 0, 0.485))
+    front_decal("bang_dot", mark, ellipse(0.009, 0.009, 0, 0, 12), 0.022, 0.027, (0, 0, 0.452))
+    for side in (-1, 1):
+        ellipsoid("bar_cap", cone, (side * 0.595, 0, 0.475), (0.022, 0.03, 0.04), 12, 6)
+
+
+def build_blocks(size):
+    red, yellow, blue, green = "scarlet_Classic", "yellow_Classic", "cobalt_Classic", "lime_Classic"
+    palette = ((green, blue, yellow, red), (yellow, red, green, blue, green), (blue, yellow, None, red), (red, green, blue, yellow, green), (blue, red, green))
+    face, letter, top = "white_Classic", "scarlet_Classic", "scarlet_Classic"
+    unit, row_h, depth = 0.4, 0.265, 0.36
+    rows = [(-0.8, 4, 0), (-0.6, 3, 1), (-0.8, 4, 2), (-0.6, 3, 3), (-0.6, 3, 4)]
+    for r, (x0, count, offset) in enumerate(rows):
+        z = row_h * r + row_h / 2
+        bricks = [(x0 + unit * i, unit) for i in range(count)]
+        if r in (1, 3):
+            bricks = [(-0.8, 0.2)] + [(x0 + unit * i, unit) for i in range(count)] + [(0.6, 0.2)]
+        for i, (x, w) in enumerate(bricks):
+            centre = x + w / 2
+            white = palette[r][i] is None
+            mat = palette[r][i] or face
+            box("block", mat, (w - 0.006, depth, row_h - 0.006), (centre, 0, z), 0.022, 2)
+            if white:
+                for sx, rot in ((-1, 0.36), (1, -0.36)):
+                    box("letter", letter, (0.032, 0.02, 0.17), (centre + sx * 0.03, depth / 2 + 0.004, z), 0.006, 1, (0, rot, 0))
+                box("letter_bar", letter, (0.07, 0.02, 0.026), (centre, depth / 2 + 0.004, z - 0.02), 0.006, 1)
+            on_top = r == len(rows) - 1 or (r == 3 and (centre < -0.6 or centre > 0.6))
+            if on_top:
+                for sx in ((-0.1, 0.1) if w > 0.3 else (0.0,)):
+                    for sy in (-0.09, 0.09):
+                        cylinder("stud", mat, 0.045, 0.032, (centre + sx, sy, z + row_h / 2 + 0.013), "Z", 18, bevel=0)
+    zt = row_h * len(rows)
+    box("top_block", top, (0.2, 0.2, 0.1), (0.25, 0.0, zt + 0.05), 0.018, 2)
+    cylinder("stud", top, 0.042, 0.03, (0.25, 0.0, zt + 0.112), "Z", 18, bevel=0)
+
+
+def build_spikes(size):
+    mat, rim, spike, tip, petal = "teal_Classic", "white_Classic", "lime_Classic", "yellow_Classic", "magenta_Classic"
+    ink = petal
+    lathe("mat", mat, [(0, 0.0), (0.47, 0.0), (0.49, 0.008), (0.495, 0.025), (0.488, 0.04), (0.47, 0.046), (0, 0.046)], segments=56)
+    torus("rim", rim, 0.475, 0.016, (0, 0, 0.04), "Z", 48, 5)
+    for k in range(28):
+        a = 2 * math.pi * k / 28
+        box("stitch", tip, (0.012, 0.004, 0.006), (0.445 * math.cos(a), 0.445 * math.sin(a), 0.047), 0, rotation=(0, 0, a + math.pi / 2))
+    spots = [(0.21, 2 * math.pi * k / 6 + math.pi / 6) for k in range(6)] + [(0.37, 2 * math.pi * k / 12) for k in range(12)]
+    for radius, a in spots:
+        x, y = radius * math.cos(a), radius * math.sin(a)
+        tall = 0.13 if radius > 0.3 else 0.145
+        lathe("spike", spike, [(0.066, 0.044), (0.064, 0.052), (0.034, 0.044 + tall * 0.55), (0.015, 0.044 + tall * 0.9), (0, 0.044 + tall)], (x, y, 0), segments=12)
+        ellipsoid("spike_tip", tip, (x, y, 0.044 + tall - 0.005), (0.019, 0.019, 0.019), 8, 4)
+    for k in range(5):
+        a = 2 * math.pi * k / 5 + math.pi / 2
+        ellipsoid("petal", petal, (0.068 * math.cos(a), 0.068 * math.sin(a), 0.075), (0.06, 0.036, 0.018), 12, 6, (0, 0, a))
+    ellipsoid("centre", tip, (0, 0, 0.088), (0.045, 0.045, 0.024), 16, 8)
+    for side in (-1, 1):
+        ellipsoid("flower_eye", ink, (side * 0.015, 0.01, 0.111), (0.006, 0.006, 0.004), 6, 3)
+    tube("flower_smile", ink, [(0.017 * math.cos(math.radians(a)), -0.004 + 0.012 * math.sin(math.radians(a)), 0.111) for a in range(200, 345, 24)], 0.0026, 4)
+
+
+def build_trap(size):
+    board, metal, cheese, plate, ink, mark = "wood_light_Classic", "metal_Classic", "yellow_Classic", "cobalt_Classic", "dark_Classic", "white_Classic"
+    box("board", board, (0.3, 0.17, 0.022), (0, 0, 0.011), 0.006, 2)
+    for k, y in enumerate((-0.05, 0.0, 0.055)):
+        box("grain", ink, (0.22 - 0.05 * k, 0.003, 0.0015), (0.02 * (k - 1), y, 0.0225), 0)
+    for x0 in (-0.045, 0.01):
+        move(tube("spring", metal, helix((0, 0), 0.016, 3, 30, 0.0, 0.035), 0.0035, 5), (0, math.pi / 2, 0), (x0, -0.002, 0.04))
+    tube("bar", metal, [(0.0, -0.065, 0.026), (-0.12, -0.065, 0.026), (-0.12, 0.065, 0.026), (0.0, 0.065, 0.026)], 0.005, 8)
+    tube("hold_down", metal, [(-0.13, 0.0, 0.026), (-0.02, 0.0, 0.03), (0.05, 0.0, 0.032)], 0.0028, 6)
+    for x in (-0.012, 0.012):
+        ellipsoid("staple", metal, (x, -0.075, 0.025), (0.004, 0.006, 0.004), 6, 3)
+
+
+    box("plate", plate, (0.075, 0.06, 0.008), (0.085, 0.0, 0.027), 0.003, 1)
+    slab("cheese", cheese, [(0.052, 0.031), (0.125, 0.031), (0.052, 0.078)], -0.024, 0.024, bevel=(0.004, 2))
+    for x, z in ((0.066, 0.047), (0.084, 0.038), (0.062, 0.064)):
+        ellipsoid("hole", ink, (x, 0.0245, z), (0.0055, 0.002, 0.0055), 8, 4)
+
+    ellipsoid("pad", plate, (-0.06, 0.035, 0.023), (0.012, 0.01, 0.0015), 10, 3)
+    for k in range(4):
+        a = math.radians(-60 + 40 * k)
+        ellipsoid("toe", plate, (-0.06 + 0.02 * math.sin(a), 0.035 + 0.02 * math.cos(a), 0.023), (0.005, 0.005, 0.0015), 8, 3)
+
+
+def radius_at(profile, z):
+    for (r0, z0), (r1, z1) in zip(profile, profile[1:]):
+        if z0 <= z <= z1 and z1 > z0:
+            return r0 + (r1 - r0) * (z - z0) / (z1 - z0)
+    return 0.0
+
+
+def back_decal(name, mat, outline, y0, y1, at, bevel=(0.001, 1)):
+    return move(prism(name, mat, [(-x, z) for x, z in outline], y0, y1, bevel=bevel), (math.pi / 2, 0, 0), at)
+
+
+def build_spinner(size):
+    body, swirl, trim, tip, mark = "teal_Classic", "yellow_Classic", "scarlet_Classic", "metal_Classic", "white_Classic"
+    profile = densify([(0.007, 0.024), (0.032, 0.04), (0.064, 0.066), (0.094, 0.098), (0.113, 0.126), (0.12, 0.146), (0.116, 0.164), (0.1, 0.181),
+                       (0.07, 0.193), (0.036, 0.199), (0, 0.201)], 2)
+    banded("body", [body, swirl], profile, (0, 0, 0), "Z", 36, period=6, stripe=2, twist=2.6)
+    cylinder("tip", tip, 0.004, 0.03, (0, 0, 0.018), "Z", 16, bevel=0, top=0.017)
+    ellipsoid("tip_ball", tip, (0, 0, 0.005), (0.005, 0.005, 0.005), 8, 4)
+    torus("rim", trim, 0.12, 0.009, (0, 0, 0.146), "Z", 36, 5)
+    torus("collar", swirl, 0.026, 0.007, (0, 0, 0.202), "Z", 20, 4)
+    cylinder("stem", trim, 0.015, 0.058, (0, 0, 0.228), "Z", 16, bevel=0.003)
+    ellipsoid("knob", trim, (0, 0, 0.262), (0.024, 0.024, 0.02), 14, 7)
+    ellipsoid("knob_shine", mark, (-0.009, 0.012, 0.276), (0.006, 0.004, 0.004), 8, 4, (0.6, 0, 0.6))
+
+    def on_body(x, z, lift):
+        r = radius_at(profile, z)
+        return (x, math.sqrt(max(0.0, r * r - x * x)) + lift, z)
+
+    fan_badge("star", mark, [(x, z + 0.112) for x, z in star(5, 0.036, 0.015)], (0.0, 0.112), lambda x, z, layer: on_body(x, z, (-0.002, 0.0035)[layer]))
+    for degrees in (130, 230, 310):
+        a = math.radians(degrees)
+        r = radius_at(profile, 0.112) + 0.001
+        ellipsoid("dot", mark, (r * math.cos(a), r * math.sin(a), 0.112), (0.008, 0.008, 0.008), 8, 4)
+
+
+def build_flipper(size):
+    fin, rail, foot, mark, hole = "cobalt_Classic", "yellow_Classic", "scarlet_Classic", "white_Classic", "dark_Classic"
+    edge = [(0.05, 0.13), (0.064, 0.2), (0.08, 0.28), (0.095, 0.37), (0.106, 0.46), (0.112, 0.54), (0.111, 0.58)]
+    tip = [(0.1, 0.6), (0.075, 0.608), (0.045, 0.6), (0.02, 0.588), (0.0, 0.584)]
+    outline = [(-x, z) for x, z in edge] + [(-x, z) for x, z in tip] + [(x, z) for x, z in reversed(tip[:-1])] + [(x, z) for x, z in reversed(edge)]
+    slab("blade", fin, list(reversed(outline)), -0.007, 0.007, bevel=(0.004, 2))
+    for side in (-1, 1):
+        path = spline([(side * (x - 0.004), 0, z) for x, z in edge], 2)
+        taper("rail", rail, path, interpolate([0.012, 0.011, 0.01, 0.009], len(path)), 10, Vector((0, 1, 0)))
+        for face in (-1, 1):
+            rib = spline([(side * 0.042, face * 0.007, 0.21), (side * 0.056, face * 0.007, 0.34), (side * 0.072, face * 0.007, 0.52)], 3)
+            taper("rib", rail, rib, interpolate([0.005, 0.0055, 0.0045], len(rib)), 6, Vector((0, face, 0)))
+    lathe("pocket", foot, densify([(0, 0.0), (0.035, 0.004), (0.054, 0.03), (0.06, 0.08), (0.056, 0.13), (0.048, 0.165), (0.03, 0.188), (0, 0.194)], 2),
+          (0, 0, 0), "Z", 28)
+    ellipsoid("opening", hole, (0, -0.056, 0.112), (0.029, 0.006, 0.044), 16, 6)
+    strap = spline([(-0.055, -0.01, 0.07), (-0.05, -0.06, 0.062), (0, -0.088, 0.058), (0.05, -0.06, 0.062), (0.055, -0.01, 0.07)], 4)
+    tube("strap", foot, strap, 0.008, 8, reference=Vector((0, 0, 1)))
+    for side in (-1, 1):
+        box("buckle", rail, (0.014, 0.024, 0.024), (side * 0.056, -0.012, 0.07), 0.003, 1)
+    trim = spline([(-0.111, 0, 0.58)] + [(-x, 0, z) for x, z in tip] + [(x, 0, z) for x, z in reversed(tip[:-1])] + [(0.111, 0, 0.58)], 2)
+    tube("tip_trim", rail, trim, 0.0085, 8, reference=Vector((0, 1, 0)))
+    front_decal("star", mark, star(5, 0.046, 0.019), 0.0065, 0.0105, (0, 0, 0.45))
+    for x, z, r in ((-0.03, 0.31, 0.011), (0.022, 0.27, 0.008), (-0.012, 0.23, 0.006)):
+        front_decal("bubble", mark, ellipse(r, r, 0, 0, 16), 0.0065, 0.0095, (x, 0, z))
+
+
+def build_hoop(size):
+    hoop, tape, band, bead = "magenta_Classic", "yellow_Classic", "white_Classic", "teal_Classic"
+    major, minor, lift = 0.4, 0.03, 0.04
+    tube_profile = [(major + minor * math.cos(t), lift + minor * math.sin(t)) for t in (-math.pi / 2 + 2 * math.pi * k / 12 for k in range(13))]
+    banded("hoop", [hoop, tape], tube_profile, (0, 0, 0), "Z", 96, period=8, stripe=3, twist=0.5)
+    for degrees in (82, 90, 98):
+        a = math.radians(degrees)
+        move(torus("grip_band", band, minor + 0.002, 0.0045, (0, 0, 0), "X", 16, 4), (0, 0, a - math.pi / 2), (major * math.cos(a), major * math.sin(a), lift))
+    for degrees in (210, 270, 330):
+        a = math.radians(degrees)
+        ellipsoid("bead", bead, (major * math.cos(a), major * math.sin(a), lift), (lift, lift, lift), 14, 7)
+
+
+def build_compass(size):
+    case, dial, trim, mark = "yellow_Classic", "cobalt_Classic", "scarlet_Classic", "white_Classic"
+    cz, r = 0.165, 0.158
+    cylinder("case", case, r, 0.062, (0, 0, cz), "Y", 48, bevel=0.01)
+    torus("bezel", trim, r - 0.011, 0.01, (0, 0.031, cz), "Y", 48, 6)
+    cylinder("dial", dial, r - 0.02, 0.006, (0, 0.03, cz), "Y", 48, bevel=0)
+    def spin(points, angle):
+        return [(x * math.cos(angle) - z * math.sin(angle), x * math.sin(angle) + z * math.cos(angle)) for x, z in points]
+
+    for k in range(8):
+        a = math.pi / 2 - k * math.pi / 4
+        reach = r - 0.05
+        if k == 0:
+            front_decal("north", trim, [(-0.02, 0.0), (0.02, 0.0), (0.0, 0.036)], 0.033, 0.037, (reach * math.cos(a), 0, cz + reach * math.sin(a) - 0.014))
+        elif k % 2 == 0:
+            front_decal("tick", mark, spin(rounded_rect(0.016, 0.032, 0.005, 0.005, -0.016, 2), a - math.pi / 2), 0.033, 0.036,
+                        (reach * math.cos(a), 0, cz + reach * math.sin(a)))
+        else:
+            front_decal("dot", mark, ellipse(0.008, 0.008, 0, 0, 12), 0.033, 0.036, (reach * math.cos(a), 0, cz + reach * math.sin(a)))
+    turn = math.radians(-28)
+    front_decal("needle_north", trim, spin([(-0.02, 0.0), (0.0, 0.095), (0.02, 0.0)], turn), 0.034, 0.041, (0, 0, cz))
+    front_decal("needle_south", mark, spin([(0.02, 0.0), (0.0, -0.095), (-0.02, 0.0)], turn), 0.034, 0.041, (0, 0, cz))
+    cylinder("pivot", case, 0.016, 0.012, (0, 0.044, cz), "Y", 20, bevel=0.003)
+    ellipsoid("pivot_shine", mark, (-0.005, 0.05, cz + 0.005), (0.005, 0.002, 0.004), 8, 4)
+    cylinder("crown", case, 0.019, 0.026, (0, 0, cz + r + 0.009), "Z", 20, bevel=0.004)
+    torus("bow", case, 0.032, 0.0095, (0, 0, cz + r + 0.052), "Y", 28, 6)
+    handle = spline([(-0.075, -0.028, cz), (-0.045, -0.07, cz), (0, -0.078, cz), (0.045, -0.07, cz), (0.075, -0.028, cz)], 4)
+    tube("handle", trim, handle, 0.013, 10, reference=Vector((0, 0, 1)))
+    back_decal("back_star", mark, star(5, 0.05, 0.021), 0.031, 0.035, (0, 0, cz + 0.07))
+    back_decal("back_dot", trim, ellipse(0.018, 0.018, 0, 0, 16), 0.031, 0.034, (0, 0, cz - 0.075))
+
+
 BUILDERS = {"RAKE": build_rake, "TEAPOT": build_teapot, "LID": build_lid, "TOMATO": build_tomato, "ROCKET": build_rocket,
             "MARBLE": build_marble, "LADDER": build_ladder, "PADDLE": build_paddle, "CHILI": build_chili, "DISC": build_disc,
             "HELMET": build_helmet, "LEMON": build_lemon, "TORCH": build_torch, "CARPET": build_carpet, "SLIME": build_slime,
@@ -905,7 +1348,10 @@ BUILDERS = {"RAKE": build_rake, "TEAPOT": build_teapot, "LID": build_lid, "TOMAT
             "RACKET": build_racket, "MELON": build_melon, "PIANO": build_piano, "TONIC": build_tonic, "BRICK": build_brick,
             "PENCIL": build_pencil, "RAMP": build_ramp, "OIL": build_oil, "DOOR": build_door, "BOOT": build_boot,
             "ANCHOR": build_anchor, "POTION": build_potion, "FENCE": build_fence, "CAMERA": build_camera, "LATTE": build_latte,
-            "PLANE": build_plane, "PAINT": build_paint, "CASTLE": build_castle, "MALLET": build_mallet, "CRAB": build_crab}
+            "PLANE": build_plane, "PAINT": build_paint, "CASTLE": build_castle, "MALLET": build_mallet, "CRAB": build_crab,
+            "ROBOT": build_robot, "RABBIT": build_rabbit, "TERRIER": build_terrier, "BLASTER": build_blaster, "CHOMPER": build_chomper,
+            "PATROL": build_patrol, "CONE": build_cone, "BLOCKS": build_blocks, "SPIKES": build_spikes, "TRAP": build_trap,
+            "SPINNER": build_spinner, "FLIPPER": build_flipper, "HOOP": build_hoop, "COMPASS": build_compass}
 
 
 def manifest():

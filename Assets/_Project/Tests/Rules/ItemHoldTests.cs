@@ -38,7 +38,7 @@ namespace Wreckabulary.Rules.Tests
 
         [TestCase("PADDLE", 0f, 1f, 0f), TestCase("RACKET", 0f, 1f, 0f), TestCase("SPOON", 0f, 1f, 0f), TestCase("RAKE", 0f, 1f, 0f)]
         [TestCase("PENCIL", 0f, 1f, 0f), TestCase("TORCH", 0f, 1f, 0f), TestCase("ROCKET", 0f, 1f, 0f), TestCase("CHILI", 1f, 0f, 0f)]
-        [TestCase("ANCHOR", 0f, -1f, 0f), TestCase("MALLET", 0f, 1f, 0f)]
+        [TestCase("ANCHOR", 0f, -1f, 0f), TestCase("MALLET", 0f, 1f, 0f), TestCase("FLIPPER", 0f, 1f, 0f)]
         public void SwungAndThrustItemsRiseUpAndForwardOutOfTheFist(string id, float x, float y, float z)
         {
             var along = InBody(id, x, y, z);
@@ -78,6 +78,8 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("BOOT"), TestCase("BRICK"), TestCase("LEMON"), TestCase("MARBLE"), TestCase("PEAR"), TestCase("SLIME"), TestCase("SOCK")]
         [TestCase("TOMATO"), TestCase("TONIC"), TestCase("TENT"), TestCase("PIANO"), TestCase("LADDER")]
         [TestCase("POTION"), TestCase("LATTE"), TestCase("PAINT"), TestCase("FENCE"), TestCase("CASTLE"), TestCase("CRAB")]
+        [TestCase("ROBOT"), TestCase("RABBIT"), TestCase("TERRIER"), TestCase("CHOMPER"), TestCase("CONE"), TestCase("BLOCKS")]
+        [TestCase("SPINNER")]
         public void LabelsAndFrontsFaceTheCameraBehindThePlayer(string id)
         {
             Assert.Less(InBody(id, 0f, 0f, 1f).z, -.95f, id + " shows its +Z label, door or keys to the camera");
@@ -87,6 +89,8 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("TONIC"), TestCase("TENT"), TestCase("TEAPOT"), TestCase("OIL"), TestCase("HOSE"), TestCase("RAMP"), TestCase("LID")]
         [TestCase("HELMET"), TestCase("DOOR"), TestCase("PIANO"), TestCase("LADDER"), TestCase("CARPET")]
         [TestCase("POTION"), TestCase("LATTE"), TestCase("PAINT"), TestCase("FENCE"), TestCase("CASTLE"), TestCase("CRAB"), TestCase("CAMERA")]
+        [TestCase("ROBOT"), TestCase("RABBIT"), TestCase("TERRIER"), TestCase("BLASTER"), TestCase("CHOMPER"), TestCase("PATROL"), TestCase("CONE"), TestCase("BLOCKS")]
+        [TestCase("SPINNER"), TestCase("COMPASS")]
         public void ThingsWithATopKeepItUp(string id) => Assert.Greater(InBody(id, 0f, 1f, 0f).y, .99f, id + " sits the right way up");
 
         [TestCase("TEAPOT", 1f, 0f, 0f), TestCase("OIL", 0f, 0f, 1f), TestCase("RAMP", 0f, 0f, 1f)]
@@ -162,7 +166,47 @@ namespace Wreckabulary.Rules.Tests
             Assert.Greater(InBody("PLANE", 0f, 1f, 0f).y, .9f, "wings level, top up");
         }
 
-        [TestCase("FENCE"), TestCase("CASTLE")]
+        [TestCase("BLASTER"), TestCase("PATROL")]
+        public void TurretsAndBuggiesPointTheWayTheyWillGo(string id)
+        {
+            Assert.Greater(InBody(id, 0f, 0f, 1f).z, .95f, id + " aims its barrel or nose forward, the way it acts once put down");
+            var item = Live().Get(id);
+            Assert.Less(ItemHolds.Grip(item)[1], item.Size[1] * .2f, id + " sits on the palm by its base or wheels");
+        }
+
+        [TestCase("ROBOT"), TestCase("RABBIT"), TestCase("TERRIER"), TestCase("CHOMPER")]
+        public void ToyHelpersSitOnThePalmAndLookAtTheCamera(string id)
+        {
+            var item = Live().Get(id);
+            Assert.Less(ItemHolds.Grip(item)[1], item.Size[1] * .4f, id + " is held low so its face and body show above the fist");
+            Assert.AreEqual(0f, ItemHolds.Grip(item)[0], 1e-4f, id + " sits centred on the hand");
+        }
+
+        [TestCase("SPIKES"), TestCase("TRAP")]
+        public void TrapsLieOnThePalmLikeATrayTippedToTheCamera(string id)
+        {
+            var top = InBody(id, 0f, 1f, 0f);
+            Assert.That(top.y, Is.InRange(.8f, .9f), id + " lies nearly flat");
+            Assert.Less(top.z, -.4f, id + " tips its spikes or cheese toward the camera");
+        }
+
+        [Test]
+        public void HoopStandsOnItsRimAboveTheFistFacingTheCamera()
+        {
+            var hoop = Live().Get("HOOP");
+            Assert.Greater(Math.Abs(InBody("HOOP", 0f, 1f, 0f).z), .95f, "the hoop stands up like a ring, not flat like it lies on the floor");
+            Assert.Less(InBody("HOOP", 0f, 0f, 1f).y, -.95f, "the gripped front rim is the lowest point, so the hoop rises above the hand");
+            Assert.Greater(ItemHolds.Grip(hoop)[2], hoop.Size[2] * .4f, "it is held by the rim, where the white grip tape is");
+        }
+
+        [Test]
+        public void FlipperBladeLeadsAndSpinnerSitsOnItsTip()
+        {
+            Assert.Less(ItemHolds.Grip(Live().Get("FLIPPER"))[1], Live().Get("FLIPPER").Size[1] * .2f, "the flipper is held by its foot pocket");
+            Assert.Less(ItemHolds.Grip(Live().Get("SPINNER"))[1], Live().Get("SPINNER").Size[1] * .3f, "the top sits in the palm, knob up");
+        }
+
+        [TestCase("FENCE"), TestCase("CASTLE"), TestCase("CONE"), TestCase("BLOCKS")]
         public void BigCoverIsCarriedUpAboveTheHandsNotLow(string id)
         {
             var item = Live().Get(id);
@@ -188,6 +232,8 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("CARPET", true), TestCase("DOOR", true), TestCase("LADDER", true), TestCase("PIANO", true)]
         [TestCase("LID", false), TestCase("HELMET", false), TestCase("TENT", false), TestCase("RAMP", false), TestCase("TEAPOT", false)]
         [TestCase("CASTLE", true), TestCase("FENCE", false), TestCase("ANCHOR", false), TestCase("CAMERA", false)]
+        [TestCase("BLOCKS", true), TestCase("CONE", false), TestCase("ROBOT", false), TestCase("SPIKES", false)]
+        [TestCase("SPINNER", false), TestCase("FLIPPER", false), TestCase("HOOP", false), TestCase("COMPASS", false)]
         public void EachHoldUsesTheSocketOfItsHandling(string id, bool twoHanded)
         {
             var item = Live().Get(id);
@@ -207,7 +253,7 @@ namespace Wreckabulary.Rules.Tests
 
         [TestCase("BENCH"), TestCase("CABINET"), TestCase("SPEAKER"), TestCase("BARREL"), TestCase("BED"), TestCase("CHAIR")]
         [TestCase("CRATE"), TestCase("DESK"), TestCase("SHELF"), TestCase("SOFA"), TestCase("STOOL"), TestCase("TABLE")]
-        [TestCase("CARPET"), TestCase("DOOR"), TestCase("LADDER"), TestCase("PIANO"), TestCase("CASTLE")]
+        [TestCase("CARPET"), TestCase("DOOR"), TestCase("LADDER"), TestCase("PIANO"), TestCase("CASTLE"), TestCase("BLOCKS")]
         public void CarriedFurnitureStandsUprightInTheTwoHandedCarry(string id)
         {
             Assert.Greater(InBody(id, 0f, 1f, 0f).y, .95f, id + " stands on its feet in the carry");
@@ -221,6 +267,7 @@ namespace Wreckabulary.Rules.Tests
 
         [TestCase("TABLE", 1f, 0f), TestCase("DESK", 1f, 0f), TestCase("SOFA", 1f, 0f), TestCase("SHELF", 1f, 0f), TestCase("BED", 0f, 1f)]
         [TestCase("CARPET", 0f, 1f), TestCase("PIANO", 1f, 0f), TestCase("LADDER", 1f, 0f), TestCase("FENCE", 1f, 0f), TestCase("CASTLE", 1f, 0f)]
+        [TestCase("CONE", 1f, 0f), TestCase("BLOCKS", 1f, 0f)]
         public void LongFurnitureRunsAcrossTheBody(string id, float x, float z)
         {
             Assert.Greater(Math.Abs(InBody(id, x, 0f, z).x), .95f, id + " carries its long side across the chest");

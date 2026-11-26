@@ -166,15 +166,17 @@ namespace Wreckabulary.Rules
             void Add(SurfaceMaterial m, params string[] words) { foreach (var w in words) map[w] = m; }
             Add(SurfaceMaterial.Wood, "TABLE", "CHAIR", "STOOL", "DESK", "SHELF", "CABINET", "CRATE", "BARREL", "CHEST", "BOW", "BAT", "BROOM", "SPEAR",
                 "DOOR", "DRESSER", "BOOKCASE", "WARDROBE", "BENCH", "CLOCK", "DRAWER", "PALLET", "LOG", "PLANK", "ARROW", "RACK", "SPEAKER", "RAKE", "LADDER", "PADDLE", "SPOON",
-                "RACKET", "PIANO", "PENCIL", "RAMP", "FENCE", "PLANE", "CASTLE", "MALLET");
+                "RACKET", "PIANO", "PENCIL", "RAMP", "FENCE", "PLANE", "CASTLE", "MALLET", "BLASTER", "BLOCKS", "TRAP", "SPINNER");
             Add(SurfaceMaterial.Glass, "WINDOW", "MIRROR", "GLASS", "BOTTLE", "JAR", "TV", "SCREEN", "WATER", "AQUARIUM", "TANK", "LIGHTBULB", "BULB", "MARBLE", "TONIC", "POTION");
             Add(SurfaceMaterial.Metal, "FRIDGE", "STOVE", "OVEN", "PAN", "POT", "BIN", "LOCKER", "SAFE", "HAMMER", "BLADE", "SHIELD", "BOMB", "FAN",
-                "SODA", "CAN", "KETTLE", "RADIATOR", "WASHER", "DRYER", "MICROWAVE", "TOASTER", "SINK", "TRASH", "BUCKET", "PIPE", "LID", "ROCKET", "HELMET", "TORCH", "OIL", "ANCHOR", "CAMERA", "PAINT");
-            Add(SurfaceMaterial.Ceramic, "VASE", "MUG", "CUP", "BOWL", "PLATE", "TEAPOT", "TOILET", "BATH", "BATHTUB", "TILE", "PLANT", "LAMP", "POTTERY", "LATTE");
+                "SODA", "CAN", "KETTLE", "RADIATOR", "WASHER", "DRYER", "MICROWAVE", "TOASTER", "SINK", "TRASH", "BUCKET", "PIPE", "LID", "ROCKET", "HELMET", "TORCH", "OIL", "ANCHOR", "CAMERA", "PAINT",
+                "ROBOT", "PATROL", "COMPASS");
+            Add(SurfaceMaterial.Ceramic, "VASE", "MUG", "CUP", "BOWL", "PLATE", "TEAPOT", "TOILET", "BATH", "BATHTUB", "TILE", "PLANT", "LAMP", "POTTERY", "LATTE", "CHOMPER");
             Add(SurfaceMaterial.Stone, "ROCK", "BRICK", "STATUE", "FIREPLACE", "STONE", "BOULDER", "COUNTER", "PILLAR", "GNOME", "CONCRETE");
             Add(SurfaceMaterial.Soft, "SOFA", "BED", "PILLOW", "CUSHION", "RUG", "MAT", "CURTAIN", "FOAM", "BALL", "BOX", "BOOK", "CAKE", "PIE",
                 "APPLE", "SOAP", "TEDDY", "BEAR", "BEANBAG", "MATTRESS", "BLANKET", "TOWEL", "PARCEL", "CARDBOARD", "COUCH", "TOMATO", "CHILI", "DISC",
-                "LEMON", "CARPET", "SLIME", "TENT", "PEAR", "SOCK", "HOSE", "MELON", "BOOT", "CRAB");
+                "LEMON", "CARPET", "SLIME", "TENT", "PEAR", "SOCK", "HOSE", "MELON", "BOOT", "CRAB",
+                "RABBIT", "TERRIER", "CONE", "SPIKES", "FLIPPER", "HOOP");
             return map;
         }
 
