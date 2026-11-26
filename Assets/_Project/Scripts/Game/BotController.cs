@@ -33,6 +33,9 @@ namespace Wreckabulary
         Rigidbody gearBody;
         HeldWeapon ignoredGear;
         float gearSince, ignoreGearUntil;
+        Collider[] targetShape = Array.Empty<Collider>();
+        readonly Dictionary<Smashable, float> restingFurniture = new();
+        float furnitureSince;
         Quarry quarry;
         float drawUntil = -1f;
         float nextThink, nextAttack, nextCraft, nextEscape, nextDrop, guardUntil, reactAt = -1f, threatEnds;
@@ -304,7 +307,20 @@ namespace Wreckabulary
                 if (tile) { Hunt(tile.transform, Quarry.Tile); return; }
             }
             var furniture = NearestFurniture(at);
-            if (furniture) Hunt(furniture.transform, Quarry.Furniture);
+            if (furniture && quarry == Quarry.Furniture && target == furniture.transform && BotTactics.GivesUpOnFurniture(Time.time - furnitureSince))
+            {
+                restingFurniture[furniture] = Time.time + BotTactics.FurnitureRest;
+                furniture = NearestFurniture(at);
+            }
+            if (furniture)
+            {
+                if (quarry != Quarry.Furniture || target != furniture.transform)
+                {
+                    furnitureSince = Time.time;
+                    targetShape = furniture.GetComponentsInChildren<Collider>();
+                }
+                Hunt(furniture.transform, Quarry.Furniture);
+            }
             else if (opponent) Hunt(opponent.transform, Quarry.Opponent);
             else Hunt(null, Quarry.None);
         }
@@ -349,6 +365,10 @@ namespace Wreckabulary
                     return at;
                 case Quarry.Opponent when BotTactics.Throws(held):
                     return Throw(ref c, at, here, goal, to, distance, level, held);
+                case Quarry.Furniture:
+                    if (distance >= BotTactics.StrikeRange(held) || !level || !BotTactics.ReachesFurniture(ChestToTarget(at), held, player.Health.Rules.Unarmed.Reach)) return goal;
+                    if (Aimed(to, distance, held)) Press(ref c);
+                    return at;
                 default:
                     if (distance >= BotTactics.StrikeRange(held) || !level) return goal;
                     if (Aimed(to, distance, held)) Press(ref c);
@@ -368,6 +388,20 @@ namespace Wreckabulary
             }
             if (Aimed(to, distance, held) && InSight(at, goal)) Press(ref c);
             return at;
+        }
+
+        float ChestToTarget(Vector3 at)
+        {
+            var chest = at + Vector3.up * BotTactics.ChestHeight;
+            float best = float.MaxValue;
+            for (int i = 0; i < targetShape.Length; i++)
+            {
+                var shape = targetShape[i];
+                if (!shape || shape.isTrigger || !shape.enabled) continue;
+                var point = shape is MeshCollider { convex: false } ? shape.bounds.ClosestPoint(chest) : shape.ClosestPoint(chest);
+                best = Mathf.Min(best, Vector3.Distance(chest, point));
+            }
+            return best < float.MaxValue ? best : Vector3.Distance(chest, target.position);
         }
 
         bool Aimed(Vector3 to, float distance, ItemDefinition held) =>
@@ -625,6 +659,7 @@ namespace Wreckabulary
             foreach (var s in smashables)
             {
                 if (!s || !s.isActiveAndEnabled || s.IsBroken || s.Invulnerable || !WithinReach(layout, s.transform.position)) continue;
+                if (restingFurniture.TryGetValue(s, out float rested) && Time.time < rested) continue;
                 float cost = Cost(s.transform.position, at);
                 if (planGoal != null && !Yields(s.Word)) cost += NeedlessFurniture;
                 if (cost < bestCost) { bestCost = cost; best = s; }

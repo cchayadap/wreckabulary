@@ -2966,10 +2966,10 @@
       "maxLetters": 96
     },
     "drops": {
-      "note": "A smashed piece drops a random part of its own letters: between ceil(length x share) (never fewer than fewest, or the whole word when it has fewest letters or fewer) and every letter, picked without replacement. Letters a mode goal still needs always drop first. Modes in wholeIn drop every letter (Spell the List: bots stalled on partial drops, 27 Nov).",
+      "note": "A smashed piece drops a random part of its own letters: between ceil(length x share) (never fewer than fewest, or the whole word when it has fewest letters or fewer) and every letter, picked without replacement. Letters a mode goal still needs always drop first. Modes in wholeIn drop every letter.",
       "share": 0.6,
       "fewest": 2,
-      "wholeIn": ["Tutorial", "ShoppingList"]
+      "wholeIn": ["Tutorial"]
     },
     "items": {
       "BAT": {
