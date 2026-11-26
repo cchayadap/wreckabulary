@@ -319,7 +319,7 @@ namespace Wreckabulary.Tests
             var foe = SpawnPlayer(1, new Vector3(3f, 0f, 0f), out _);
             yield return Frames(2);
 
-            foreach (var entry in GameAssets.I.words.Words.Where(w => w.word.Length <= p.Inventory.Capacity))
+            foreach (var entry in GameAssets.I.words.Words.Where(w => w.word.Length <= p.Inventory.Capacity && !GameConfig.Current.BagRows.Holds(w.word)))
             {
                 p.Health.ResetForRound();
                 foe.Health.ResetForRound();

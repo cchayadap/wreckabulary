@@ -43,9 +43,10 @@ namespace Wreckabulary.Rules
         public static float TextWidth => Width - 2f * Pad;
         public static float KindWidth => Width - 2f * Pad - Picture - HeadGap;
 
-        public static RecipeSheetText Build(ItemDefinition item, HouseTuning tuning, HelperBook helpers = null)
+        public static RecipeSheetText Build(ItemDefinition item, HouseTuning tuning, HelperBook helpers = null, BagRowBook bags = null)
         {
             if (item == null) return null;
+            if (bags != null && bags.Holds(item)) return BagRowSheet(item, tuning, bags);
             var tier = RecipeDifficulty.TierOf(item.Id);
             var (kind, rows) = Reverses(item, tuning) ? ("Reverse zone to place", new Action<ItemDefinition, List<SheetRow>>(ReversingZone)) : Family(item);
             HelperSpec helper = null;
@@ -70,6 +71,27 @@ namespace Wreckabulary.Rules
                 if (sheet.Effects.Count == 1 && sheet.Effects[0] == NoEffect) sheet.Effects.Clear();
                 sheet.Effects.Insert(0, Sentence(does));
             }
+            return sheet;
+        }
+
+        static RecipeSheetText BagRowSheet(ItemDefinition item, HouseTuning tuning, BagRowBook bags)
+        {
+            var tier = RecipeDifficulty.TierOf(item.Id);
+            var sheet = new RecipeSheetText
+            {
+                Name = item.Id,
+                Tier = tier,
+                Stars = tuning != null ? RecipeStars.Count(tier) : 0,
+                TierName = tier.ToString(),
+                Kind = BagRows.Kind,
+            };
+            sheet.Rows.Add(new SheetRow(BagRows.AddsLabel, BagRows.AddsValue));
+            sheet.Rows.Add(new SheetRow(Lasts, BagRows.LastsValue));
+            sheet.Rows.Add(new SheetRow(Uses, "Once"));
+            sheet.Rows.Add(new SheetRow(Hand, BagRows.NoHand));
+            sheet.Effects.Add(Sentence(bags.CardLine(item)));
+            foreach (string effect in Effects(item, tuning))
+                if (effect != NoEffect) sheet.Effects.Add(effect);
             return sheet;
         }
 

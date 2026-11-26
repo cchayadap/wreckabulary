@@ -101,7 +101,7 @@ namespace Wreckabulary.Rules.Tests
                 Assert.AreEqual(SpellRole.Gadget, SpellChoice.RoleOf(item), id + " is a gadget for the bots");
             }
             CollectionAssert.IsSubsetOf(Helpers, Book.All.Select(s => s.Id), "every helper of the batch has its block");
-            Assert.IsEmpty(Book.Validate(Items), "the batch passes HelperBook.Validate, the caps and the no-inversion rule");
+            Assert.IsEmpty(Book.Validate(Items, BagRowBook.FromJson(TestData.Read("items_house.json"))), "the batch passes HelperBook.Validate, the caps and the no-inversion rule");
             Assert.IsEmpty(Tuning.Validate(Items, TestData.LoadRuleBook().Defaults), "and HouseTuning.Validate");
         }
 

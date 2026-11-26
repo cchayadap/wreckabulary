@@ -210,7 +210,8 @@ namespace Wreckabulary
         public bool BeginCraft(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            if (IsCrafting || entry == null || !Applies(entry)) return false;
+            if (IsCrafting || entry == null) return false;
+            if (!Applies(entry)) { SummonEffects.ExplainRefusal(controller, entry); return false; }
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
             Close();
@@ -250,7 +251,8 @@ namespace Wreckabulary
         public bool Summon(WordEntry entry)
         {
             entry = ResolveRecipe(entry);
-            if (IsCrafting || entry == null || !Applies(entry)) return false;
+            if (IsCrafting || entry == null) return false;
+            if (!Applies(entry)) { SummonEffects.ExplainRefusal(controller, entry); return false; }
             bool free = inventory.SpellsFree;
             if (!inventory.TrySpend(entry.word)) return false;
             if (!IsSignalWord(entry.word) && !SummonEffects.Apply(controller, entry)) { Refund(entry.word, free); return false; }

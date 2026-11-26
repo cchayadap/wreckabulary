@@ -1649,6 +1649,37 @@
         "sha256": "fba6ae226fcf24d3997965b0ac80d40d119f68a442efbf3ee2168e261ec91b70",
         "triangles": 3576
       }
+    },
+    {
+      "word": "SATCHEL",
+      "size": [
+        0.363,
+        0.3723,
+        0.168
+      ],
+      "targetLongest": 0.3723,
+      "grip": [
+        0.0,
+        0.3598,
+        -0.043
+      ],
+      "heldScale": 1.0,
+      "materials": [
+        "scarlet_Classic",
+        "cobalt_Classic",
+        "yellow_Classic",
+        "white_Classic",
+        "dark_Classic"
+      ],
+      "main": "scarlet_Classic",
+      "accent": "cobalt_Classic",
+      "maxTriangles": 6000,
+      "rebuilt": {
+        "script": "Tools/AssetPipeline/build_house_items_v2.py",
+        "bytes": 181676,
+        "sha256": "abcea915c19d46e3746fae327184a3b8044c1aff795a13d3a72365bd5a28190e",
+        "triangles": 5300
+      }
     }
   ]
 }

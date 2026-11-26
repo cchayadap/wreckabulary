@@ -2887,6 +2887,37 @@
         "raise": 0.1
       },
       "notes": "A big toy compass held up like a shield. While it is raised the needle spins: you and everyone within 3 m have every direction reversed."
+    },
+    {
+      "id": "SATCHEL",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/SATCHEL",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.3598,
+        -0.043
+      ],
+      "size": [
+        0.363,
+        0.3723,
+        0.168
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "bag": {
+        "rows": 1
+      },
+      "notes": "A school satchel stuffed with letter tiles. Spell it and it is used up at once: your letter bag grows a third row of five slots for the rest of the round. It takes no hand."
     }
   ],
   "tuning": {

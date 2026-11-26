@@ -1019,14 +1019,6 @@ namespace Wreckabulary
             return rt.gameObject;
         }
 
-        void OpenComposer()
-        {
-            if (!LocalPlayer || Paused || ResultShown) return;
-            if (!TypedMode) { ToggleCraft(); return; }
-            if (LocalPlayer.Summoner.IsSpelling) CloseComposer();
-            else { LocalPlayer.Summoner.Open(); SyncComposer(); }
-        }
-
         void CloseComposer()
         {
             if (LocalPlayer) LocalPlayer.Summoner.Close();
@@ -1203,6 +1195,7 @@ namespace Wreckabulary
             bool furniture = !signal && player.Combat.IsHolding && !player.Combat.Weapon;
             string error = !player.CanAct || player.IsDodging ? "Wait until you can act again."
                 : recipe == null ? "That recipe is not available."
+                : SummonEffects.RefusesBagRow(player, recipe) ? BagRows.FullLine
                 : furniture && !fits ? "Set down the furniture first."
                 : player.Combat.IsChanneling ? "Finish your current action first."
                 : summoner.IsCrafting ? "Finish your current word first."
@@ -1248,7 +1241,7 @@ namespace Wreckabulary
                 if (missing.Length > 0) return $"{word} needs {Spread(missing)}. Smash more furniture.";
                 if (player.Summoner.IsCrafting) return "Already spelling something. Hang on.";
                 if (!player.Summoner.IsSignalWord(recipe.word) && !SummonEffects.CanApply(player, recipe))
-                    return player.Combat.IsHolding && !player.Combat.Weapon ? "Set down the furniture first." : "Both hands are full. Drop something first.";
+                    return SummonEffects.RefusesBagRow(player, recipe) ? BagRows.FullLine : player.Combat.IsHolding && !player.Combat.Weapon ? "Set down the furniture first." : "Both hands are full. Drop something first.";
                 state = 1;
                 return DesktopScheme.ReadyLine(word, spellKey);
             }

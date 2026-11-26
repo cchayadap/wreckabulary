@@ -180,7 +180,7 @@ namespace Wreckabulary.Tests
             Assert.IsTrue(Camera.main.GetComponent<CameraRig>().IsThirdPerson);
             Assert.AreEqual(Phase.Playing, rounds.Phase);
             yield return Capture("solo-tray-detailed-minimap");
-            Click(hud.transform, "Bag link");
+            hud.ToggleBag();
             yield return Settle();
             Assert.IsTrue(hud.BagOpen);
             var recipes = hud.transform.Find("Safe HUD/Bag panel/Recipe book/View").GetComponent<ScrollRect>();

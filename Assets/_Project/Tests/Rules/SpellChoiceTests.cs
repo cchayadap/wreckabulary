@@ -29,7 +29,7 @@ namespace Wreckabulary.Rules.Tests
                 (SpellRole.Shield, new[] { "SHIELD", "PLATE", "MIRROR", "LID", "HELMET", "DOOR", "COMPASS" }),
                 (SpellRole.Heal, new[] { "APPLE", "WATER", "CAKE", "FOAM", "MUG", "TEAPOT", "PEAR", "POTION" }),
                 (SpellRole.Boost, new[] { "SODA", "CHILI", "TONIC", "LATTE" }),
-                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH", "BOX", "CHEST", "MARBLE", "LADDER", "CARPET", "SLIME", "TENT", "HOSE", "PIANO", "RAMP", "OIL", "FENCE", "PAINT", "CASTLE", "ROBOT", "RABBIT", "TERRIER", "BLASTER", "CHOMPER", "PATROL", "CONE", "BLOCKS", "SPIKES", "TRAP", "HOOP" }),
+                (SpellRole.Gadget, new[] { "PLANT", "CLOCK", "FAN", "SPEAKER", "SOAP", "MAT", "BED", "SOFA", "TABLE", "CRATE", "SHELF", "DESK", "CABINET", "CHAIR", "STOOL", "BENCH", "BOX", "CHEST", "MARBLE", "LADDER", "CARPET", "SLIME", "TENT", "HOSE", "PIANO", "RAMP", "OIL", "FENCE", "PAINT", "CASTLE", "ROBOT", "RABBIT", "TERRIER", "BLASTER", "CHOMPER", "PATROL", "CONE", "BLOCKS", "SPIKES", "TRAP", "HOOP", "SATCHEL" }),
             };
             foreach (var (role, ids) in expected)
                 foreach (string id in ids)
@@ -90,6 +90,8 @@ namespace Wreckabulary.Rules.Tests
             var armed = Items.Enabled.Where(i => SpellChoice.BotWants(SpellChoice.RoleOf(i), Armed)).Select(i => i.Id).ToList();
             CollectionAssert.AreEquivalent(new[] { "SHIELD", "PLATE", "MIRROR", "LID", "HELMET", "DOOR", "COMPASS" }, armed, "an armed bot only adds a shield to Hand 2");
             Assert.IsFalse(SpellChoice.BotWants(SpellRole.Shield, new SpellNeeds(true, true, false)));
+            foreach (var needs in new[] { SpellNeeds.Unarmed, Armed, new SpellNeeds(true, true, false) })
+                Assert.IsFalse(SpellChoice.BotWants(Role("SATCHEL"), needs), "a bot never spells the satchel: it fights nobody and needs no goal");
         }
 
         [Test]

@@ -275,12 +275,11 @@ namespace Wreckabulary.Qa
 
         IEnumerator Book()
         {
-            var link = hud.transform.Find("Safe HUD/Letter bag/Bag link");
-            if (!link || !link.TryGetComponent(out Button button)) yield break;
-            button.onClick.Invoke();
+            if (!hud) yield break;
+            hud.ToggleBag();
             yield return Until(() => hud.BagOpen, 3, "the recipe book");
             yield return Realtime(.3f);
-            button.onClick.Invoke();
+            hud.ToggleBag();
             yield return Until(() => !hud.BagOpen, 3, "the recipe book to close");
         }
 

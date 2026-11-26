@@ -79,7 +79,7 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("TOMATO"), TestCase("TONIC"), TestCase("TENT"), TestCase("PIANO"), TestCase("LADDER")]
         [TestCase("POTION"), TestCase("LATTE"), TestCase("PAINT"), TestCase("FENCE"), TestCase("CASTLE"), TestCase("CRAB")]
         [TestCase("ROBOT"), TestCase("RABBIT"), TestCase("TERRIER"), TestCase("CHOMPER"), TestCase("CONE"), TestCase("BLOCKS")]
-        [TestCase("SPINNER")]
+        [TestCase("SPINNER"), TestCase("SATCHEL")]
         public void LabelsAndFrontsFaceTheCameraBehindThePlayer(string id)
         {
             Assert.Less(InBody(id, 0f, 0f, 1f).z, -.95f, id + " shows its +Z label, door or keys to the camera");
@@ -90,7 +90,7 @@ namespace Wreckabulary.Rules.Tests
         [TestCase("HELMET"), TestCase("DOOR"), TestCase("PIANO"), TestCase("LADDER"), TestCase("CARPET")]
         [TestCase("POTION"), TestCase("LATTE"), TestCase("PAINT"), TestCase("FENCE"), TestCase("CASTLE"), TestCase("CRAB"), TestCase("CAMERA")]
         [TestCase("ROBOT"), TestCase("RABBIT"), TestCase("TERRIER"), TestCase("BLASTER"), TestCase("CHOMPER"), TestCase("PATROL"), TestCase("CONE"), TestCase("BLOCKS")]
-        [TestCase("SPINNER"), TestCase("COMPASS")]
+        [TestCase("SPINNER"), TestCase("COMPASS"), TestCase("SATCHEL")]
         public void ThingsWithATopKeepItUp(string id) => Assert.Greater(InBody(id, 0f, 1f, 0f).y, .99f, id + " sits the right way up");
 
         [TestCase("TEAPOT", 1f, 0f, 0f), TestCase("OIL", 0f, 0f, 1f), TestCase("RAMP", 0f, 0f, 1f)]

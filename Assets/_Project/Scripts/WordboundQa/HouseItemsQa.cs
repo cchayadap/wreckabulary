@@ -18,7 +18,7 @@ namespace Wreckabulary.Qa
         public const int MaxItems = 20, Parts = 4;
         const float Wound = 30f, ShotSeconds = 3f, ShotGap = 3f;
         const float StepSeconds = 30f, WallSlack = .75f, MoverGap = 1.2f, TrapGap = 2f, ProvokeDamage = 1f, ArmSlack = .25f, WatchBack = 2.6f, WatchSide = 1.8f, WatchTurn = 20f;
-        const string RefusalHouse = "pinwheel";
+        const string RefusalHouse = "pinwheel", BagHandA = "BAT", BagHandB = "BLADE";
         public string Name => ScenarioFor(part);
         static readonly Vector3 Lane = new Vector3(-5.5f, 0f, -2.6f);
         readonly int part;
@@ -117,6 +117,14 @@ namespace Wreckabulary.Qa
             var item = GameConfig.Current.Items.Get(id);
             string name = "house_" + id.ToLowerInvariant();
             Stand(Lane, Vector3.right);
+            if (GameConfig.Current.BagRows.Holds(item))
+            {
+                var packed = new Dictionary<string, object> { ["id"] = id, ["family"] = item.Family.ToString(), ["hands"] = item.Hands, ["bag"] = true };
+                yield return Pack(context, item, name, packed);
+                if (errors.Count > 0) throw new QaFailException($"{id} logged {errors.Count} error(s); first: {errors[0]}");
+                records.Add(packed);
+                yield break;
+            }
             var gear = director.EquipCatalogue(player, id);
             yield return context.WaitSeconds(0.8f);
             if (!gear || player.Combat.Weapon != gear || !gear.IsHeld || gear.Definition != item || !item.Enabled)
@@ -545,6 +553,49 @@ namespace Wreckabulary.Qa
                 pauseOnStrike = false;
                 Time.timeScale = 1f;
                 if (helper && !helper.IsEnding) helper.Stop(HelperEnd.Life);
+            }
+        }
+
+        IEnumerator Pack(QaContext context, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            if (!GameConfig.Current.BagRows.TryGet(item.Id, out var spec)) throw new QaFailException(item.Id + " is a bag recipe without a bag block.");
+            string modeBefore = Match.ModeOverride;
+            Match.ModeOverride = HouseModes.Dibs;
+            try
+            {
+                player.Inventory.ClearBonusRows();
+                var first = director.EquipCatalogue(player, BagHandA);
+                var second = CatalogGear.Create(GameConfig.Current.Items.Get(BagHandB));
+                if (!first || !player.Combat.TryEquip(second) || player.Combat.HasFreeGearSlot)
+                    throw new QaFailException(item.Id + " needs both hands full before it is spelled.");
+                player.Inventory.Set(item.Id);
+                yield return context.WaitSeconds(0.6f);
+                int capacity = player.Inventory.Capacity, rows = player.Inventory.BonusRows, shown = player.Inventory.ShownRows;
+                yield return Capture(context, name + "_before");
+                if (!player.Summoner.Summon(player.Summoner.Recipe(item.Id))) throw new QaFailException(item.Id + " could not be spelled with both hands full.");
+                yield return context.WaitUntil(() => !player.Summoner.IsCrafting, 5, item.Id + " to be spelled");
+                yield return context.WaitSeconds(0.6f);
+                yield return Capture(context, name + "_after");
+                bool kept = player.Combat.GearIn(0) == first && player.Combat.GearIn(1) == second || player.Combat.GearIn(0) == second && player.Combat.GearIn(1) == first;
+                record["rows_added"] = spec.Rows;
+                record["capacity_before"] = capacity;
+                record["capacity_after"] = player.Inventory.Capacity;
+                record["bonus_rows_before"] = rows;
+                record["bonus_rows_after"] = player.Inventory.BonusRows;
+                record["rows_shown_before"] = shown;
+                record["rows_shown_after"] = player.Inventory.ShownRows;
+                record["letters_left"] = player.Inventory.Count;
+                record["hands_unchanged"] = kept;
+                if (player.Inventory.Count != 0) throw new QaFailException($"{item.Id} left {player.Inventory.Count} of its letters unspent.");
+                if (player.Inventory.BonusRows != rows + spec.Rows) throw new QaFailException($"{item.Id} gave {player.Inventory.BonusRows - rows} rows, not {spec.Rows}.");
+                if (player.Inventory.Capacity != capacity + spec.Rows * BagRows.SlotsPerRow)
+                    throw new QaFailException($"{item.Id} took the bag from {capacity} to {player.Inventory.Capacity} slots, not {capacity + spec.Rows * BagRows.SlotsPerRow}.");
+                if (!kept) throw new QaFailException(item.Id + " changed what the hands hold.");
+            }
+            finally
+            {
+                Match.ModeOverride = modeBefore;
+                if (player) player.Inventory.ClearBonusRows();
             }
         }
 

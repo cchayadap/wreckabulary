@@ -113,7 +113,7 @@ namespace Wreckabulary.Rules.Tests
             var items = TestData.Catalogue();
             items.Expand(ItemCatalogue.FromJson(house, "items_house.json"));
             var book = HelperBook.FromJson(house);
-            CollectionAssert.IsEmpty(book.Validate(items));
+            CollectionAssert.IsEmpty(book.Validate(items, BagRowBook.FromJson(house)), "bag items need no helper block");
             Assert.AreEqual(0, HelperBook.FromJson(TestData.Read("items.json"), "items.json").Count, "online items.json never carries a helper block");
             Assert.IsFalse(TestData.Read("items.json").Contains("\"Helper\""), "no shared recipe uses the Helper family");
         }

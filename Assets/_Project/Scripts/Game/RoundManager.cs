@@ -128,6 +128,7 @@ namespace Wreckabulary
         void SetPhase(Phase phase)
         {
             if (phase == Phase.Countdown || phase == Phase.Lobby) FinishBeatPlaying = false;
+            if (phase != Phase.Playing) LetterInventory.ClearAllBonusRows();
             Phase = phase;
             phaseElapsed = 0f;
             joins.RespawnKnockedOut = phase == Phase.Lobby;

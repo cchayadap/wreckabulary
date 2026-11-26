@@ -205,6 +205,7 @@ namespace Wreckabulary
         public void End()
         {
             LetterInventory.FreeSpelling = false;
+            LetterInventory.ClearAllBonusRows();
             Running = false;
             if (Strip) Strip.Close();
             Strip = null;

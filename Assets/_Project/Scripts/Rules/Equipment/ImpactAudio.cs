@@ -176,7 +176,7 @@ namespace Wreckabulary.Rules
             Add(SurfaceMaterial.Soft, "SOFA", "BED", "PILLOW", "CUSHION", "RUG", "MAT", "CURTAIN", "FOAM", "BALL", "BOX", "BOOK", "CAKE", "PIE",
                 "APPLE", "SOAP", "TEDDY", "BEAR", "BEANBAG", "MATTRESS", "BLANKET", "TOWEL", "PARCEL", "CARDBOARD", "COUCH", "TOMATO", "CHILI", "DISC",
                 "LEMON", "CARPET", "SLIME", "TENT", "PEAR", "SOCK", "HOSE", "MELON", "BOOT", "CRAB",
-                "RABBIT", "TERRIER", "CONE", "SPIKES", "FLIPPER", "HOOP");
+                "RABBIT", "TERRIER", "CONE", "SPIKES", "FLIPPER", "HOOP", "SATCHEL");
             return map;
         }
 

@@ -183,7 +183,7 @@ namespace Wreckabulary
         {
             var config = GameConfig.Current;
             if (!config.Items.TryGet(word, out var item)) return null;
-            var text = RecipeSheet.Build(item, config.Tuning, config.Helpers);
+            var text = RecipeSheet.Build(item, config.Tuning, config.Helpers, config.BagRows);
             var root = Rect(word, bookDetail, Vector2.zero, Vector2.zero, Vector2.zero);
             Stretch(root);
             var sheet = new DetailSheet { word = word, root = root };

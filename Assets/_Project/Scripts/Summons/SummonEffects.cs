@@ -11,16 +11,40 @@ namespace Wreckabulary
             recipe = player.Summoner.ResolveRecipe(recipe);
             if (recipe == null) return false;
             if (!GameConfig.Current.Items.TryGet(recipe.word, out var item) || !item.Enabled) return false;
+            if (IsBagRow(item)) return BagRowBook.Offered(Match.Mode) && player.Inventory.CanAddRow;
             if (!HelperAgent.Offered(item, Match.Mode)) return false;
             if (IsChecklistRecipe(player, recipe)) return true;
             if (player.Combat.IsHolding && !player.Combat.Weapon) return false;
             return player.Combat.HasFreeGearSlot;
         }
 
+        public static bool IsBagRow(ItemDefinition item) => GameConfig.Current.BagRows != null && GameConfig.Current.BagRows.Holds(item);
+
+        public static bool RefusesBagRow(PlayerController player, WordEntry recipe)
+        {
+            if (!player || recipe == null) return false;
+            recipe = player.Summoner.ResolveRecipe(recipe);
+            return recipe != null && GameConfig.Current.Items.TryGet(recipe.word, out var item) && item.Enabled && IsBagRow(item)
+                && BagRowBook.Offered(Match.Mode) && !player.Inventory.CanAddRow;
+        }
+
+        public static void ExplainRefusal(PlayerController player, WordEntry recipe)
+        {
+            if (RefusesBagRow(player, recipe))
+                Popup.Show(BagRows.FullPopup, player.OverheadPosition + Vector3.up * 0.35f, GameFeedback.SkillColor(recipe.word), 2.5f);
+        }
+
         public static bool Apply(PlayerController player, WordEntry recipe)
         {
             if (!CanApply(player, recipe)) return false;
             recipe = player.Summoner.ResolveRecipe(recipe);
+            if (IsBagRow(GameConfig.Current.Items.Get(recipe.word)))
+            {
+                if (!player.Inventory.AddBonusRow()) return false;
+                Popup.Show(recipe.word + "!", player.OverheadPosition + Vector3.up * 0.35f, GameFeedback.SkillColor(recipe.word), 3.5f);
+                Popup.Show(BagRows.GainedPopup, player.OverheadPosition + Vector3.up * 0.8f, GameFeedback.SkillColor(recipe.word), 2.5f);
+                return true;
+            }
             if (IsChecklistRecipe(player, recipe))
             {
                 FurnitureCatalog.Summon(player, recipe.word);

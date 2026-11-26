@@ -93,6 +93,13 @@ namespace Wreckabulary.Tests
             return RectTransformUtility.WorldToScreenPoint(null, rt.TransformPoint(rt.rect.center));
         }
 
+        static Vector2 TrayFloor(RectTransform safe)
+        {
+            var tray = (RectTransform)safe.Find("Letter bag");
+            var rect = tray.rect;
+            return RectTransformUtility.WorldToScreenPoint(null, tray.TransformPoint(new Vector3(rect.xMin + 100f, rect.yMin + 20f, 0f)));
+        }
+
         static Vector2 Away => new(Screen.width * .3f, Screen.height * .62f);
 
         static string Order(GameHud hud) => new(hud.BagLetterOrder.ToArray());
@@ -204,7 +211,7 @@ namespace Wreckabulary.Tests
             GameHud hud = null; RectTransform safe = null;
             yield return ShowTray(player, "BAT", (h, s) => { hud = h; safe = s; });
 
-            yield return Drag(Centre(Tile(safe, 1)), Centre(safe.Find("Letter bag/Bag link")));
+            yield return Drag(Centre(Tile(safe, 1)), TrayFloor(safe));
             Assert.AreEqual("ABT", Order(hud), "off a tile but inside the tray goes back");
             Assert.AreEqual(3, player.Inventory.Count);
             Assert.AreEqual(1f, Tile(safe, 1).GetComponent<CanvasGroup>().alpha, 1e-3f, "the tile looks full again");
@@ -322,7 +329,7 @@ namespace Wreckabulary.Tests
             var player = Spawn();
             GameHud hud = null; RectTransform safe = null;
             yield return ShowTray(player, "BAT", (h, s) => { hud = h; safe = s; });
-            safe.Find("Letter bag/Spell key").GetComponent<Button>().onClick.Invoke();
+            player.Summoner.Open();
             yield return TestScenes.WaitUntil(() => hud.ComposerOpen, Slow, "the spell box to open");
 
             yield return Press(Centre(Tile(safe, 1)), Away);
@@ -332,6 +339,28 @@ namespace Wreckabulary.Tests
             yield return new WaitForSecondsRealtime(.3f);
             Assert.AreEqual(3, player.Inventory.Count, "nothing drops while spelling");
             Assert.IsNull(LooseTile('A'));
+            Object.Destroy(hud.gameObject);
+            Object.Destroy(player.gameObject);
+        }
+
+        [UnityTest]
+        public IEnumerator ALetterInTheThirdRowDragsOutLikeAnyOther()
+        {
+            var player = Spawn();
+            Assert.IsTrue(player.Inventory.AddBonusRow());
+            GameHud hud = null; RectTransform safe = null;
+            yield return ShowTray(player, "ABCDEFGHIJKL", (h, s) => { hud = h; safe = s; });
+            yield return TestScenes.WaitUntil(() => hud.TrayRows == 3, Slow, "the third row");
+            yield return new WaitForSecondsRealtime(.5f);
+            Canvas.ForceUpdateCanvases();
+            Assert.AreEqual(12, player.Inventory.Count);
+            Assert.AreEqual("L", TileText(safe, 12));
+            Assert.IsNull(safe.Find("Letter bag/Spell key"), "the hint chips are gone, so the row has room");
+            yield return Drag(Centre(Tile(safe, 12)), Away);
+            yield return TestScenes.WaitUntil(() => player.Inventory.Count == 11, Slow, "the third-row letter to drop");
+            Assert.AreEqual("ABCDEFGHIJK", Order(hud));
+            Assert.IsNotNull(LooseTile('L'));
+            player.Inventory.ClearBonusRows();
             Object.Destroy(hud.gameObject);
             Object.Destroy(player.gameObject);
         }

@@ -473,10 +473,10 @@ namespace Wreckabulary.Tests
                 if (hud && hud.LocalPlayer)
                 {
                     hud.LocalPlayer.Inventory.Set("BALLSOAP");
-                    hud.transform.Find("Safe HUD/Letter bag/Bag link").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                    hud.ToggleBag();
                     yield return new WaitForSecondsRealtime(.3f);
                     yield return CaptureFramed(Path.Combine(dir, $"map_{map}_bag.png"));
-                    hud.transform.Find("Safe HUD/Letter bag/Bag link").GetComponent<UnityEngine.UI.Button>().onClick.Invoke();
+                    hud.ToggleBag();
                 }
                 if (GameConfig.Current.HouseFor(map).StoreyFloors().Count < 2) continue;
                 Session.Clear();

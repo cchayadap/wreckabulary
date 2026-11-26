@@ -215,10 +215,9 @@ namespace Wreckabulary.Tests
 
             p.Inventory.Set("TABLE");
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 4, 1f, "collect step");
-            var bookLink = hud.transform.Find("Safe HUD/Letter bag/Bag link").GetComponent<Button>();
-            bookLink.onClick.Invoke();
+            hud.ToggleBag();
             yield return TestScenes.WaitUntil(() => director.StepIndex >= 5, 1f, "recipe book step");
-            bookLink.onClick.Invoke();
+            hud.ToggleBag();
             yield return TestScenes.WaitUntil(() => !hud.BagOpen, 1f, "book closed again");
 
             yield return TestScenes.WaitUntil(() => !p.IsDodging && p.CanAct, 2f, "dodge recovery before spelling BAT");
