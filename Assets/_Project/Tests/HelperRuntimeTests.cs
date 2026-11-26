@@ -141,6 +141,24 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator AFoesOnlyHelperFliesAFlagInItsMakersColourAndABiterFliesNone()
+        {
+            var chaser = Register(ChaserSpec(HelperPick.Nearest));
+            var biter = Register(BiterSpec());
+            var maker = Spawn(0, 0, Vector3.zero);
+            yield return Frames(3);
+            var friendly = Placed(Body(Chaser), chaser, maker, new Vector3(2f, 0f, 0f));
+            var hostile = Placed(Body(Biter), biter, maker, new Vector3(-6f, 0f, 0f));
+            yield return Frames(2);
+            var flag = friendly.GetComponent<HelperMotion>().Flag;
+            Assert.IsTrue(flag, "a foes-only helper flies a flag");
+            var cloth = flag.Find(HelperMotion.PennantName).GetComponent<MeshRenderer>();
+            Assert.AreSame(PlayerHud.Mark(maker.Color), cloth.sharedMaterial, "the flag is in its maker's colour");
+            Assert.Greater(cloth.bounds.max.y, friendly.transform.position.y + HelperMotion.FlagPole * .5f, "the flag stands above the toy");
+            Assert.IsFalse(hostile.GetComponent<HelperMotion>().Flag, "a helper that bites anyone flies no flag");
+        }
+
+        [UnityTest]
         public IEnumerator AnAnyoneHelperBitesItsMakerAndCreditsNobody()
         {
             var spec = Register(BiterSpec());

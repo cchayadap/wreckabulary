@@ -27,6 +27,7 @@ namespace Wreckabulary
         static readonly List<HelperAgent> Active = new();
         static readonly List<HelperGuard> Guards = new();
         static readonly List<HelperFootprint> Blockers = new();
+        static readonly List<Vector3> KeySpots = new();
         static readonly List<HelperCandidate> AimCandidates = new(CandidateCapacity);
         static int serials;
 
@@ -171,7 +172,13 @@ namespace Wreckabulary
             if (mode == HouseModes.Escape)
             {
                 var escape = FindAnyObjectByType<EscapeDirector>();
-                if (escape) Guards.Add(new HelperGuard(escape.ExtractionPoint.x, escape.ExtractionPoint.z, HelperPlacement.ObjectiveClear, HelperRefusal.Exit));
+                if (escape)
+                {
+                    Guards.Add(new HelperGuard(escape.ExtractionPoint.x, escape.ExtractionPoint.z, HelperPlacement.ObjectiveClear, HelperRefusal.Exit));
+                    KeySpots.Clear();
+                    escape.KeySpots(KeySpots);
+                    foreach (var spot in KeySpots) Guards.Add(new HelperGuard(spot.x, spot.z, HelperPlacement.ObjectiveClear, HelperRefusal.Key));
+                }
             }
             if (mode == HouseModes.MovingOut)
             {
@@ -269,7 +276,7 @@ namespace Wreckabulary
             DeployedGear.Register(gameObject, owner);
             if (spec.IsTrap) gameObject.AddComponent<HelperTrap>().Configure(spec);
             motion = gameObject.AddComponent<HelperMotion>();
-            motion.Configure(this, RingColor(), spec.Moves ? MoverRing : spec.Radius);
+            motion.Configure(this, RingColor(), spec.Moves ? MoverRing : spec.Radius, spec.Bites == HelperBite.Enemies && maker);
             if (owner) owner.Health.Damaged += MakerHurt;
             if (state.LockedId >= 0) DrawAimLine();
             Active.Add(this);

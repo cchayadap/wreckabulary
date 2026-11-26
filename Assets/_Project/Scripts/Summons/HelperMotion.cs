@@ -15,16 +15,21 @@ namespace Wreckabulary
         public const float ArmBounceHeight = .06f;
         public const float TrapRest = .4f, TrapRiseSeconds = .1f;
         public const float RingHeight = .03f;
+        public const float FlagGap = .04f, FlagPole = .36f, FlagTall = .2f, FlagLong = .28f, FlagPoleWidth = .025f;
+        public const string FlagName = "Helper flag", PennantName = "Helper pennant";
 
         HelperAgent agent;
-        Transform pose;
+        Transform pose, flag;
+        Vector3 flagRest, flagScale;
+        Mesh pennant;
         Vector3 restPosition, restScale;
         Quaternion restRotation;
         float struckAt = float.NegativeInfinity, hurtAt = float.NegativeInfinity, endedAt = -1f, seed;
 
         public Transform Pose => pose;
+        public Transform Flag => flag;
 
-        public void Configure(HelperAgent owner, Color ringColor, float ringRadius)
+        public void Configure(HelperAgent owner, Color ringColor, float ringRadius, bool flagged = false)
         {
             agent = owner;
             seed = Random.value * 10f;
@@ -42,7 +47,40 @@ namespace Wreckabulary
             {
                 var ring = SummonEffects.Ring(transform, "Helper ring", ringColor, ringRadius, Quaternion.Euler(90f, 0f, 0f));
                 ring.transform.localPosition = Vector3.up * RingHeight;
+                ring.sharedMaterial = PlayerHud.Mark(ringColor);
             }
+            if (flagged) RaiseFlag(ringColor);
+        }
+
+        void RaiseFlag(Color colour)
+        {
+            float scale = Mathf.Max(.01f, Mathf.Abs(transform.lossyScale.y)), top = 0f;
+            foreach (var renderer in pose.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, renderer.bounds.max.y - transform.position.y);
+            flag = new GameObject(FlagName).transform;
+            flag.SetParent(transform, false);
+            flag.localPosition = flagRest = Vector3.up * ((top + FlagGap) / scale);
+            flag.localScale = flagScale = Vector3.one / scale;
+            var pole = SummonEffects.Line(flag, Color.white, new[] { Vector3.zero, Vector3.up * FlagPole });
+            pole.startWidth = pole.endWidth = FlagPoleWidth;
+            pole.sharedMaterial = PlayerHud.Mark(Color.white);
+            pennant = new Mesh { name = PennantName };
+            Vector3 high = new Vector3(0f, FlagPole, 0f), low = new Vector3(0f, FlagPole - FlagTall, 0f), tip = new Vector3(FlagLong, FlagPole - FlagTall * .5f, 0f);
+            pennant.vertices = new[] { high, low, tip, high, low, tip };
+            pennant.triangles = new[] { 0, 1, 2, 3, 5, 4 };
+            pennant.RecalculateNormals();
+            pennant.RecalculateBounds();
+            var cloth = new GameObject(PennantName);
+            cloth.transform.SetParent(flag, false);
+            cloth.AddComponent<MeshFilter>().sharedMesh = pennant;
+            var drawn = cloth.AddComponent<MeshRenderer>();
+            drawn.sharedMaterial = PlayerHud.Mark(colour);
+            drawn.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            drawn.receiveShadows = false;
+        }
+
+        void OnDestroy()
+        {
+            if (pennant) Destroy(pennant);
         }
 
         public void Strike() => struckAt = Time.time;
@@ -65,6 +103,7 @@ namespace Wreckabulary
                 pose.localPosition = position;
                 pose.localRotation = rotation * Quaternion.Euler(0f, k * 360f, 0f);
                 pose.localScale = scale * (1f - k);
+                PlaceFlag(0f, 1f - k);
                 return;
             }
             var phase = agent.Phase;
@@ -110,6 +149,15 @@ namespace Wreckabulary
             pose.localPosition = position;
             pose.localRotation = rotation;
             pose.localScale = scale;
+            PlaceFlag(position.y - restPosition.y, 1f);
+        }
+
+        void PlaceFlag(float lift, float size)
+        {
+            if (!flag) return;
+            flag.localPosition = flagRest + Vector3.up * lift;
+            flag.localScale = flagScale * size;
+            if (Camera.main) flag.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
         }
     }
 }

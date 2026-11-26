@@ -19,7 +19,7 @@ namespace Wreckabulary.Qa
         const string Map = "pinwheel";
         const string AimedId = "QAHAIMED", NearestId = "QAHNEAREST", ProvokerId = "QAHPROVOKER", BiterId = "QAHBITER", GuardId = "QAHGUARD", TrapId = "QAHTRAP", WallId = "QAHWALL";
         const int SeatCount = 3;
-        const float LoadSeconds = 30f, CheckSeconds = 35f, LongCheckSeconds = 50f, Quiet = 4f, BiteWait = 8f, Settle = .6f, RefusalWait = .5f;
+        const float LoadSeconds = 30f, CheckSeconds = 35f, LongCheckSeconds = 50f, Quiet = 4f, BiteWait = 8f, Settle = .6f, RefusalWait = .5f, KeyStandOff = .6f;
         const float Side = 3f, Back = 1.5f, Ahead = 5.5f, Margin = .6f, Grid = .5f, StageClear = 2.2f, FurnitureClear = 7f;
         const float WallLife = 8f, WallSlack = .75f, ProvokeDamage = 2f, RoundEndWait = 15f, TrapRest = 1.6f;
         static readonly Vector3[] Axes = { Vector3.forward, Vector3.right, Vector3.back, Vector3.left };
@@ -65,6 +65,7 @@ namespace Wreckabulary.Qa
             yield return Check("helpers_duos_refuses_anyone", DuosRefusesAnyone);
             yield return Check("helpers_escape_open", c => Load(c, HouseModes.Escape), LoadSeconds * 3f);
             yield return Check("helpers_escape_exit_wall_refused", WallRefusedAtExit);
+            yield return Check("helpers_escape_key_wall_refused", WallRefusedAtKey);
             yield return Check("helpers_escape_refuses_attackers", EscapeRefusesAttackers);
             yield return QaStep.Named("helpers_return").Timeout(60).Do(Return);
         }
@@ -818,6 +819,42 @@ namespace Wreckabulary.Qa
                 ["reason"] = reason.ToString(), ["placed"] = placed, ["kept_in_hand"] = kept, ["placed_count"] = DeployedGear.CountFor(p1),
             });
             if (reason != HelperRefusal.Exit || placed || !kept || DeployedGear.CountFor(p1) > 0) throw new QaFailException($"A wall at the Escape exit was not refused (reason {reason}, placed {placed}).");
+        }
+
+        IEnumerator WallRefusedAtKey(QaContext context)
+        {
+            yield return Clear(context);
+            Ready();
+            var escape = Object.FindAnyObjectByType<EscapeDirector>();
+            if (!escape) throw new QaFailException("Escape has no director.");
+            var spots = new List<Vector3>();
+            escape.KeySpots(spots);
+            if (spots.Count == 0) throw new QaFailException("Escape has no key left to guard.");
+            var key = spots[0];
+            var keyRoom = HelperPlacement.RoomAt(layout, key.x, key.y + .1f, key.z) ?? room;
+            var toward = new Vector3(key.x - (keyRoom.MinX + keyRoom.MaxX) * .5f, 0f, key.z - (keyRoom.MinZ + keyRoom.MaxZ) * .5f);
+            if (toward.sqrMagnitude < 1e-4f) toward = ahead;
+            toward.Normalize();
+            int foundBefore = escape.KeysFound;
+            Put(p1, new Vector3(key.x, keyRoom.FloorY, key.z) - toward * (PlayerCombat.DeployReach + KeyStandOff), toward);
+            yield return context.WaitFrames(3);
+            var wall = WallItem;
+            var held = Hold(p1, wall);
+            var guards = new List<HelperGuard> { new HelperGuard(key.x, key.z, HelperPlacement.ObjectiveClear, HelperRefusal.Key) };
+            var reason = Refusal(p1, HelperPlaceKind.Wall, wall.Deploy.FootprintX, wall.Deploy.FootprintZ, guards);
+            var open = Refusal(p1, HelperPlaceKind.Wall, wall.Deploy.FootprintX, wall.Deploy.FootprintZ, null);
+            bool placed = p1.Combat.DeployHeld();
+            yield return context.WaitSeconds(wall.Deploy.PlaceSeconds + RefusalWait);
+            bool kept = p1.Combat.Weapon == held;
+            yield return Capture(context, "helpers_escape_key_wall_refused");
+            context.Note("helpers_escape_key_wall_refused", new Dictionary<string, object>
+            {
+                ["wall"] = wall.Id, ["key_room"] = keyRoom.Name, ["keys_guarded"] = spots.Count, ["placement_to_key_metres"] = Flat(PlacementPoint(p1), key), ["key_clear"] = HelperPlacement.ObjectiveClear,
+                ["reason"] = reason.ToString(), ["reason_without_the_key"] = open.ToString(), ["placed"] = placed, ["kept_in_hand"] = kept, ["placed_count"] = DeployedGear.CountFor(p1),
+                ["keys_found_before"] = foundBefore, ["keys_found_after"] = escape.KeysFound,
+            });
+            if (escape.KeysFound != foundBefore) throw new QaFailException("The key was picked up during the check, so the guard was not tested.");
+            if (reason != HelperRefusal.Key || placed || !kept || DeployedGear.CountFor(p1) > 0) throw new QaFailException($"A wall beside an Escape key was not refused (reason {reason}, placed {placed}).");
         }
 
         IEnumerator EscapeRefusesAttackers(QaContext context)

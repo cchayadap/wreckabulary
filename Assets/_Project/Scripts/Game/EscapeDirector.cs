@@ -89,6 +89,13 @@ namespace Wreckabulary
         public string Checklist => checklistText ?? "";
         public string Guide => guideText ?? "";
         public Vector3 ExtractionPoint => extraction;
+
+        public void KeySpots(List<Vector3> into)
+        {
+            foreach (var key in keys)
+                if (key != null && key.Root) into.Add(key.Root.transform.position);
+        }
+
         public int Seed => seed;
         public int DoorsOpen => doors.Count(d => d.Open);
         public int DoorCount => doors.Count;
