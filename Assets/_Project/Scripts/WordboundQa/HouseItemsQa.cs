@@ -17,6 +17,8 @@ namespace Wreckabulary.Qa
         public const string Scenario = "house_items";
         public const int MaxItems = 20, Parts = 4;
         const float Wound = 30f, ShotSeconds = 3f, ShotGap = 3f;
+        const float StepSeconds = 30f, WallSlack = .75f, MoverGap = 1.2f, TrapGap = 2f, ProvokeDamage = 1f, ArmSlack = .25f, WatchBack = 2.6f, WatchSide = 1.8f, WatchTurn = 20f;
+        const string RefusalHouse = "pinwheel";
         public string Name => ScenarioFor(part);
         static readonly Vector3 Lane = new Vector3(-5.5f, 0f, -2.6f);
         readonly int part;
@@ -27,6 +29,11 @@ namespace Wreckabulary.Qa
         ScriptedBinding input;
         Vector3 dummyHome;
         int throws;
+        float placedAt, armedAt, firstStrikeAt, endedAt;
+        HelperAgent helper;
+        HelperEnd ended;
+        int strikes, makerBitten;
+        bool pauseOnStrike;
         List<string> ids = new(), allIds = new();
         readonly List<string> errors = new();
         readonly List<Dictionary<string, object>> records = new();
@@ -54,7 +61,7 @@ namespace Wreckabulary.Qa
             ids = PartOf(allIds, part);
             yield return QaStep.Named("house_open").Timeout(60).When(_ => Object.FindFirstObjectByType<LobbyMenu>() != null).Do(Open);
             foreach (string id in ids)
-                yield return QaStep.Named("house_" + id.ToLowerInvariant()).Timeout(30).Do(c => Exercise(c, id));
+                yield return QaStep.Named("house_" + id.ToLowerInvariant()).Timeout(TimeoutFor(id)).Do(c => Exercise(c, id));
             yield return QaStep.Named("house_return").Timeout(40).Do(Return);
         }
 
@@ -145,9 +152,13 @@ namespace Wreckabulary.Qa
                 case HandlingFamily.Ranged:
                     yield return Shoot(context, gear, item, name, record);
                     break;
+                case HandlingFamily.Helper:
+                    yield return Release(context, item, name, record);
+                    break;
                 default:
                     throw new QaFailException($"{id}: no House QA use for {item.Family}.");
             }
+            yield return Reverses(context, item, name, record);
             if (errors.Count > 0) throw new QaFailException($"{id} logged {errors.Count} error(s); first: {errors[0]}");
             records.Add(record);
         }
@@ -211,6 +222,12 @@ namespace Wreckabulary.Qa
                 player.Health.Damaged -= saw;
                 record["blocked_front_hit"] = blocked;
                 yield return context.WaitFrames(2);
+                var turn = Reversing(item);
+                if (turn != null && turn.Delivery == TraitDelivery.WhileRaised)
+                {
+                    yield return context.WaitUntil(() => player.Reversed != ReverseMode.None, 2, item.Id + " to reverse its raiser");
+                    record["holder_reversed"] = player.Reversed.ToString();
+                }
                 yield return Capture(context, name + "_used");
                 if (!blocked) throw new QaFailException(item.Id + " was raised but did not block a frontal hit.");
             }
@@ -222,6 +239,7 @@ namespace Wreckabulary.Qa
             int before = DeployedGear.CountFor(player);
             input.Next.attack = true;
             yield return context.WaitUntil(() => DeployedGear.CountFor(player) > before, item.Deploy.PlaceSeconds + 3f, item.Id + " to be placed");
+            placedAt = Time.time;
             yield return context.WaitFrames(2);
             if (item.Consumable)
             {
@@ -234,7 +252,8 @@ namespace Wreckabulary.Qa
             record["effect"] = effect.ToString();
             record["placed_metres"] = offset.magnitude;
             if (Vector3.Dot(offset.normalized, player.Facing) < 0.9f) throw new QaFailException(item.Id + " was not placed in front.");
-            bool field = effect is DeployEffect.WindField or DeployEffect.SlowField, pad = effect is DeployEffect.JumpPad or DeployEffect.SpeedStrip;
+            bool zone = gear.GetComponent<ReverseZone>();
+            bool field = !zone && effect is DeployEffect.WindField or DeployEffect.SlowField, pad = effect is DeployEffect.JumpPad or DeployEffect.SpeedStrip;
             if ((field && !gear.GetComponent<DeployedPowerField>()) || (pad && !gear.GetComponentInChildren<GearTrigger>()))
                 throw new QaFailException(item.Id + " was placed without its " + effect + " effect.");
             if (effect == DeployEffect.Stash)
@@ -249,9 +268,62 @@ namespace Wreckabulary.Qa
                 player.Inventory.Set("");
                 if (!returned) throw new QaFailException(item.Id + " did not bank and return its placer's letters.");
             }
+            if (zone)
+            {
+                var dummy = director.Dummy;
+                if (!dummy) throw new QaFailException("The range dummy is missing.");
+                dummy.ClearReversal();
+                dummy.Body.position = dummy.transform.position = gear.transform.position + Vector3.right * Mathf.Min(1f, item.Deploy.Radius * .6f);
+                dummy.Body.linearVelocity = Vector3.zero;
+                Physics.SyncTransforms();
+                yield return context.WaitUntil(() => dummy.Reversed != ReverseMode.None, 3, item.Id + " to reverse the dummy standing inside");
+                record["dummy_reversed"] = dummy.Reversed.ToString();
+                record["placer_reversed"] = player.Reversed.ToString();
+                if (player.Reversed != ReverseMode.None) throw new QaFailException(item.Id + " reversed its own placer.");
+            }
             yield return context.WaitSeconds(0.5f);
             yield return Capture(context, name + "_used");
+            if (HelperBook.IsWall(item))
+            {
+                yield return Wall(context, gear, item, record);
+                yield break;
+            }
             Object.Destroy(gear.gameObject);
+            if (zone && director.Dummy) director.Dummy.Respawn(dummyHome);
+        }
+
+        static ItemTrait Reversing(ItemDefinition item) => GameConfig.Current.Tuning?.Trait(item.Id, TraitKind.Reverse);
+
+        IEnumerator Reverses(QaContext context, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            var trait = Reversing(item);
+            if (trait == null) yield break;
+            record["reverse_mode"] = trait.Turn.ToString();
+            record["reverse_delivery"] = trait.Delivery.ToString();
+            record["reverse_seconds"] = trait.Seconds;
+            if (!trait.OnHit) yield break;
+            var dummy = director.Dummy;
+            if (!dummy) throw new QaFailException("The range dummy is missing.");
+            dummy.Health.ResetForRound();
+            dummy.Respawn(dummyHome);
+            player.ClearReversal();
+            yield return context.WaitUntil(() => !dummy.Health.IsInvulnerable, 5, "dummy spawn protection to end");
+            var source = item.Thrown != null ? HitSource.Thrown : HitSource.Melee;
+            var roll = PlayerHealth.TraitRoll;
+            PlayerHealth.TraitRoll = () => 0f;
+            try
+            {
+                for (int blow = 0; blow < trait.Every; blow++)
+                    dummy.Health.ApplyDamage(Hits.Of(player, dummy.transform.position - player.transform.position, source, 1f, 0f, 0f, 0f, item.Id));
+            }
+            finally { PlayerHealth.TraitRoll = roll; }
+            record["dummy_reversed"] = dummy.Reversed.ToString();
+            record["thrower_reversed"] = player.Reversed.ToString();
+            if (dummy.Reversed != trait.Turn) throw new QaFailException($"{item.Id} landed {trait.Every} blow(s) but the dummy is {dummy.Reversed}, not {trait.Turn}.");
+            if (player.Reversed != ReverseMode.None) throw new QaFailException(item.Id + " reversed the player who used it.");
+            yield return context.WaitSeconds(0.4f);
+            yield return Capture(context, name + "_reversed");
+            dummy.ClearReversal();
         }
 
         IEnumerator Spread(QaContext context, HeldWeapon gear, ItemDefinition item, string name, Dictionary<string, object> record)
@@ -308,6 +380,174 @@ namespace Wreckabulary.Qa
             record["durability_left"] = gear ? gear.DurabilityLeft : 0f;
         }
 
+        IEnumerator Wall(QaContext context, HeldWeapon gear, ItemDefinition item, Dictionary<string, object> record)
+        {
+            float lifetime = item.Deploy.LifetimeSeconds;
+            var refusal = DoorwayRefusal(item.Deploy.FootprintX, item.Deploy.FootprintZ);
+            record["wall_lifetime"] = lifetime;
+            record["wall_doorway_refusal"] = refusal.ToString();
+            if (refusal == HelperRefusal.None) throw new QaFailException(item.Id + " would be allowed in a " + RefusalHouse + " doorway.");
+            yield return context.WaitUntil(() => !gear, lifetime + WallSlack + 1f, item.Id + " to come down after " + lifetime + " s");
+            float lived = Time.time - placedAt;
+            record["wall_lived"] = lived;
+            if (Mathf.Abs(lived - lifetime) > WallSlack) throw new QaFailException($"{item.Id} stood {lived:0.00} s, not its {lifetime} s.");
+        }
+
+        static HelperRefusal DoorwayRefusal(float sizeX, float sizeZ)
+        {
+            var layout = GameConfig.Current.HouseFor(RefusalHouse);
+            if (layout == null || layout.Doors.Count == 0) throw new QaFailException(RefusalHouse + " has no doorway to test against.");
+            var door = layout.Doors[0];
+            var room = layout.Room(door.A);
+            var footprint = HelperFootprint.Around(door.X, door.Z, sizeX, sizeZ, 0f);
+            return HelperPlacement.Check(layout, HelperPlaceKind.Wall, door.X, room != null ? room.FloorY : 0f, door.Z, footprint, null, null);
+        }
+
+        static HelperRefusal SpawnRefusal(float size)
+        {
+            var layout = GameConfig.Current.HouseFor(RefusalHouse);
+            if (layout == null || layout.Spawns.Count == 0) throw new QaFailException(RefusalHouse + " has no spawn point to test against.");
+            var spawn = layout.Spawns[0];
+            var room = layout.Room(spawn.Room);
+            var footprint = HelperFootprint.Around(spawn.X, spawn.Z, size, size, 0f);
+            return HelperPlacement.Check(layout, HelperPlaceKind.Stayer, spawn.X, room != null ? room.FloorY : 0f, spawn.Z, footprint, null, null);
+        }
+
+        float TimeoutFor(string id)
+        {
+            if (!GameConfig.Current.Items.TryGet(id, out var item)) return StepSeconds;
+            if (HelperAgent.SpecFor(item, out var spec)) return StepSeconds + spec.Seconds + HelperFrameSheet.Seconds;
+            return HelperBook.IsWall(item) ? StepSeconds + item.Deploy.LifetimeSeconds : StepSeconds;
+        }
+
+        void OnLaunched(HelperAgent agent)
+        {
+            if (agent && agent.Maker == player && !helper) helper = agent;
+        }
+
+        void OnArmed(HelperAgent agent)
+        {
+            if (agent == helper && armedAt < 0f) armedAt = Time.time - agent.LaunchedAt;
+        }
+
+        void OnStruck(HelperAgent agent, PlayerController victim)
+        {
+            if (agent != helper) return;
+            strikes++;
+            if (victim == player) makerBitten++;
+            if (firstStrikeAt >= 0f) return;
+            firstStrikeAt = Time.time - agent.LaunchedAt;
+            if (pauseOnStrike) Time.timeScale = 0f;
+        }
+
+        void OnEnded(HelperAgent agent, HelperEnd end)
+        {
+            if (agent != helper || endedAt >= 0f) return;
+            ended = end;
+            endedAt = Time.time - agent.LaunchedAt;
+        }
+
+        IEnumerator Release(QaContext context, ItemDefinition item, string name, Dictionary<string, object> record)
+        {
+            if (!HelperAgent.SpecFor(item, out var spec)) throw new QaFailException(item.Id + " is a Helper recipe without a helper block.");
+            var dummy = director.Dummy;
+            if (!dummy) throw new QaFailException("The range dummy is missing.");
+            dummy.Respawn(dummyHome);
+            dummy.Body.linearVelocity = Vector3.zero;
+            dummy.FaceTowards(Vector3.back);
+            float gap = spec.IsTrap ? TrapGap : spec.Moves ? MoverGap : Mathf.Clamp(Mathf.Min(spec.Range, spec.Radius) * .6f, .4f, 2f);
+            Stand(dummyHome - Vector3.forward * (PlayerCombat.DeployReach + gap), Vector3.forward);
+            yield return context.WaitSeconds(0.5f);
+            yield return context.WaitUntil(() => !player.Health.IsInvulnerable, 5, "spawn protection to end");
+            record["body"] = spec.Body.ToString();
+            record["pick"] = spec.Pick.ToString();
+            record["bites"] = spec.Bites.ToString();
+            record["attack"] = spec.Attack.ToString();
+            record["life"] = spec.Seconds;
+            if (spec.IsTrap)
+            {
+                var refusal = SpawnRefusal(Mathf.Max(item.Size[0], item.Size[2]));
+                record["spawn_refusal"] = refusal.ToString();
+                if (refusal == HelperRefusal.None) throw new QaFailException(item.Id + " would be allowed on a " + RefusalHouse + " spawn point.");
+            }
+            helper = null;
+            armedAt = firstStrikeAt = endedAt = -1f;
+            strikes = makerBitten = 0;
+            ended = HelperEnd.None;
+            pauseOnStrike = false;
+            string sheetFailure = null;
+            bool sheetDone = false;
+            int sheetFrames = 0;
+            float sheetSpan = 0f;
+            HelperAgent.Launched += OnLaunched;
+            HelperAgent.Armed += OnArmed;
+            HelperAgent.Struck += OnStruck;
+            HelperAgent.Ended += OnEnded;
+            try
+            {
+                input.Next.attack = true;
+                yield return context.WaitUntil(() => helper, HelperAgent.PlaceSeconds + 3f, item.Id + " to hop out of the hand");
+                if (player.Combat.Weapon) throw new QaFailException(item.Id + " was released but is still in the hand.");
+                WatchFrom(helper.transform.position);
+                director.StartCoroutine(HelperFrameSheet.Record(context, name + "_motion", f => { sheetFailure = f; sheetDone = true; },
+                    (n, s) => { sheetFrames = n; sheetSpan = s; sheetDone = true; }));
+                yield return context.WaitUntil(() => armedAt >= 0f || ended != HelperEnd.None, HelperBrain.ArmSeconds + 2f, item.Id + " to arm");
+                if (armedAt < 0f) throw new QaFailException($"{item.Id} ended ({ended}) before it armed.");
+                yield return Capture(context, name + "_armed");
+                if (spec.Pick == HelperPick.Provoker) player.Health.ApplyDamage(Hits.Of(dummy, player.Facing, HitSource.Unarmed, ProvokeDamage, 0f));
+                if (spec.IsTrap && helper)
+                {
+                    dummy.Respawn(helper.transform.position);
+                    dummy.Body.linearVelocity = Vector3.zero;
+                }
+                float makerBefore = player.Health.Current;
+                if (spec.Hurts)
+                {
+                    pauseOnStrike = true;
+                    yield return context.WaitUntil(() => firstStrikeAt >= 0f || ended != HelperEnd.None, spec.Seconds + HelperAgent.LifeGrace + 1f, item.Id + " to strike");
+                    if (firstStrikeAt < 0f) throw new QaFailException($"{item.Id} ended ({ended}) without a strike on the dummy.");
+                    try
+                    {
+                        yield return null;
+                        yield return Capture(context, name + "_strike");
+                    }
+                    finally
+                    {
+                        pauseOnStrike = false;
+                        Time.timeScale = 1f;
+                    }
+                }
+                yield return context.WaitUntil(() => sheetDone, HelperFrameSheet.Seconds + 4f, item.Id + " motion frame sheet");
+                if (sheetFailure != null) throw new QaFailException(sheetFailure);
+                yield return context.WaitUntil(() => ended != HelperEnd.None, spec.Seconds + HelperAgent.LifeGrace + HelperAgent.EndSeconds + 2f, item.Id + " to end");
+                yield return Capture(context, name + "_end");
+                record["armed_at"] = armedAt;
+                record["first_strike_at"] = firstStrikeAt;
+                record["strikes"] = strikes;
+                record["ended_reason"] = ended.ToString();
+                record["ended_at"] = endedAt;
+                record["maker_bitten"] = makerBitten;
+                record["maker_damage"] = makerBefore - player.Health.Current;
+                record["sheet_frames"] = sheetFrames;
+                record["sheet_seconds"] = sheetSpan;
+                if (spec.Bites == HelperBite.Enemies && (makerBitten > 0 || player.Health.Current < makerBefore))
+                    throw new QaFailException(item.Id + " bites foes only but hurt its maker.");
+                int most = spec.Attack == HelperAttack.Burst ? HelperSpec.BurstTargets : spec.Strikes;
+                if (strikes > most) throw new QaFailException($"{item.Id} landed {strikes} hits, more than its {most}.");
+                if (Mathf.Abs(armedAt - HelperBrain.ArmSeconds) > ArmSlack) throw new QaFailException($"{item.Id} armed after {armedAt:0.00} s, not {HelperBrain.ArmSeconds} s.");
+            }
+            finally
+            {
+                HelperAgent.Launched -= OnLaunched;
+                HelperAgent.Armed -= OnArmed;
+                HelperAgent.Struck -= OnStruck;
+                HelperAgent.Ended -= OnEnded;
+                pauseOnStrike = false;
+                Time.timeScale = 1f;
+                if (helper && !helper.IsEnding) helper.Stop(HelperEnd.Life);
+            }
+        }
+
         IEnumerator Return(QaContext context)
         {
             Time.timeScale = 1f;
@@ -323,6 +563,18 @@ namespace Wreckabulary.Qa
             player.Respawn(at);
             player.Body.linearVelocity = Vector3.zero;
             Aim(direction);
+        }
+
+        void WatchFrom(Vector3 focus)
+        {
+            var at = focus - Vector3.forward * WatchBack + Vector3.right * WatchSide;
+            at.y = player.transform.position.y;
+            player.Body.position = at;
+            player.transform.position = at;
+            player.Body.linearVelocity = Vector3.zero;
+            var look = focus - at;
+            look.y = 0f;
+            Aim(Quaternion.AngleAxis(WatchTurn, Vector3.up) * look.normalized);
         }
 
         void Aim(Vector3 direction)

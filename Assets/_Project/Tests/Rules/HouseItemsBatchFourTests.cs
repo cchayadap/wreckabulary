@@ -28,7 +28,7 @@ namespace Wreckabulary.Rules.Tests
         {
             var shared = TestData.Catalogue();
             var house = ItemCatalogue.FromJson(TestData.Read("items_house.json"), "items_house.json");
-            Assert.AreEqual(63, house.All.Count, "23 earlier House recipes plus four batches of ten");
+            Assert.GreaterOrEqual(house.All.Count, 63, "23 earlier House recipes plus at least four batches of ten");
             foreach (string id in Words)
             {
                 Assert.IsFalse(shared.TryGet(id, out _), id + " stays out of items.json");

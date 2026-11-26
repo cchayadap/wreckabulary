@@ -39,8 +39,10 @@ namespace Wreckabulary
         public static void FreezeTransient()
         {
             SummonedThing.ClearAll();
+            foreach (var player in Players) if (player) player.ClearReversal();
             if (!transient) return;
             foreach (var shot in transient.GetComponentsInChildren<Projectile>(true)) Object.Destroy(shot.gameObject);
+            foreach (var shot in transient.GetComponentsInChildren<HelperShot>(true)) Object.Destroy(shot.gameObject);
             foreach (var thrown in transient.GetComponentsInChildren<ThrownGear>(true)) thrown.StopTracking();
             foreach (var tracker in transient.GetComponentsInChildren<ThrowTracker>(true)) Object.Destroy(tracker);
             foreach (var body in transient.GetComponentsInChildren<Rigidbody>(true))

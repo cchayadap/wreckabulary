@@ -18,7 +18,37 @@ namespace Wreckabulary.Rules.Tests
             return items;
         }
 
-        static RecipeSheetText Sheet(string id) => RecipeSheet.Build(Items.Get(id), Tuning);
+        static readonly HelperBook Helpers = HelperBook.FromJson(TestData.Read("items_house.json"));
+
+        static RecipeSheetText Sheet(string id) => RecipeSheet.Build(Items.Get(id), Tuning, Helpers);
+
+        [Test]
+        public void ToysThatActAloneSayWhatTheyDoAndHowLong()
+        {
+            var robot = Sheet("ROBOT");
+            Assert.AreEqual("Toy that chases", robot.Kind);
+            Assert.AreEqual("Chases the one you aim at.", robot.Effects[0]);
+            Assert.AreEqual("8 a hit, 3 hits", Row(robot, "Damage"));
+            Assert.AreEqual("10 s", Row(robot, RecipeSheet.Lasts));
+            Assert.AreEqual("22", Row(robot, RecipeSheet.Toughness));
+            Assert.IsNotNull(Row(robot, "Speed"));
+
+            var trap = Sheet("TRAP");
+            Assert.AreEqual("Trap to place", trap.Kind);
+            Assert.AreEqual("Snaps at foes who step on it.", trap.Effects[0]);
+            Assert.AreEqual("to 60% for 1 s", Row(trap, "Slows"));
+            Assert.IsFalse(trap.Rows.Any(r => r.Label == "Speed"));
+
+            Assert.AreEqual("Turret to place", Sheet("BLASTER").Kind);
+            StringAssert.EndsWith("Even you!", Sheet("CHOMPER").Effects[0]);
+            Assert.AreEqual("Blocks the way for 8 s.", Sheet("CONE").Effects[0]);
+            foreach (var spec in Helpers.All)
+            {
+                var sheet = Sheet(spec.Id);
+                CollectionAssert.DoesNotContain(sheet.Effects, RecipeSheet.NoEffect, spec.Id);
+                Assert.AreNotEqual("Toy that acts alone", sheet.Kind, spec.Id);
+            }
+        }
 
         static string Row(RecipeSheetText sheet, string label)
         {
@@ -106,7 +136,7 @@ namespace Wreckabulary.Rules.Tests
             var families = new HashSet<HandlingFamily>();
             foreach (var item in Items.Enabled)
             {
-                var sheet = RecipeSheet.Build(item, Tuning);
+                var sheet = RecipeSheet.Build(item, Tuning, Helpers);
                 families.Add(item.Family);
                 Assert.AreEqual(item.Id, sheet.Name);
                 Assert.AreNotEqual("Gear", sheet.Kind, item.Id + " has a family case");
@@ -128,7 +158,7 @@ namespace Wreckabulary.Rules.Tests
                 {
                     Assert.IsFalse(string.IsNullOrWhiteSpace(effect), item.Id);
                     Assert.LessOrEqual(effect.Length, effectChars, $"{item.Id}: '{effect}'");
-                    Assert.IsTrue(!char.IsLower(effect[0]) && effect.EndsWith("."), $"{item.Id}: a sentence: '{effect}'");
+                    Assert.IsTrue(!char.IsLower(effect[0]) && (effect.EndsWith(".") || effect.EndsWith("!")), $"{item.Id}: a sentence: '{effect}'");
                 }
                 Assert.AreEqual(item.IsTwoHanded ? "Two hands" : "One hand", Row(sheet, RecipeSheet.Hand));
                 if (item.Consumable) Assert.AreEqual("Once", Row(sheet, RecipeSheet.Uses));
@@ -145,7 +175,7 @@ namespace Wreckabulary.Rules.Tests
             foreach (var item in Items.Enabled)
             {
                 var allowed = Allowed(item);
-                foreach (var row in RecipeSheet.Build(item, Tuning).Rows)
+                foreach (var row in RecipeSheet.Build(item, Tuning, Helpers).Rows)
                     foreach (System.Text.RegularExpressions.Match number in System.Text.RegularExpressions.Regex.Matches(row.Value, @"\d+(\.\d+)?"))
                         Assert.IsTrue(allowed.Contains(number.Value), $"{item.Id} {row.Label} shows {number.Value}, which is not in its data");
             }
@@ -160,6 +190,7 @@ namespace Wreckabulary.Rules.Tests
             if (item.Deploy is { } d) values.AddRange(new[] { d.FootprintX, d.FootprintZ, d.PlaceSeconds, d.Strength, d.Strength * 100f, d.LifetimeSeconds, d.Radius, d.ArcDegrees });
             if (item.Use is { } u) values.AddRange(new[] { u.Amount, (u.Amount - 1f) * 100f, u.Seconds, u.ChannelSeconds });
             if (item.Ranged is { } r) values.AddRange(new[] { r.Damage, r.FullDamage, r.Speed, r.FullSpeed, r.DrawSeconds });
+            if (Helpers.TryGet(item.Id, out var h)) values.AddRange(new[] { h.Damage, h.Strikes, h.Slow * 100f, h.SlowSeconds, h.Speed, h.Seconds, h.Health });
             var set = new HashSet<string>(StringComparer.Ordinal);
             foreach (float v in values) { set.Add(RecipeSheet.N(v)); set.Add(RecipeSheet.N(v, "0")); }
             return set;

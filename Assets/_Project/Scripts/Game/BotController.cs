@@ -21,7 +21,7 @@ namespace Wreckabulary
     [DefaultExecutionOrder(-100)]
     public sealed class BotController : MonoBehaviour
     {
-        enum Quarry { None, Opponent, Tile, Gear, Furniture, Hold }
+        enum Quarry { None, Opponent, Tile, Gear, Furniture, Hold, Helper }
 
         const float ThinkSeconds = .3f, CraftSeconds = 1f, DropSeconds = 1.2f, JunkSeconds = 8f, ScanSeconds = 1f, GearPreference = 3f, GearPatience = 4f;
         const float GoalUseSeconds = .5f, NeedlessFurniture = 15f, HoldGuard = 6f, HoldDetour = 10f;
@@ -51,6 +51,8 @@ namespace Wreckabulary
         bool goalFights;
         float nextGoalUse;
         Vector3 holdAt;
+        HelperAgent chasedHelper, ignoredHelper;
+        float helperSince, ignoreHelperUntil;
         readonly List<string> wanted = new();
         readonly bool[] useful = new bool[26];
 
@@ -68,8 +70,17 @@ namespace Wreckabulary
             if (player && player.Summoner) player.Summoner.Summoned += OnSummoned;
         }
 
-        void OnEnable() => HeldWeapon.MeleeStarted += OnSwing;
-        void OnDisable() => HeldWeapon.MeleeStarted -= OnSwing;
+        void OnEnable()
+        {
+            HeldWeapon.MeleeStarted += OnSwing;
+            HelperAgent.WindingUp += OnHelperWindingUp;
+        }
+
+        void OnDisable()
+        {
+            HeldWeapon.MeleeStarted -= OnSwing;
+            HelperAgent.WindingUp -= OnHelperWindingUp;
+        }
         void OnDestroy() => Unhook();
 
         void Unhook()
@@ -144,7 +155,7 @@ namespace Wreckabulary
             if (direction.sqrMagnitude > 0f)
             {
                 if (Physics.SphereCast(at + Vector3.up * .4f, .25f, direction, out var hit, .85f, World.GroundMask,
-                    QueryTriggerInteraction.Ignore) && hit.normal.y < .6f && hit.rigidbody != player.Body && (!target || !hit.transform.IsChildOf(target)))
+                    QueryTriggerInteraction.Ignore) && BotTactics.SteersAround(hit.normal.y) && hit.rigidbody != player.Body && (!target || !hit.transform.IsChildOf(target)))
                 {
                     float turn = 55f + player.Index * 12f;
                     var usual = Quaternion.Euler(0f, turn, 0f) * direction;
@@ -152,6 +163,7 @@ namespace Wreckabulary
                     direction = !NearStairs(layout, waypoint, .8f) && NearStairs(layout, at + usual * .85f, .4f)
                         && !NearStairs(layout, at + other * .85f, .4f) ? other : usual;
                 }
+                direction = AroundTraps(at, direction);
                 c.move = new Vector2(direction.x, direction.z);
             }
             if (!evacuating && !downed)
@@ -159,6 +171,7 @@ namespace Wreckabulary
                 React(ref c);
                 ServeGoal(ref c);
             }
+            c.move = player.SteerReversed(c.move);
             stuckTime = c.move.sqrMagnitude > .2f && World.Flat(at - lastPosition).sqrMagnitude < .0004f
                 ? stuckTime + Time.deltaTime : 0f;
             if (stuckTime > .7f && Time.time >= nextEscape)
@@ -170,6 +183,64 @@ namespace Wreckabulary
             }
             lastPosition = at;
             return c;
+        }
+
+        Vector3 AroundTraps(Vector3 at, Vector3 direction)
+        {
+            var helpers = HelperAgent.All;
+            var ahead = at + direction * BotTactics.TrapProbe;
+            for (int i = 0; i < helpers.Count; i++)
+            {
+                var h = helpers[i];
+                if (!h || h.Spec == null) continue;
+                var p = h.transform.position;
+                if (!SameLevel(p, at) || !BotTactics.StepsAroundTrap(h.WouldBite(player), h.Spec.IsTrap, h.IsEnding, World.Flat(ahead - p).magnitude, h.Spec.Radius)) continue;
+                var away = World.Flat(at - p);
+                if (away.sqrMagnitude < 1e-4f) return direction;
+                if (away.magnitude <= h.Spec.Radius) return away.normalized;
+                var side = new Vector3(away.z, 0f, -away.x).normalized;
+                return Vector3.Dot(side, direction) >= 0f ? side : -side;
+            }
+            return direction;
+        }
+
+        HelperAgent HostileHelper(Vector3 at, bool armed)
+        {
+            if (ignoredHelper && Time.time >= ignoreHelperUntil) ignoredHelper = null;
+            bool chasing = quarry == Quarry.Helper && chasedHelper && target == chasedHelper.transform;
+            float chased = chasing ? Time.time - helperSince : 0f;
+            if (chasing && BotTactics.GivesUpOnHelper(chased))
+            {
+                ignoredHelper = chasedHelper;
+                ignoreHelperUntil = Time.time + BotTactics.HelperRest;
+            }
+            HelperAgent best = null;
+            float bestDistance = float.MaxValue;
+            var helpers = HelperAgent.All;
+            for (int i = 0; i < helpers.Count; i++)
+            {
+                var h = helpers[i];
+                if (!h || h == ignoredHelper || h.Spec == null || h.Spec.IsTrap) continue;
+                var p = h.transform.position;
+                if (!SameLevel(p, at)) continue;
+                float distance = World.Flat(p - at).magnitude;
+                if (!BotTactics.SmashesHelper(armed, h.WouldBite(player), h.IsEnding, distance, h == chasedHelper && chasing ? chased : 0f)) continue;
+                if (distance < bestDistance) { bestDistance = distance; best = h; }
+            }
+            if (best && (!chasing || best != chasedHelper)) helperSince = Time.time;
+            chasedHelper = best;
+            return best;
+        }
+
+        void OnHelperWindingUp(HelperAgent helper)
+        {
+            if (!player || !helper || helper.Spec == null || !player.CanAct) return;
+            Vector3 mine = player.transform.position, theirs = helper.transform.position;
+            var offset = World.Flat(mine - theirs);
+            if (!SameLevel(mine, theirs) || !BotTactics.AvoidsHelper(helper.WouldBite(player), helper.Phase, offset.magnitude, helper.Spec.Range, helper.Spec.Windup)) return;
+            threatFrom = offset.sqrMagnitude > 1e-4f ? -offset.normalized : player.Facing;
+            reactAt = Time.time + BotTactics.ReactionSeconds;
+            threatEnds = Time.time + helper.Spec.Windup;
         }
 
         PlayerController DownedTeammate(Vector3 at)
@@ -209,6 +280,8 @@ namespace Wreckabulary
             bool armed = planGoal != null ? goalFights && GoalSlot() >= 0 : player.Summoner.Needs.Armed;
             var opponent = World.NearestOpponent(player, at);
             bool close = opponent && Vector3.Distance(opponent.transform.position, at) < BotTactics.CloseQuarters;
+            var helper = HostileHelper(at, armed);
+            if (helper) { Hunt(helper.transform, Quarry.Helper); return; }
             if (armed && HoldTheMiddle(at, here, opponent)) return;
             if (opponent && (armed || close)) { Hunt(opponent.transform, Quarry.Opponent); return; }
             if (!armed)

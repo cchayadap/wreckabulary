@@ -196,6 +196,13 @@ namespace Wreckabulary
                 controller.Slow(daze.Amount, daze.Seconds);
                 if (daze.Delivery is TraitDelivery.Chance or TraitDelivery.BuildUp) Proc("DAZED", at, new Color(.72f, .7f, 1f));
             }
+            var reverse = tuning.Trait(hit.ItemId, TraitKind.Reverse);
+            if (reverse != null && reverse.OnHit && controller && hit.AttackerId != controller.Index && Lands(reverse, blow))
+            {
+                var before = controller.Reversed;
+                if (controller.Reverse(reverse.Turn, reverse.Seconds, hit.ItemId) && controller.Reversed != before)
+                    Proc(Reversal.Proc(controller.Reversed), at, ReverseZone.Tint(controller.Reversed));
+            }
         }
 
         void Update()

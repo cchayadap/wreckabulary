@@ -56,7 +56,7 @@ namespace Wreckabulary
         const float CraftStatusFont = 20f, CraftStatusMinFont = 15f, CraftStatusHeight = 30f;
         const float ComposerPad = 20f, ComposerRowGap = 10f, ComposerWellHeight = 75f, ComposerLineMax = 610f, ComposerEdgeRoom = 32f;
         const float ComposerTileWidth = 47.5f, ComposerTileHeight = 55f, ComposerTileGap = 7.5f, ComposerArrowRoom = 42f, ComposerLetterFont = 32f;
-        const float ComposerTapWidth = 104f, ComposerCloseSize = 40f, ComposerSpawnY = 262f, ComposerHintFont = 15f, ComposerCaretWidth = 4f, ComposerLineOutline = .26f;
+        const float ComposerTapWidth = 104f, ComposerCloseSize = 40f, ComposerSpawnY = 262f, ComposerHintFont = 15f, ComposerCaretWidth = 4f, ComposerLineOutline = .7f, ComposerLineDilate = .3f;
         const int ComposerTileRadius = 9, ComposerSlotStroke = 2;
         const float StatLabelFont = 15f, StatLabelSpacing = 4f;
         const float RewardChipHeight = 64f, RewardChipPad = 22f, RewardSpacing = 14f, RewardCoin = 40f, RewardLip = 5f, RewardCoinsFont = 36f, RewardLineFont = 20f;
@@ -989,7 +989,13 @@ namespace Wreckabulary
             line.alignment = TextAlignmentOptions.Midline;
             line.textWrappingMode = TextWrappingModes.NoWrap; line.overflowMode = TextOverflowModes.Overflow;
             OnGameText(line); AddHudShadow(line);
-            line.outlineWidth = ComposerLineOutline; line.outlineColor = Ink; line.fontStyle = FontStyles.Bold;
+            var ink = line.fontMaterial;
+            ink.EnableKeyword(ShaderUtilities.Keyword_Outline);
+            ink.SetColor("_OutlineColor", Ink);
+            ink.SetFloat("_OutlineWidth", ComposerLineOutline);
+            ink.SetFloat("_FaceDilate", ComposerLineDilate);
+            ShaderUtilities.UpdateShaderRatios(ink);
+            line.UpdateMeshPadding();
             return line;
         }
 

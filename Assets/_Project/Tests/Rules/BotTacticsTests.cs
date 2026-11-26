@@ -81,6 +81,78 @@ namespace Wreckabulary.Rules.Tests
         }
 
         [Test]
+        public void BotsStepAwayOnlyFromAHostileHelperWindingUpInReach()
+        {
+            var robot = HelperTestSpecs.Robot();
+            Assert.IsTrue(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, 1f, robot.Range, robot.Windup));
+            Assert.IsTrue(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, robot.Range + BotTactics.DodgeMargin, robot.Range, robot.Windup), "the edge of its reach");
+            Assert.IsFalse(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, robot.Range + BotTactics.DodgeMargin + .1f, robot.Range, robot.Windup), "out of reach");
+            Assert.IsFalse(BotTactics.AvoidsHelper(false, HelperPhase.WindUp, 1f, robot.Range, robot.Windup), "it would not bite this bot");
+            foreach (var phase in new[] { HelperPhase.Arming, HelperPhase.Idle, HelperPhase.Chase, HelperPhase.Strike, HelperPhase.Cooldown, HelperPhase.Done })
+                Assert.IsFalse(BotTactics.AvoidsHelper(true, phase, 1f, robot.Range, robot.Windup), phase.ToString());
+            var blaster = HelperTestSpecs.Blaster();
+            Assert.IsTrue(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, 3f, blaster.Range, blaster.Windup), "a turret's shot is dodged too");
+        }
+
+        [Test]
+        public void TouchHelpersStrikeTooFastToDodgeSoBotsDoNotTry()
+        {
+            foreach (var quick in new[] { HelperTestSpecs.Rabbit(), HelperTestSpecs.Patrol(), HelperTestSpecs.Spikes(), HelperTestSpecs.Trap() })
+                Assert.IsFalse(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, .5f, quick.Range, quick.Windup), quick.Id);
+            foreach (var slow in new[] { HelperTestSpecs.Robot(), HelperTestSpecs.Terrier(), HelperTestSpecs.Blaster(), HelperTestSpecs.Chomper(), HelperTestSpecs.Cracker() })
+                Assert.IsTrue(BotTactics.AvoidsHelper(true, HelperPhase.WindUp, .5f, slow.Range, slow.Windup), slow.Id);
+            Assert.GreaterOrEqual(HelperCaps.MinTelegraph, BotTactics.ReactionSeconds + BotTactics.HelperDodgeLead, "every telegraphed strike leaves time to react");
+        }
+
+        [Test]
+        public void BotsSmashOnlyAHostileHelperCloseByWhileArmedAndNotForEver()
+        {
+            Assert.IsTrue(BotTactics.SmashesHelper(true, true, false, 1.5f, 0f));
+            Assert.IsTrue(BotTactics.SmashesHelper(true, true, false, BotTactics.HelperReach, 0f));
+            Assert.IsFalse(BotTactics.SmashesHelper(true, true, false, BotTactics.HelperReach + .1f, 0f), "too far to bother");
+            Assert.IsFalse(BotTactics.SmashesHelper(false, true, false, 1f, 0f), "bare hands keep away");
+            Assert.IsFalse(BotTactics.SmashesHelper(true, false, false, 1f, 0f), "its own side's helper is left alone");
+            Assert.IsFalse(BotTactics.SmashesHelper(true, true, true, 1f, 0f), "one already puffing away");
+            Assert.IsTrue(BotTactics.SmashesHelper(true, true, false, 1f, BotTactics.HelperPatience - .01f));
+            Assert.IsFalse(BotTactics.SmashesHelper(true, true, false, 1f, BotTactics.HelperPatience), "a bot gives up after its patience");
+            Assert.IsFalse(BotTactics.GivesUpOnHelper(BotTactics.HelperPatience - .01f));
+            Assert.IsTrue(BotTactics.GivesUpOnHelper(BotTactics.HelperPatience));
+            Assert.Greater(BotTactics.HelperRest, 0f, "a helper it gave up on is left alone for a while");
+        }
+
+        [Test]
+        public void BotsWalkRoundTrapsThatWouldBiteThemAndOverTheirOwnSide()
+        {
+            var spikes = HelperTestSpecs.Spikes();
+            const int maker = 0, makerTeam = 0, mate = 1, foe = 2, foeTeam = 1;
+            bool bitesFoe = HelperTargeting.Bites(spikes, maker, makerTeam, foe, foeTeam);
+            bool bitesMate = HelperTargeting.Bites(spikes, maker, makerTeam, mate, makerTeam);
+            bool bitesMaker = HelperTargeting.Bites(spikes, maker, makerTeam, maker, makerTeam);
+            Assert.IsTrue(BotTactics.StepsAroundTrap(bitesFoe, spikes.IsTrap, false, spikes.Radius, spikes.Radius));
+            Assert.IsTrue(BotTactics.StepsAroundTrap(bitesFoe, spikes.IsTrap, false, spikes.Radius + BotTactics.TrapMargin, spikes.Radius));
+            Assert.IsFalse(BotTactics.StepsAroundTrap(bitesFoe, spikes.IsTrap, false, spikes.Radius + BotTactics.TrapMargin + .05f, spikes.Radius));
+            Assert.IsFalse(BotTactics.StepsAroundTrap(bitesMate, spikes.IsTrap, false, 0f, spikes.Radius), "a teammate's spikes never hurt, so no detour");
+            Assert.IsFalse(BotTactics.StepsAroundTrap(bitesMaker, spikes.IsTrap, false, 0f, spikes.Radius), "nor the maker's own");
+            Assert.IsFalse(BotTactics.StepsAroundTrap(bitesFoe, spikes.IsTrap, true, 0f, spikes.Radius), "an ending trap is harmless");
+            var robot = HelperTestSpecs.Robot();
+            Assert.IsFalse(BotTactics.StepsAroundTrap(true, robot.IsTrap, false, 0f, robot.Radius), "only traps are walked round");
+            var anyone = HelperTestSpecs.Trap();
+            anyone.Bites = HelperBite.Anyone;
+            Assert.IsTrue(BotTactics.StepsAroundTrap(HelperTargeting.Bites(anyone, maker, makerTeam, maker, makerTeam), anyone.IsTrap, false, 0f, anyone.Radius),
+                "a bite-anyone trap is avoided even by its maker");
+            Assert.Greater(BotTactics.TrapProbe, spikes.Radius * .5f, "the bot looks far enough ahead to turn before it steps on");
+        }
+
+        [Test]
+        public void WallsAndFurnitureAreSteeredRoundButFloorsAndRampsAreNot()
+        {
+            Assert.IsTrue(BotTactics.SteersAround(0f), "a wall face");
+            Assert.IsTrue(BotTactics.SteersAround(.5f), "a steep slope");
+            Assert.IsFalse(BotTactics.SteersAround(BotTactics.ObstacleNormal), "a walkable ramp");
+            Assert.IsFalse(BotTactics.SteersAround(1f), "the floor");
+        }
+
+        [Test]
         public void JunkIsTheLetterNoWantedRecipeNeeds()
         {
             Assert.AreEqual('Q', BotTactics.Junk("BATQ".ToCharArray(), new[] { "BAT" }));

@@ -126,6 +126,12 @@ MonoBehaviour:
   - key: Items/BLADE
     model: {fileID: -927199367670048503, guid: d26544e2b53969455e5e25d19eb17ff0, type: 3}
     clips: []
+  - key: Items/BLASTER
+    model: {fileID: 7167704505686071539, guid: ddb997ae39bd84046ab022ec2dd1ba48, type: 3}
+    clips: []
+  - key: Items/BLOCKS
+    model: {fileID: 3588977749614925631, guid: eb970bdd5a1672f4a900b1dc90cb0b4c, type: 3}
+    clips: []
   - key: Items/BOMB
     model: {fileID: -927199367670048503, guid: 1d6f506bdd28a2344f18b71ad641c50f, type: 3}
     clips: []
@@ -171,8 +177,17 @@ MonoBehaviour:
   - key: Items/CHILI
     model: {fileID: 1734169758813660849, guid: dbf3a449f9d192241be0e6b56bad0620, type: 3}
     clips: []
+  - key: Items/CHOMPER
+    model: {fileID: 3169158776323878325, guid: e7e65a5389462c54295c4b2b27557e48, type: 3}
+    clips: []
   - key: Items/CLOCK
     model: {fileID: -927199367670048503, guid: f226f1e7443f920f89f90cbe91b13781, type: 3}
+    clips: []
+  - key: Items/COMPASS
+    model: {fileID: 717455012381437113, guid: 17269304e1fcb7a43b2ffdf4825df88e, type: 3}
+    clips: []
+  - key: Items/CONE
+    model: {fileID: 5068527233110192797, guid: 94ed3c0f882773c479de78408c2e925c, type: 3}
     clips: []
   - key: Items/CRAB
     model: {fileID: 2093041501280403191, guid: a40d2414dfa88c84ba923bf1e6b856c4, type: 3}
@@ -195,6 +210,9 @@ MonoBehaviour:
   - key: Items/FENCE
     model: {fileID: 465974351734385322, guid: bfc6609967a86c648b955c981b0b2260, type: 3}
     clips: []
+  - key: Items/FLIPPER
+    model: {fileID: 6989884899475443565, guid: bb2389818434bb347b6e0ab884f7b782, type: 3}
+    clips: []
   - key: Items/FOAM
     model: {fileID: -927199367670048503, guid: 617603142d322fdcb271d92af4941f66, type: 3}
     clips: []
@@ -203,6 +221,9 @@ MonoBehaviour:
     clips: []
   - key: Items/HELMET
     model: {fileID: 4331709214141753489, guid: 0d31b76fcfc7d6b438071aa337e36b92, type: 3}
+    clips: []
+  - key: Items/HOOP
+    model: {fileID: 4666872513828867043, guid: 410dee86a8dc2ee42bf56fe3d5b2080b, type: 3}
     clips: []
   - key: Items/HOSE
     model: {fileID: 7669269034310421555, guid: 5dea809d35c93f24f8a9b05a635a6ce7, type: 3}
@@ -252,6 +273,9 @@ MonoBehaviour:
   - key: Items/PAN
     model: {fileID: -927199367670048503, guid: ebeef2e8c3ed36fbf9bb92a313c0cc6c, type: 3}
     clips: []
+  - key: Items/PATROL
+    model: {fileID: 2425345462175566515, guid: 613cddb094525f54dbe76b5ea1a8e6f9, type: 3}
+    clips: []
   - key: Items/PEAR
     model: {fileID: 4998145928066642486, guid: 1fbd355e7a7a866429a5f87c47191fdb, type: 3}
     clips: []
@@ -282,6 +306,9 @@ MonoBehaviour:
   - key: Items/POTION
     model: {fileID: 5099804895934995927, guid: 9e68e43a93321ed43aa145602e6c87a0, type: 3}
     clips: []
+  - key: Items/RABBIT
+    model: {fileID: 7413443383968569218, guid: 17267b1bffec3cb4596dd15e65c4381e, type: 3}
+    clips: []
   - key: Items/RACK
     model: {fileID: 5875664085743950737, guid: 4fd345aa1d670d144aba7119a39df585, type: 3}
     clips: []
@@ -293,6 +320,9 @@ MonoBehaviour:
     clips: []
   - key: Items/RAMP
     model: {fileID: 4006653860806392233, guid: 4b57fe2d39590944cbf47ef999a4bd70, type: 3}
+    clips: []
+  - key: Items/ROBOT
+    model: {fileID: 6325906628302686427, guid: ee7bb33113e23c94a979e04006a4f959, type: 3}
     clips: []
   - key: Items/ROCKET
     model: {fileID: 8146724493565267901, guid: 06d71b5368bd39248802c6cd8d6626b1, type: 3}
@@ -324,6 +354,12 @@ MonoBehaviour:
   - key: Items/SPEAR
     model: {fileID: -927199367670048503, guid: 31340ad237be57e76e8319d7dafcab86, type: 3}
     clips: []
+  - key: Items/SPIKES
+    model: {fileID: 3847764887666050048, guid: 01fc7949fb534d54492b4757e3eb4ed7, type: 3}
+    clips: []
+  - key: Items/SPINNER
+    model: {fileID: 3253600697221575998, guid: 3cc135849eaba91419e07bf95d83f75a, type: 3}
+    clips: []
   - key: Items/SPOON
     model: {fileID: 9202336836816670491, guid: 854d9282017c22440a3f429c3c8273bd, type: 3}
     clips: []
@@ -339,6 +375,9 @@ MonoBehaviour:
   - key: Items/TENT
     model: {fileID: 4121061669034569694, guid: 19e3b2faf30cc4b43a2825ac387132a3, type: 3}
     clips: []
+  - key: Items/TERRIER
+    model: {fileID: 7979861504990514705, guid: f59cd87d2411a6c4283886cc9ead511b, type: 3}
+    clips: []
   - key: Items/TOASTER
     model: {fileID: 5827516338847027849, guid: 7592340e0a93bd146b7085285654d731, type: 3}
     clips: []
@@ -350,6 +389,9 @@ MonoBehaviour:
     clips: []
   - key: Items/TORCH
     model: {fileID: 6150692220516605174, guid: 84254b21504ee584cb758c97bd48e096, type: 3}
+    clips: []
+  - key: Items/TRAP
+    model: {fileID: 5069849086182203560, guid: 77c796acc91a3324991555396c0c2510, type: 3}
     clips: []
   - key: Items/VASE
     model: {fileID: -927199367670048503, guid: 73698a92a9c241ffd63cda2492f8f33a, type: 3}

@@ -610,7 +610,7 @@ def pumpkin(name, mat, at, radii, lobes, groove, dimple=0.0, segments=48, rings=
     return emit(name, bm, mat)
 
 
-def banded(name, mats, profile, at=(0, 0, 0), axis="Z", segments=48, period=6, stripe=2, wave=0.0, waves=2.0, sharp=None):
+def banded(name, mats, profile, at=(0, 0, 0), axis="Z", segments=48, period=6, stripe=2, wave=0.0, waves=2.0, sharp=None, twist=0.0):
     bm = bmesh.new()
     low, high = min(z for _, z in profile), max(z for _, z in profile)
     rings = []
@@ -618,7 +618,7 @@ def banded(name, mats, profile, at=(0, 0, 0), axis="Z", segments=48, period=6, s
         if r < 1e-7:
             rings.append([bm.verts.new((0.0, 0.0, z))])
             continue
-        shift = wave * math.sin(2 * math.pi * waves * (z - low) / (high - low))
+        shift = wave * math.sin(2 * math.pi * waves * (z - low) / (high - low)) + twist * (z - low) / (high - low)
         rings.append([bm.verts.new((r * math.cos(2 * math.pi * i / segments + shift), r * math.sin(2 * math.pi * i / segments + shift), z))
                       for i in range(segments)])
     for a, b in zip(rings, rings[1:]):

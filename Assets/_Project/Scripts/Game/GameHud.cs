@@ -622,7 +622,7 @@ namespace Wreckabulary
                 bagHands[i] = MakeBagHand($"Bag hand {i + 1}", bagHandsRow, new Vector2(i * 193.5f, 0f), i, () => { if (!BagDragging) SelectHand(slot); });
             }
             bagEffectsRow = Row("Effects");
-            foreach (var effect in new[] { "Effect 1", "Effect 2", "Effect 3", "Effect 4" })
+            foreach (var effect in new[] { "Effect 1", "Effect 2", "Effect 3", "Effect 4", "Effect 5" })
             {
                 var chip = MakeChip(effect, bagEffectsRow);
                 var icon = GlyphImage("Glyph", chip, new Vector2(.5f, .5f), Vector2.zero, 28f, "bubble", BagInk);
@@ -824,7 +824,7 @@ namespace Wreckabulary
         static Color FactColour(FactKind kind) => kind switch
         {
             FactKind.Heavy => Hex(0x8cc8ff), FactKind.Daze => Hex(0xcdb4ff), FactKind.Bleed => Hex(0xff9a8a),
-            FactKind.Crush => Hex(0xffc568), FactKind.Guard or FactKind.Swift => Hex(0x9ff8d3), _ => Hex(0xe2dccd),
+            FactKind.Crush => Hex(0xffc568), FactKind.Guard or FactKind.Swift => Hex(0x9ff8d3), FactKind.Reverse => Hex(0xffd15c), _ => Hex(0xe2dccd),
         };
 
         static Color TierColour(RecipeTier tier) => tier switch
@@ -1174,20 +1174,22 @@ namespace Wreckabulary
             var health = shown ? LocalPlayer.Health : null;
             int shield = health ? Mathf.CeilToInt(health.Bubble) : 0;
             bool bleeding = health && health.BleedingLeft > 0f, slowed = shown && LocalPlayer.SlowLeft > 0f;
-            int key = shown ? shield * 4 + (bleeding ? 2 : 0) + (slowed ? 1 : 0) : -1;
-            if (key != effectsShown) { effectsShown = key; effects.text = EffectsLine(shield, bleeding, slowed); }
+            var turn = shown ? LocalPlayer.Reversed : ReverseMode.None; int turnLeft = turn == ReverseMode.None ? 0 : Reversal.HudSeconds(LocalPlayer.ReversedLeft);
+            int key = shown ? ((shield * 4 + (bleeding ? 2 : 0) + (slowed ? 1 : 0)) * 4 + (int)turn) * 100 + Mathf.Min(99, turnLeft) : -1;
+            if (key != effectsShown) { effectsShown = key; effects.text = EffectsLine(shield, bleeding, slowed, turn, turnLeft); }
             bool on = effects.text.Length > 0;
             if (effects.gameObject.activeSelf != on) effects.gameObject.SetActive(on);
             var at = vitals.anchoredPosition + new Vector2(VitalsBarX, solo ? PlayerBar.SoloTall + EffectsGap : 0f);
             if (effects.rectTransform.anchoredPosition != at) effects.rectTransform.anchoredPosition = at;
         }
 
-        string EffectsLine(int shield, bool bleeding, bool slowed)
+        string EffectsLine(int shield, bool bleeding, bool slowed, ReverseMode turn = ReverseMode.None, float turnLeft = 0f)
         {
             sb.Clear();
             if (shield > 0) sb.Append('+').Append(shield).Append(" SHIELD");
             if (bleeding) sb.Append(sb.Length > 0 ? "  " : "").Append("<color=#FF6B5E>BLEEDING</color>");
             if (slowed) sb.Append(sb.Length > 0 ? "  " : "").Append("<color=#FFC568>SLOWED</color>");
+            if (turn != ReverseMode.None) sb.Append(sb.Length > 0 ? "  " : "").Append("<color=#").Append(Reversal.Tint(turn).ToString("X6")).Append('>').Append(Reversal.HudText(turn, turnLeft)).Append("</color>");
             return sb.ToString();
         }
         void ShowHand(HandView view, int slot, bool detail)
@@ -1358,6 +1360,7 @@ namespace Wreckabulary
                 bool clock = Wreckabulary.UI.ItemArt.TryGet("CLOCK", out var slowIcon, out var slowUv);
                 Effect(clock ? slowIcon : Glyph("timer"), clock ? Color.white : Hex(0xcdb4ff), LocalPlayer.SlowLeft, slowUv);
             }
+            if (LocalPlayer.Reversed != ReverseMode.None) { bool turnPictured = Wreckabulary.UI.ItemArt.TryGet(LocalPlayer.ReversedBy, out var turnIcon, out var turnUv); Effect(turnPictured ? turnIcon : Glyph("speed"), turnPictured ? Color.white : ReverseZone.Tint(LocalPlayer.Reversed), LocalPlayer.ReversedLeft, turnPictured ? turnUv : null); }
             var combat = LocalPlayer.Combat;
             if (combat.IsHolding && !combat.Weapon)
             {

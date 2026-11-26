@@ -11,6 +11,7 @@ namespace Wreckabulary
             recipe = player.Summoner.ResolveRecipe(recipe);
             if (recipe == null) return false;
             if (!GameConfig.Current.Items.TryGet(recipe.word, out var item) || !item.Enabled) return false;
+            if (!HelperAgent.Offered(item, Match.Mode)) return false;
             if (IsChecklistRecipe(player, recipe)) return true;
             if (player.Combat.IsHolding && !player.Combat.Weapon) return false;
             return player.Combat.HasFreeGearSlot;

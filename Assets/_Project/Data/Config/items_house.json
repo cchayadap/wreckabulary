@@ -2307,10 +2307,590 @@
         "breakPower": 0.6
       },
       "notes": "A plush crab whose claws pinch where it lands. Pick it up again."
+    },
+    {
+      "id": "ROBOT",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/ROBOT",
+      "heldScale": 0.7,
+      "grip": [
+        0.0,
+        0.09,
+        0.0
+      ],
+      "size": [
+        0.374,
+        0.567,
+        0.3029
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Walks",
+        "pick": "Aimed",
+        "bites": "Enemies",
+        "attack": "Swing",
+        "damage": 8,
+        "range": 1.1,
+        "windup": 0.45,
+        "cooldown": 0.75,
+        "knockback": 3,
+        "speed": 3.0,
+        "sight": 8,
+        "leash": 10,
+        "seconds": 10,
+        "strikes": 3,
+        "health": 22
+      },
+      "notes": "A wind-up tin robot. Aim at someone and let it go: it marches over and bops them."
+    },
+    {
+      "id": "RABBIT",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/RABBIT",
+      "heldScale": 0.75,
+      "grip": [
+        0.0,
+        0.08,
+        0.0
+      ],
+      "size": [
+        0.23,
+        0.5194,
+        0.2646
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Hops",
+        "pick": "Nearest",
+        "bites": "Enemies",
+        "attack": "Touch",
+        "damage": 7,
+        "range": 0.9,
+        "windup": 0.2,
+        "cooldown": 0.8,
+        "knockback": 4,
+        "speed": 3.8,
+        "sight": 9,
+        "leash": 11,
+        "seconds": 12,
+        "strikes": 4,
+        "health": 24
+      },
+      "notes": "A plush bunny that hops after the nearest foe and bumps them."
+    },
+    {
+      "id": "TERRIER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/TERRIER",
+      "heldScale": 0.95,
+      "grip": [
+        0.0,
+        0.12,
+        0.0
+      ],
+      "size": [
+        0.1575,
+        0.328,
+        0.3993
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Walks",
+        "pick": "Provoker",
+        "bites": "Enemies",
+        "attack": "Swing",
+        "damage": 7,
+        "range": 1.0,
+        "windup": 0.4,
+        "cooldown": 0.7,
+        "knockback": 3,
+        "speed": 3.4,
+        "sight": 8,
+        "leash": 10,
+        "seconds": 10,
+        "strikes": 3,
+        "health": 20
+      },
+      "notes": "A loyal toy pup. It trots at your heel and bites whoever hurts you."
+    },
+    {
+      "id": "BLASTER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/BLASTER",
+      "heldScale": 0.9,
+      "grip": [
+        0.0,
+        0.05,
+        0.0
+      ],
+      "size": [
+        0.318,
+        0.337,
+        0.3976
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Stays",
+        "pick": "Nearest",
+        "bites": "Enemies",
+        "attack": "Shot",
+        "damage": 6,
+        "range": 3.5,
+        "windup": 0.5,
+        "cooldown": 0.9,
+        "knockback": 2,
+        "shotSpeed": 11,
+        "radius": 3.5,
+        "seconds": 18,
+        "strikes": 5,
+        "health": 30
+      },
+      "notes": "A foam dart turret. Put it down and it shoots at foes nearby."
+    },
+    {
+      "id": "CHOMPER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/CHOMPER",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "size": [
+        0.27,
+        0.3024,
+        0.236
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Hops",
+        "pick": "Nearest",
+        "bites": "Anyone",
+        "attack": "Swing",
+        "damage": 10,
+        "range": 1.0,
+        "windup": 0.45,
+        "cooldown": 0.7,
+        "knockback": 4,
+        "speed": 3.8,
+        "sight": 8,
+        "leash": 10,
+        "seconds": 12,
+        "strikes": 5,
+        "health": 30
+      },
+      "notes": "Wind-up chattering teeth that chase anyone near. Even you!"
+    },
+    {
+      "id": "PATROL",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/PATROL",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.04,
+        0.0
+      ],
+      "size": [
+        0.256,
+        0.242,
+        0.3775
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Walks",
+        "pick": "Nearest",
+        "bites": "Enemies",
+        "attack": "Touch",
+        "damage": 6,
+        "range": 0.8,
+        "windup": 0.2,
+        "cooldown": 0.9,
+        "knockback": 4,
+        "speed": 3.0,
+        "sight": 5,
+        "leash": 3,
+        "seconds": 10,
+        "strikes": 4,
+        "health": 24
+      },
+      "notes": "A toy patrol buggy that guards the spot you leave it and bumps the other side."
+    },
+    {
+      "id": "CONE",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/CONE",
+      "heldScale": 0.33,
+      "grip": [
+        0.0,
+        0.05,
+        0.0
+      ],
+      "size": [
+        1.2936,
+        0.523,
+        0.256
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 1,
+      "durability": 30,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.25,
+        "footprint": [
+          1.2936,
+          0.256
+        ],
+        "lifetime": 8
+      },
+      "notes": "Three traffic cones on a bar: a low barrier for 8 seconds. Shots fly over it."
+    },
+    {
+      "id": "BLOCKS",
+      "category": "Furniture",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/BLOCKS",
+      "heldScale": 0.28,
+      "grip": [
+        0.0,
+        0.15,
+        0.0
+      ],
+      "size": [
+        1.594,
+        1.449,
+        0.374
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployCover",
+      "hands": 2,
+      "durability": 120,
+      "deploy": {
+        "effect": "Cover",
+        "place": 0.5,
+        "footprint": [
+          1.594,
+          0.374
+        ],
+        "lifetime": 15
+      },
+      "notes": "A big wall of toy building blocks for 15 seconds."
+    },
+    {
+      "id": "SPIKES",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/SPIKES",
+      "heldScale": 0.4,
+      "grip": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "size": [
+        0.99,
+        0.203,
+        0.99
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Stays",
+        "pick": "Stepper",
+        "bites": "Enemies",
+        "attack": "Touch",
+        "damage": 7,
+        "range": 1.2,
+        "windup": 0.15,
+        "cooldown": 0.8,
+        "knockback": 3,
+        "radius": 1.2,
+        "seconds": 20,
+        "strikes": 6,
+        "health": 40
+      },
+      "notes": "A rubber spike mat. Foes who step on it get poked."
+    },
+    {
+      "id": "TRAP",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": true,
+      "model": "Items/TRAP",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.02,
+        0.0
+      ],
+      "size": [
+        0.3,
+        0.078,
+        0.17
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Helper",
+      "hands": 1,
+      "durability": 0,
+      "helper": {
+        "body": "Stays",
+        "pick": "Stepper",
+        "bites": "Enemies",
+        "attack": "Touch",
+        "damage": 8,
+        "range": 0.6,
+        "windup": 0.15,
+        "cooldown": 1.2,
+        "knockback": 2,
+        "slow": 0.6,
+        "slowSeconds": 1.0,
+        "radius": 0.6,
+        "seconds": 12,
+        "strikes": 1,
+        "health": 12
+      },
+      "notes": "A mousetrap with cheese: one big snap and a slow on the foe who steps on it."
+    },
+    {
+      "id": "SPINNER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/SPINNER",
+      "heldScale": 1.0,
+      "grip": [
+        0.0,
+        0.06,
+        0.0
+      ],
+      "size": [
+        0.258,
+        0.282,
+        0.258
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Thrown",
+      "hands": 1,
+      "durability": 30,
+      "thrown": {
+        "damage": 22,
+        "speed": 18,
+        "lob": false,
+        "recoverable": true,
+        "knockback": 4,
+        "breakPower": 0.8
+      },
+      "notes": "A spinning top that whirls into whoever it hits: for a few seconds their left and right swap. Pick it up again."
+    },
+    {
+      "id": "FLIPPER",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/FLIPPER",
+      "heldScale": 0.7,
+      "grip": [
+        0.0,
+        0.09,
+        0.018
+      ],
+      "size": [
+        0.2377,
+        0.6165,
+        0.1559
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "MeleeSwing",
+      "hands": 1,
+      "durability": 36,
+      "melee": {
+        "damage": 15,
+        "reach": 1.5,
+        "arc": 110,
+        "windup": 0.16,
+        "active": 0.1,
+        "recovery": 0.3,
+        "knockback": 7,
+        "breakPower": 1.2,
+        "hitStun": 0.3
+      },
+      "notes": "A bright swim flipper. Slaps knock players back, and every third slap on the same player swaps their forward and back for a moment."
+    },
+    {
+      "id": "HOOP",
+      "category": "Utilities",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/HOOP",
+      "heldScale": 0.5,
+      "grip": [
+        0.0,
+        0.04,
+        0.4008
+      ],
+      "size": [
+        0.8599,
+        0.08,
+        0.8745
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "DeployZone",
+      "hands": 1,
+      "durability": 30,
+      "deploy": {
+        "effect": "SlowField",
+        "place": 0.5,
+        "radius": 1.6,
+        "strength": 0.9,
+        "lifetime": 8,
+        "arc": 360,
+        "footprint": [
+          0.8599,
+          0.8745
+        ]
+      },
+      "notes": "Lay a hula hoop on the floor: anyone else who steps inside has every direction reversed until a moment after they step out."
+    },
+    {
+      "id": "COMPASS",
+      "category": "Combat",
+      "tier": "Expanded",
+      "enabled": true,
+      "consumable": false,
+      "model": "Items/COMPASS",
+      "heldScale": 0.8,
+      "grip": [
+        0.0,
+        0.158,
+        -0.0588
+      ],
+      "size": [
+        0.316,
+        0.4095,
+        0.1424
+      ],
+      "skins": [
+        "Classic",
+        "Candy",
+        "Arcade"
+      ],
+      "family": "Shield",
+      "hands": 1,
+      "durability": 35,
+      "shield": {
+        "frontArc": 120,
+        "reduction": 0.85,
+        "moveSpeed": 0.8,
+        "raise": 0.1
+      },
+      "notes": "A big toy compass held up like a shield. While it is raised the needle spins: you and everyone within 3 m have every direction reversed."
     }
   ],
   "tuning": {
-    "note": "House-only balance. Tier comes from how hard the word is to spell; plain words carry nothing. Traits land every hit, by chance (chance), on every Nth hit on the same target (every), over time (Bleed, which may deepen up to stacks) or constantly while held (Guard, Swift). items.json and rules.json stay byte-identical for Wordbound and online.",
+    "note": "House-only balance. Tier comes from how hard the word is to spell; plain words carry nothing. Traits land every hit, by chance (chance), on every Nth hit on the same target (every), over time (Bleed, which may deepen up to stacks), constantly while held (Guard, Swift), inside a placed zone (inside) or around a raised shield (radius). Reverse swaps a player's movement directions: mode Mirror (left and right), Flip (forward and back) or Turnabout (both). items.json and rules.json stay byte-identical for Wordbound and online.",
     "timersNote": "House rounds follow the house sizes: the houses are twice as wide and deep (the courtyard 1.5 times) and have about twice the rooms, so rounds run longer and the Movers close a room more often. Only roundTimeLimit and clearOut timings may be overridden here.",
     "unarmed": {
       "damage": 3
@@ -2748,6 +3328,61 @@
             "kind": "Bleed",
             "amount": 1,
             "seconds": 2
+          }
+        ]
+      },
+      "SPINNER": {
+        "traits": [
+          {
+            "kind": "Reverse",
+            "mode": "Mirror",
+            "seconds": 3
+          },
+          {
+            "kind": "Heavy",
+            "amount": 1.2
+          }
+        ]
+      },
+      "FLIPPER": {
+        "traits": [
+          {
+            "kind": "Reverse",
+            "mode": "Flip",
+            "seconds": 3,
+            "every": 3
+          },
+          {
+            "kind": "Heavy",
+            "amount": 1.3
+          },
+          {
+            "kind": "Swift",
+            "amount": 1.05
+          }
+        ]
+      },
+      "HOOP": {
+        "traits": [
+          {
+            "kind": "Reverse",
+            "mode": "Turnabout",
+            "seconds": 1,
+            "inside": true
+          }
+        ]
+      },
+      "COMPASS": {
+        "traits": [
+          {
+            "kind": "Reverse",
+            "mode": "Turnabout",
+            "seconds": 0.75,
+            "radius": 3
+          },
+          {
+            "kind": "Guard",
+            "amount": 0.1
           }
         ]
       }
