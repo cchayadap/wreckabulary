@@ -113,6 +113,12 @@ namespace Wreckabulary
             joins = players; room = builder; deliveries = boxes; hud = display;
         }
 
+        void OnEnable() => Smashable.AddDropGoals(LockedWords);
+
+        void OnDisable() => Smashable.RemoveDropGoals(LockedWords);
+
+        public IEnumerable<string> LockedWords() => doors.Where(d => !d.Open).Select(d => d.Word);
+
         void Start()
         {
             deliveries.Running = false;

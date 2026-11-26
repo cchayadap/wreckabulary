@@ -54,6 +54,7 @@ namespace Wreckabulary
             book = Load();
             Context.WordGoal = this;
             Active = this;
+            Smashable.AddDropGoals(AnswerNeeded);
             Joins.Joined += Listen;
             Panel = gameObject.AddComponent<RiddleRushHud>();
             Panel.Configure(Hud, this);
@@ -62,6 +63,7 @@ namespace Wreckabulary
         void OnDestroy()
         {
             if (Active == this) Active = null;
+            Smashable.RemoveDropGoals(AnswerNeeded);
             StopPulsing();
             foreach (var entry in listening)
                 if (entry.Key && entry.Key.Summoner) entry.Key.Summoner.Summoned -= entry.Value;
@@ -130,6 +132,8 @@ namespace Wreckabulary
         }
 
         protected override void Scoreboard() => Hud.SetScoreboard(Players, score, Target, Race != null);
+
+        public IEnumerable<string> AnswerNeeded() => Playing && Race != null && Race.Current != null ? new[] { Race.Current.Answer } : null;
 
         public string WantedWord(PlayerController player) =>
             Playing && Race != null && player && player.Binding is BotBinding && Race.Knows(player.Index) ? Race.Current.Answer : null;

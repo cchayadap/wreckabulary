@@ -19,7 +19,7 @@ namespace Wreckabulary.Qa
         const string Map = "pinwheel";
         const string AimedId = "QAHAIMED", NearestId = "QAHNEAREST", ProvokerId = "QAHPROVOKER", BiterId = "QAHBITER", GuardId = "QAHGUARD", TrapId = "QAHTRAP", WallId = "QAHWALL";
         const int SeatCount = 3;
-        const float LoadSeconds = 30f, CheckSeconds = 35f, LongCheckSeconds = 50f, Quiet = 4f, BiteWait = 8f, Settle = .6f, RefusalWait = .5f, KeyStandOff = .6f;
+        const float LoadSeconds = 30f, CheckSeconds = 35f, LongCheckSeconds = 50f, Quiet = 4f, BiteWait = 8f, Settle = .6f, RefusalWait = .5f, KeyStandOff = .6f, BagFade = .4f, TrayRefresh = .25f;
         const float Side = 3f, Back = 1.5f, Ahead = 5.5f, Margin = .6f, Grid = .5f, StageClear = 2.2f, FurnitureClear = 7f;
         const float WallLife = 8f, WallSlack = .75f, ProvokeDamage = 2f, RoundEndWait = 15f, TrapRest = 1.6f;
         static readonly Vector3[] Axes = { Vector3.forward, Vector3.right, Vector3.back, Vector3.left };
@@ -67,6 +67,7 @@ namespace Wreckabulary.Qa
             yield return Check("helpers_escape_exit_wall_refused", WallRefusedAtExit);
             yield return Check("helpers_escape_key_wall_refused", WallRefusedAtKey);
             yield return Check("helpers_escape_refuses_attackers", EscapeRefusesAttackers);
+            yield return Check("helpers_escape_letter_rows", EscapeLetterRows);
             yield return QaStep.Named("helpers_return").Timeout(60).Do(Return);
         }
 
@@ -855,6 +856,56 @@ namespace Wreckabulary.Qa
             });
             if (escape.KeysFound != foundBefore) throw new QaFailException("The key was picked up during the check, so the guard was not tested.");
             if (reason != HelperRefusal.Key || placed || !kept || DeployedGear.CountFor(p1) > 0) throw new QaFailException($"A wall beside an Escape key was not refused (reason {reason}, placed {placed}).");
+        }
+
+        IEnumerator EscapeLetterRows(QaContext context)
+        {
+            yield return Clear(context);
+            Ready();
+            var bag = p1.Inventory;
+            bag.ClearBonusRows();
+            int plain = bag.Capacity;
+            bag.Set(new string('A', plain));
+            yield return context.WaitSeconds(TrayRefresh);
+            int plainRows = bag.ShownRows, plainShown = hud.TrayRows, plainTop = hud.TrayTop;
+            yield return Capture(context, "helpers_escape_letter_rows_plain");
+            hud.ScrollTray(BagRows.MostRows);
+            yield return context.WaitSeconds(TrayRefresh);
+            int plainBottom = hud.TrayTop;
+            yield return Capture(context, "helpers_escape_letter_rows_plain_bottom");
+            bool gained = bag.AddBonusRow();
+            int grown = bag.Capacity;
+            bag.Set(new string('E', grown));
+            yield return context.WaitSeconds(TrayRefresh);
+            hud.ScrollTray(-BagRows.MostRows);
+            yield return context.WaitSeconds(TrayRefresh);
+            int grownRows = bag.ShownRows, grownShown = hud.TrayRows, grownTop = hud.TrayTop;
+            yield return Capture(context, "helpers_escape_letter_rows_grown");
+            hud.ScrollTray(BagRows.MostRows);
+            yield return context.WaitSeconds(TrayRefresh);
+            int grownBottom = hud.TrayTop;
+            bool scrolls = hud.TrayScrolls;
+            yield return Capture(context, "helpers_escape_letter_rows_grown_bottom");
+            hud.ToggleBag();
+            yield return context.WaitSeconds(BagFade);
+            bool bagShown = hud.BagOpen;
+            yield return Capture(context, "helpers_escape_letter_rows_bag");
+            hud.ToggleBag();
+            bag.ClearBonusRows();
+            bag.Set("");
+            yield return context.WaitFrames(2);
+            context.Note("helpers_escape_letter_rows", new Dictionary<string, object>
+            {
+                ["capacity"] = plain, ["rows"] = plainRows, ["gained"] = gained, ["capacity_with_row"] = grown, ["rows_with_row"] = grownRows, ["bag_shown"] = bagShown, ["capacity_after"] = bag.Capacity,
+                ["tray_rows"] = plainShown, ["tray_top"] = plainTop, ["tray_bottom"] = plainBottom,
+                ["tray_rows_with_row"] = grownShown, ["tray_top_with_row"] = grownTop, ["tray_bottom_with_row"] = grownBottom, ["tray_scrolls"] = scrolls,
+            });
+            if (plainRows != BagRows.RowsFor(plain) || !gained || grown != plain + BagRows.SlotsPerRow || grownRows != BagRows.RowsFor(grown) || !bagShown || bag.Capacity != plain)
+                throw new QaFailException($"Escape letter rows are wrong ({plain} slots in {plainRows} rows, then {grown} in {grownRows}).");
+            if (plainShown != TrayWindow.ShownRows(plainRows) || grownShown != TrayWindow.ShownRows(grownRows) || plainShown > TrayWindow.MostShownRows || grownShown > TrayWindow.MostShownRows)
+                throw new QaFailException($"The tray shows {plainShown} and {grownShown} rows; at most {TrayWindow.MostShownRows}.");
+            if (plainTop != 0 || plainBottom != TrayWindow.MostTop(plainRows) || grownTop != 0 || grownBottom != TrayWindow.MostTop(grownRows) || scrolls != TrayWindow.Scrolls(grownRows))
+                throw new QaFailException($"The tray window is wrong (top {plainTop} to {plainBottom}, then {grownTop} to {grownBottom}).");
         }
 
         IEnumerator EscapeRefusesAttackers(QaContext context)

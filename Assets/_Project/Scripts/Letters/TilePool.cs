@@ -88,12 +88,21 @@ namespace Wreckabulary
 
         public void BurstFrom(IReadOnlyList<Transform> blocks, string word, Vector3 centre, float force = 4f)
         {
-            for (int i = 0; i < word.Length; i++)
-            {
-                var from = i < blocks.Count && blocks[i] ? blocks[i].position : centre;
-                var dir = ((from - centre).normalized * 0.8f + Random.insideUnitSphere * 0.4f + Vector3.up * 1.2f).normalized;
-                Get(word[i]).Launch(from, dir * force);
-            }
+            for (int i = 0; i < word.Length; i++) LaunchBlock(blocks, word, i, centre, force);
+        }
+
+        public void BurstFrom(IReadOnlyList<Transform> blocks, string word, IReadOnlyList<int> indices, Vector3 centre, float force = 4f)
+        {
+            if (indices == null) { BurstFrom(blocks, word, centre, force); return; }
+            for (int k = 0; k < indices.Count; k++)
+                if (indices[k] >= 0 && indices[k] < word.Length) LaunchBlock(blocks, word, indices[k], centre, force);
+        }
+
+        void LaunchBlock(IReadOnlyList<Transform> blocks, string word, int i, Vector3 centre, float force)
+        {
+            var from = i < blocks.Count && blocks[i] ? blocks[i].position : centre;
+            var dir = ((from - centre).normalized * 0.8f + Random.insideUnitSphere * 0.4f + Vector3.up * 1.2f).normalized;
+            Get(word[i]).Launch(from, dir * force);
         }
     }
 }

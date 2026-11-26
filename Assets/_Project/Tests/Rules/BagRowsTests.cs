@@ -62,7 +62,7 @@ namespace Wreckabulary.Rules.Tests
             Assert.AreEqual(2, BagRows.RowsFor(10));
             Assert.AreEqual(3, BagRows.RowsFor(11));
             Assert.AreEqual(3, BagRows.RowsFor(15));
-            Assert.AreEqual(4, BagRows.RowsFor(20), "Escape the House shows four rows");
+            Assert.AreEqual(4, BagRows.RowsFor(20), "Escape the House holds four rows; the tray shows three of them");
             Assert.AreEqual(5, BagRows.RowsFor(25));
             Assert.AreEqual(5, BagRows.RowsFor(99));
             Assert.AreEqual(1, BagRows.RowOf(9));
@@ -91,9 +91,12 @@ namespace Wreckabulary.Rules.Tests
         public void TheThirdRowTakesTheOldHintLineAndTheStackGrowsUp()
         {
             Assert.AreEqual(198f, BagRows.TrayHeight(3));
-            Assert.AreEqual(268f, BagRows.TrayHeight(4));
-            Assert.AreEqual(338f, BagRows.TrayHeight(5));
-            for (int rows = 3; rows <= 5; rows++)
+            Assert.AreEqual(3, BagRows.MostTrayRows, "the tray never grows past three rows");
+            Assert.AreEqual(2, BagRows.TrayRowsFor(2));
+            Assert.AreEqual(3, BagRows.TrayRowsFor(3));
+            Assert.AreEqual(3, BagRows.TrayRowsFor(4));
+            Assert.AreEqual(3, BagRows.TrayRowsFor(5));
+            for (int rows = 3; rows <= BagRows.MostTrayRows; rows++)
             {
                 float lift = BagRows.TrayLift(rows);
                 Assert.AreEqual(BagRows.TrayHeight(rows) - 176f, lift);
