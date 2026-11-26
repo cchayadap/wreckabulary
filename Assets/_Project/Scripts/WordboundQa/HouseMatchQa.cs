@@ -157,14 +157,17 @@ namespace Wreckabulary.Qa
             if (!pool) throw new QaFailException("The match has no letter tile pool.");
             var before = new HashSet<LetterTile>(pool.Active);
             bool broke = false;
+            string recorded = null;
             float started = Time.time;
             System.Action<Smashable> saw = s =>
             {
                 if (s != target) return;
                 broke = true;
+                recorded = s.Dropped;
                 dropped.AddRange(pool.Active.Where(t => t && !before.Contains(t)));
             };
             Smashable.AnyBroken += saw;
+            target.MustDrop = weaponWord;
             attacker.Inventory.Collects = false;
             try
             {
@@ -192,8 +195,9 @@ namespace Wreckabulary.Qa
                 string letters = new string(dropped.Select(t => t.Letter).OrderBy(c => c).ToArray());
                 context.Note("house_match_smash_seconds", Time.time - started);
                 context.Note("house_match_letters_spawned", letters);
-                if (letters != new string(targetWord.OrderBy(c => c).ToArray()))
-                    throw new QaFailException($"Breaking {targetWord} spawned letters '{letters}' instead of its own letters.");
+                context.Note("house_match_letters_rule", DropRule(targetWord));
+                string problem = DropProblem(targetWord, recorded, letters, weaponWord);
+                if (problem != null) throw new QaFailException($"Breaking {targetWord} spawned letters '{letters}': {problem}.");
                 float settle = Time.realtimeSinceStartup + 3f;
                 while (Time.realtimeSinceStartup < settle && Haloed() < dropped.Count) yield return null;
                 yield return context.WaitSeconds(.2f);
@@ -595,6 +599,32 @@ namespace Wreckabulary.Qa
             }
             finally { seat.Next.move = Vector2.zero; }
             done(reached);
+        }
+
+        static LetterDropTuning Drops => GameConfig.Current.Tuning?.Drops ?? LetterDropTuning.Default;
+
+        static string DropRule(string word)
+        {
+            var drops = Drops;
+            return drops.Partial(Match.Mode) ? $"{drops.FewestFor(word.Length)}-{word.Length} of {word.Length}" : $"all {word.Length}";
+        }
+
+        static string DropProblem(string word, string recorded, string sortedLetters, string goal)
+        {
+            var spare = word.ToList();
+            foreach (char c in sortedLetters)
+                if (!spare.Remove(c)) return $"'{c}' is not one of its own letters";
+            var drops = Drops;
+            int fewest = drops.Partial(Match.Mode) ? drops.FewestFor(word.Length) : word.Length;
+            if (sortedLetters.Length < fewest || sortedLetters.Length > word.Length) return $"{sortedLetters.Length} letters is outside {fewest}-{word.Length}";
+            if (recorded == null || new string(recorded.OrderBy(c => c).ToArray()) != sortedLetters) return $"the piece recorded '{recorded}' as dropped";
+            if (goal != null)
+            {
+                var have = sortedLetters.ToList();
+                foreach (char c in goal)
+                    if (!have.Remove(c)) return $"the planned {goal} needed '{c}', which did not drop";
+            }
+            return null;
         }
 
         static string MeleeFrom(IEnumerable<char> letters)

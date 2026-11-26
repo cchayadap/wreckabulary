@@ -95,6 +95,7 @@ namespace Wreckabulary.Rules
         public float? UnarmedDamage;
         public float? LettersPerHundredSquareMetres;
         public int MinLetters, MaxLetters;
+        public LetterDropTuning Drops { get; private set; } = LetterDropTuning.Default;
         readonly Dictionary<string, JsonNode> timers = new Dictionary<string, JsonNode>(StringComparer.Ordinal);
         static readonly string[] TimerKeys = { "roundTimeLimit", "clearOut" };
         static readonly string[] ClearOutTimerKeys = { "firstAt", "interval", "warn", "fill" };
@@ -139,6 +140,7 @@ namespace Wreckabulary.Rules
                 if (tuning.LettersPerHundredSquareMetres <= 0f || tuning.MinLetters < 1 || tuning.MaxLetters < tuning.MinLetters)
                     throw d.Error("deliveries need a positive density and 1 <= minLetters <= maxLetters");
             }
+            if (t.Has(LetterDropTuning.Key)) tuning.Drops = LetterDropTuning.FromJson(t[LetterDropTuning.Key]);
             if (!t.Has("items")) return tuning;
             foreach (string id in t["items"].Keys)
             {

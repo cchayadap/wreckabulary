@@ -37,7 +37,7 @@ namespace Wreckabulary.Rules
 
     public static class BagRows
     {
-        public const int SlotsPerRow = 5, BaseRows = 2, MostRows = 5, MostBonusRows = 1;
+        public const int SlotsPerRow = 5, BaseRows = 2, MostRows = 5, MostBonusRows = 1, MostTrayRows = 3;
         public const int BaseCells = BaseRows * SlotsPerRow, MostCells = MostRows * SlotsPerRow;
 
         public const float TrayWidth = 500f, TrayBaseHeight = 176f, TrayBottom = 52f, TouchTrayBottom = 24f;
@@ -71,6 +71,8 @@ namespace Wreckabulary.Rules
 
         public static int RowOf(int cell) => cell / SlotsPerRow;
 
+        public static int TrayRowsFor(int rows) => Math.Min(MostTrayRows, Clamp(rows));
+
         public static float TrayHeight(int rows) => Math.Max(TrayBaseHeight, TrayTileTall + TrayStepY * (Clamp(rows) - 1));
 
         public static float TrayLift(int rows) => TrayHeight(rows) - TrayBaseHeight;
@@ -91,6 +93,7 @@ namespace Wreckabulary.Rules
 
         public static TrayFrame Frame(int rows, float width, bool aside, bool touch)
         {
+            rows = TrayRowsFor(rows);
             float tall = TrayHeight(rows);
             float scale = Math.Min(1f, Math.Max(.1f, (width - TrayGutter) / TrayWidth));
             bool side = aside && !touch;

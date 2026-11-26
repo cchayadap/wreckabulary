@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Wreckabulary.Rules;
 
@@ -24,6 +25,25 @@ namespace Wreckabulary
         public bool Invulnerable { get; set; }
         public event Action<Smashable> Broken;
         public static event Action<Smashable> AnyBroken;
+        public bool DropsWhole { get; set; }
+        public string MustDrop { get; set; }
+        public string Dropped { get; private set; } = "";
+        public static System.Random DropRandom { get; set; } = new System.Random();
+        static readonly List<Func<IEnumerable<string>>> dropGoals = new();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetDrops()
+        {
+            dropGoals.Clear();
+            DropRandom = new System.Random();
+        }
+
+        public static void AddDropGoals(Func<IEnumerable<string>> goals)
+        {
+            if (goals != null && !dropGoals.Contains(goals)) dropGoals.Add(goals);
+        }
+
+        public static void RemoveDropGoals(Func<IEnumerable<string>> goals) => dropGoals.Remove(goals);
 
         float graceUntil;
         float initialHealth;
@@ -87,13 +107,15 @@ namespace Wreckabulary
             IsBroken = true;
 
             var pool = TilePool.Instance;
+            var drop = DropIndices();
+            Dropped = LetterDrops.Letters(word, drop);
             if (pool)
             {
                 var centre = TryGetComponent(out Rigidbody rb) ? rb.worldCenterOfMass : transform.position;
                 if (TryGetComponent(out LetterBuilt built) && built.Blocks.Count == word.Length)
-                    pool.BurstFrom(built.Blocks, word, centre);
+                    pool.BurstFrom(built.Blocks, word, drop, centre);
                 else
-                    pool.Burst(word, centre + Vector3.up * 0.3f);
+                    pool.Burst(Dropped, centre + Vector3.up * 0.3f);
             }
             CameraRig.Shake(0.08f);
             if (!Audio.ImpactAudioBridge.VoicesBreak(this)) GameFeedback.Play(GameCue.Break);
@@ -104,6 +126,44 @@ namespace Wreckabulary
             Broken?.Invoke(this);
             AnyBroken?.Invoke(this);
             Destroy(gameObject);
+        }
+
+        public int[] DropIndices()
+        {
+            var tuning = GameConfig.Current.Tuning?.Drops ?? LetterDropTuning.Default;
+            if (DropsWhole || TryGetComponent(out SummonedThing _) || !tuning.Partial(Match.Mode)) return LetterDrops.All(word.Length);
+            var needed = SeatNeeds();
+            LetterDrops.Require(needed, MustDrop);
+            return LetterDrops.Pick(word, tuning, DropRandom, needed);
+        }
+
+        static Dictionary<char, int> SeatNeeds()
+        {
+            var needed = new Dictionary<char, int>();
+            var shared = SharedGoals();
+            bool anyone = false;
+            foreach (var p in World.Players)
+            {
+                if (!p) continue;
+                anyone = true;
+                var own = p.Summoner ? p.Summoner.Objectives : null;
+                var goals = own != null ? new List<string>(own) : new List<string>();
+                goals.AddRange(shared);
+                LetterDrops.RequireFor(needed, goals, p.Inventory ? p.Inventory.Letters : null);
+            }
+            if (!anyone) LetterDrops.RequireFor(needed, shared, null);
+            return needed;
+        }
+
+        static List<string> SharedGoals()
+        {
+            var words = new List<string>();
+            foreach (var source in dropGoals.ToArray())
+            {
+                var goals = source();
+                if (goals != null) words.AddRange(goals);
+            }
+            return words;
         }
     }
 }

@@ -76,6 +76,42 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
+        public IEnumerator ABarredDoorWordAlwaysDropsFromSmashedFurniture()
+        {
+            yield return LoadCrew("Escape");
+            var director = Object.FindAnyObjectByType<EscapeDirector>();
+            yield return Playing(director);
+            var (_, _, word) = FirstBarredDoor(director);
+            CollectionAssert.Contains(director.LockedWords().ToList(), word, "every barred door's word is a drop goal");
+            var randomBefore = Smashable.DropRandom;
+            string padded = word + "QZXJ";
+            bool partial = false;
+            try
+            {
+                for (int seed = 0; seed < 16; seed++)
+                {
+                    foreach (var p in Joins.Players) p.Inventory.Set("");
+                    TilePool.Instance.ReleaseAll();
+                    Smashable.DropRandom = new System.Random(seed);
+                    var box = DeliverySpawner.CreateBox(padded, Joins.Players[0].transform.position + Vector3.forward * 3f);
+                    box.GetComponent<Rigidbody>().isKinematic = true;
+                    box.Break();
+                    string fell = box.Dropped;
+                    var spare = fell.ToList();
+                    Assert.IsTrue(word.All(spare.Remove), $"seed {seed}: {padded} dropped '{fell}', missing letters of the barred {word}");
+                    Assert.That(fell.Length, Is.InRange(word.Length, padded.Length));
+                    if (fell.Length < padded.Length) partial = true;
+                    yield return null;
+                }
+            }
+            finally
+            {
+                Smashable.DropRandom = randomBefore;
+            }
+            Assert.IsTrue(partial, "letters no door needs still drop at random");
+        }
+
+        [UnityTest]
         public IEnumerator TheBarredDoorPanelHasALineForEachPlayerAtADoor()
         {
             yield return LoadCrew("Escape");

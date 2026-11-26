@@ -90,6 +90,8 @@ namespace Wreckabulary.Tests
             for (int i = 1; i <= 10; i++) Assert.IsTrue(tray.Find($"Letter {i}").gameObject.activeSelf, $"tray cell {i}");
             Assert.IsFalse(tray.Find("Letter 11").gameObject.activeSelf, "Two rows of five, like the browser bag.");
             Assert.AreEqual(176f, ((RectTransform)tray).sizeDelta.y, .5f, "two rows keep today's tray");
+            Assert.IsFalse(tray.Find("Letter scroll").gameObject.activeSelf, "Ten slots never scroll, so no arrows.");
+            Assert.IsFalse(tray.Find("Gear slot 1/Wear").gameObject.activeSelf, "An empty hand shows no wear bar.");
             player.Inventory.Set("");
             yield return new WaitForSecondsRealtime(0.12f);
             Assert.IsTrue(tray.Find("Letter 10/Face/Outline").GetComponent<Image>().enabled, "An empty cell keeps a dark edge over light floors.");

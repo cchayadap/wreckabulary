@@ -202,17 +202,33 @@ namespace Wreckabulary.Tests
         }
 
         [UnityTest]
-        public IEnumerator AnEscapeSizedBagShowsFourRows()
+        public IEnumerator AnEscapeSizedBagShowsThreeRowsOfItsFourInTheTray()
         {
             var player = Spawn(20);
             yield return null;
             player.Inventory.Set("ABCDEFGHIJKL");
             GameHud hud = null; RectTransform safe = null;
             yield return Hud(player, (h, s) => { hud = h; safe = s; });
-            yield return TestScenes.WaitUntil(() => hud.TrayRows == 4, Slow, "four rows for twenty letters");
-            Assert.IsTrue(Shown(safe, "Letter bag/Letter 20"));
-            Assert.IsFalse(Shown(safe, "Letter bag/Letter 21"));
+            yield return TestScenes.WaitUntil(() => hud.TrayBagRows == 4, Slow, "four rows for twenty letters");
+            Assert.AreEqual(3, hud.TrayRows, "the tray shows three rows at most");
+            Assert.AreEqual(0, hud.TrayTop, "it starts at the top");
+            Assert.IsTrue(hud.TrayScrolls, "and scrolls to the fourth");
+            Assert.AreEqual(BagRows.TrayHeight(3), ((RectTransform)safe.Find("Letter bag")).sizeDelta.y, .5f, "the tray keeps its three-row size");
+            Assert.IsTrue(Shown(safe, "Letter bag/Letter 15"));
+            Assert.IsFalse(Shown(safe, "Letter bag/Letter 16"));
+            Assert.IsFalse(Shown(safe, "Letter bag/Letter 20"));
             Assert.AreEqual("L", safe.Find("Letter bag/Letter 12/Face/Letter").GetComponent<TMPro.TMP_Text>().text);
+            var handAt = ((RectTransform)safe.Find("Letter bag/Gear slot 1")).anchoredPosition;
+            Assert.AreEqual(BagRows.HandY(0, 3), handAt.y, .5f, "the item slots sit where they sit for three rows");
+            Assert.IsTrue(hud.ScrollTray(1));
+            yield return null;
+            Assert.AreEqual(1, hud.TrayTop);
+            Assert.IsTrue(Shown(safe, "Letter bag/Letter 20"));
+            Assert.IsFalse(Shown(safe, "Letter bag/Letter 5"));
+            Assert.AreEqual(0f, ((RectTransform)safe.Find("Letter bag/Letter 6")).anchoredPosition.y, .5f, "row two is now the top row");
+            Assert.AreEqual(-2f * BagRows.TrayStepY, ((RectTransform)safe.Find("Letter bag/Letter 16")).anchoredPosition.y, .5f, "row four is the third visible row");
+            Assert.IsFalse(hud.ScrollTray(1), "the window stops at the last row");
+            Assert.IsTrue(hud.ScrollTray(-1));
             hud.ToggleBag();
             yield return TestScenes.WaitUntil(() => hud.BagOpen, Slow, "the bag panel");
             yield return new WaitForSecondsRealtime(.2f);
@@ -227,9 +243,14 @@ namespace Wreckabulary.Tests
             float lastBottom = corners[0].y;
             hands.GetWorldCorners(corners);
             Assert.Greater(lastBottom, corners[1].y - .5f, "the fourth row stays above the hand cards");
+            hud.ToggleBag();
+            yield return TestScenes.WaitUntil(() => !hud.BagOpen, Slow, "the bag panel to close");
             Assert.IsTrue(player.Inventory.AddBonusRow(), "Escape grows to 25");
-            yield return TestScenes.WaitUntil(() => hud.TrayRows == 5, Slow, "five rows");
-            Assert.IsTrue(Shown(safe, "Letter bag/Letter 25"));
+            yield return TestScenes.WaitUntil(() => hud.TrayBagRows == 5, Slow, "five rows in the bag");
+            yield return TestScenes.WaitUntil(() => Shown(safe, "Letter bag/Letter 25"), Slow, "the new row scrolled into view");
+            Assert.AreEqual(3, hud.TrayRows);
+            Assert.AreEqual(2, hud.TrayTop);
+            Assert.AreEqual(BagRows.TrayHeight(3), ((RectTransform)safe.Find("Letter bag")).sizeDelta.y, .5f, "nothing grows past three rows");
             Object.Destroy(hud.gameObject);
             Object.Destroy(player.gameObject);
         }

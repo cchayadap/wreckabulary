@@ -778,6 +778,7 @@ namespace Wreckabulary
             ScreenRect(into, GoalPlateShown ? GoalPlate : null);
             ScreenRect(into, safe.Find(ShoppingListHud.RootName) as RectTransform);
             ScreenRect(into, tray);
+            ScreenRect(into, trayScroll);
             ScreenRect(into, spellHint ? spellHint.rectTransform : null);
             ScreenRect(into, vitals);
             ScreenRect(into, effects ? effects.rectTransform : null);

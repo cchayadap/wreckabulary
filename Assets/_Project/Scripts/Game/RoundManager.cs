@@ -13,7 +13,7 @@ namespace Wreckabulary
     public class RoundManager : MonoBehaviour
     {
         public const float BeatScale = .35f, BeatSeconds = .5f;
-        const string FirstMove = "Break furniture → collect its letters → spell items.";
+        const string FirstMove = "Break furniture → collect letters → spell items.";
         public static RoundManager Instance { get; private set; }
         [SerializeField] PlayerJoinManager joins;
         [SerializeField] RoomBuilder room;

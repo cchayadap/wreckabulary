@@ -158,6 +158,7 @@ namespace Wreckabulary
             public RawImage icon, empty;
             public TextMeshProUGUI label, key;
             public GameObject wearTrack;
+            public Color wearColour;
         }
         sealed class BookCard
         {
@@ -420,6 +421,7 @@ namespace Wreckabulary
                 Stretch(cell.outline.rectTransform); cell.outline.sprite = hairRing; cell.outline.type = Image.Type.Sliced;
             }
             craftProgress = Fill("Building", Panel("Progress track", tray, Vector2.zero, new Vector2(0f, -12f), new Vector2(302f, 6f), Vector2.zero, Track), Health);
+            BuildTrayScroll();
             BuildTrayDrag();
         }
 
@@ -713,7 +715,7 @@ namespace Wreckabulary
             view.label = Text("Word", rt, new Vector2(.5f, 0f), new Vector2(0f, 20f), new Vector2(size.x - 16f, 26f), 20f, BagInk);
             view.label.rectTransform.pivot = new Vector2(.5f, 0f);
             var track = Panel("Wear", rt, new Vector2(.5f, 0f), new Vector2(0f, 10f), new Vector2(size.x - 25f, 6f), new Vector2(.5f, 0f), Hex(0xffffff, .16f));
-            view.wear = Fill("Left", track, Health); view.wearTrack = track.gameObject;
+            view.wear = Fill("Left", track, Health); view.wearColour = Health; view.wearTrack = track.gameObject;
             return view;
         }
 
@@ -976,6 +978,7 @@ namespace Wreckabulary
             if (crosshair && crosshair.activeSelf != crossed) crosshair.SetActive(crossed);
             RefreshDrawMeter();
             PopNewRow();
+            WheelTray();
             bool thirdPerson = rig && rig.isActiveAndEnabled && rig.IsThirdPerson;
             if (thirdPerson != trayAside) { trayAside = thirdPerson; ApplySafeArea(); }
             LearnTips(thirdPerson); FadeTip();
@@ -1183,12 +1186,7 @@ namespace Wreckabulary
             if (view.key) view.key.text = HandKeyLabel(LocalPlayer.Binding, slot);
             Wreckabulary.UI.ItemArt.Apply(view.icon, gear ? gear.word : null);
             view.icon.enabled = view.icon.texture;
-            if (view.wearTrack)
-            {
-                int most = gear && gear.Definition != null ? Mathf.Max(1, gear.Definition.Durability) : 0;
-                view.wearTrack.SetActive(detail && gear && most > 0);
-                if (most > 0) view.wear.fillAmount = Mathf.Clamp01(gear.DurabilityLeft / most);
-            }
+            ShowWear(view, gear, carrying);
         }
         void RefreshTray()
         {
@@ -1198,7 +1196,9 @@ namespace Wreckabulary
             for (int i = 0; i < 2; i++) ShowHand(hands[i], i, false);
             var inv = LocalPlayer.Inventory;
             LayTray(inv.ShownRows);
-            FillCells(trayCells, inv);
+            ArrangeLetters(inv);
+            FollowTray(inv);
+            ShowTrayWindow(inv);
             var summon = LocalPlayer.Summoner;
             craftProgress.transform.parent.gameObject.SetActive(summon.IsCrafting);
             craftProgress.fillAmount = summon.CraftProgress;
@@ -1207,13 +1207,21 @@ namespace Wreckabulary
 
         void LayTray(int rows)
         {
-            if (rows == trayRows) return;
-            int was = trayRows;
-            trayRows = rows;
-            tray.sizeDelta = new Vector2(BagRows.TrayWidth, BagRows.TrayHeight(rows));
+            if (rows == trayBagRows) return;
+            int was = trayBagRows;
+            trayBagRows = rows;
+            if (rows > was)
+            {
+                poppedRow = was; rowPopAt = Time.unscaledTime;
+                if (!TrayFrozen) trayTop = TrayWindow.Reveal(trayTop, rows, was * TilesPerRow);
+            }
+            trayTop = TrayWindow.Clamp(trayTop, rows);
+            int shown = TrayWindow.ShownRows(rows);
+            if (shown == trayRows) return;
+            trayRows = shown;
+            tray.sizeDelta = new Vector2(BagRows.TrayWidth, BagRows.TrayHeight(shown));
             for (int i = 0; i < hands.Length; i++)
-                ((RectTransform)hands[i].face.transform).anchoredPosition = new Vector2(BagRows.HandX, BagRows.HandY(i, rows));
-            if (rows > was) { poppedRow = was; rowPopAt = Time.unscaledTime; }
+                ((RectTransform)hands[i].face.transform).anchoredPosition = new Vector2(BagRows.HandX, BagRows.HandY(i, shown));
             ApplySafeArea();
         }
 
@@ -1288,7 +1296,7 @@ namespace Wreckabulary
             binding is GamepadBinding ? ControlHints.PadBag : ControlHints.KeyOf(DesktopBinding.Shared.Bag);
         public static string HandKeyLabel(InputBinding binding, int slot) =>
             binding is GamepadBinding ? ControlHints.PadHand(slot) : slot >= 0 && slot < HandNumbers.Length ? HandNumbers[slot] : (slot + 1).ToString();
-        void FillCells(LetterCell[] cells, LetterInventory inv)
+        void FillCells(LetterCell[] cells, LetterInventory inv, int from = 0, int to = int.MaxValue)
         {
             ArrangeLetters(inv);
             var crafting = LocalPlayer.Summoner.IsCrafting ? LocalPlayer.Summoner.CraftWord ?? "" : "";
@@ -1296,7 +1304,9 @@ namespace Wreckabulary
             for (int i = 0; i < cells.Length; i++)
             {
                 var cell = cells[i];
-                cell.face.transform.parent.gameObject.SetActive(i < shown);
+                var holder = cell.face.transform.parent.gameObject;
+                bool visible = i < shown && i >= from && i < to;
+                if (holder.activeSelf != visible) holder.SetActive(visible);
                 bool held = i < bagOrder.Count, reserved = !held && i < bagOrder.Count + inv.ReservedCount;
                 int r = i - bagOrder.Count;
                 cell.face.color = held ? Tile : reserved ? Reserved : cell.ring ? BagCell : EmptyCell;
@@ -1632,6 +1642,7 @@ namespace Wreckabulary
             view.label = Text("Word", rt, new Vector2(1f, .5f), new Vector2(-10f, -3f), new Vector2(size.x - 96f, 32f), 18f, OnGame, TextAlignmentOptions.Right);
             view.label.rectTransform.pivot = new Vector2(1f, .5f);
             OnGameText(key); OnGameText(view.label);
+            AddSlotWear(view, rt, size.x);
             return view;
         }
         Sprite Icon(TouchAction action)
