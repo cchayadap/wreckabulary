@@ -87,6 +87,7 @@ namespace Wreckabulary
         Vector3 autoWalk;
         Collider[] colliders;
         Transform homeParent;
+        RigidbodyInterpolation freeInterpolation;
         Camera aimCamera;
 
         Vector3 lean, leanVel;
@@ -434,6 +435,8 @@ namespace Wreckabulary
             foreach (var c in colliders) c.enabled = !held;
             if (held)
             {
+                freeInterpolation = Body.interpolation;
+                Body.interpolation = RigidbodyInterpolation.None;
                 homeParent = transform.parent;
                 transform.SetParent(at, false);
                 transform.localPosition = HeldOffset;
@@ -441,6 +444,7 @@ namespace Wreckabulary
             }
             else
             {
+                Body.interpolation = freeInterpolation;
                 transform.SetParent(homeParent, true);
                 if (!IsEliminated)
                 {

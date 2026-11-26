@@ -13,6 +13,8 @@ namespace Wreckabulary.Tests
         [UnitySetUp] public IEnumerator SetUp() => TestScenes.Reset();
         [UnityTearDown] public IEnumerator TearDown() => TestScenes.Reset();
 
+        const int WatchedFrames = 120;
+
         static PlayerController Player(int id, Vector3 at)
         {
             var p = Object.Instantiate(GameAssets.I.playerPrefab, at, Quaternion.identity);
@@ -160,6 +162,46 @@ namespace Wreckabulary.Tests
             float reach = Mathf.Max(a.x * side, b.x * side);
             Assert.Less(reach, face + .05f, "the carried player's far end stays on the carrier side of the wall");
             Assert.IsTrue(victim.IsHeld);
+        }
+
+        [UnityTest]
+        public IEnumerator ACarriedPlayerStaysOutOfASideWallOnEveryFrame()
+        {
+            var carrier = Player(0, Vector3.zero);
+            var victim = Player(1, new Vector3(0f, 0f, .9f));
+            Physics.SyncTransforms();
+            Assert.IsTrue(carrier.Combat.TryGrab());
+            yield return null;
+            CapsuleEnds(victim, out var a, out var b);
+            float side = Mathf.Abs(a.x) > Mathf.Abs(b.x) ? Mathf.Sign(a.x) : Mathf.Sign(b.x);
+            const float face = .8f;
+            Wall(new Vector3(side * (face + .1f), 2f, 0f), new Vector3(.2f, 4f, 6f));
+            yield return null;
+            yield return null;
+            for (int frame = 0; frame < WatchedFrames; frame++)
+            {
+                CapsuleEnds(victim, out a, out b);
+                Assert.Less(Mathf.Max(a.x * side, b.x * side), face + .05f, "frame " + frame + ": the carried player's far end is through the wall");
+                yield return null;
+            }
+            Assert.IsTrue(victim.IsHeld);
+        }
+
+        [UnityTest]
+        public IEnumerator ACarriedPlayerIsNotInterpolatedAndGetsItBackWhenPutDown()
+        {
+            var carrier = Player(0, Vector3.zero);
+            var victim = Player(1, new Vector3(0f, 0f, .9f));
+            Physics.SyncTransforms();
+            var free = victim.Body.interpolation;
+            Assert.AreNotEqual(RigidbodyInterpolation.None, free, "a free player is interpolated");
+            Assert.IsTrue(carrier.Combat.TryGrab());
+            yield return null;
+            Assert.AreEqual(RigidbodyInterpolation.None, victim.Body.interpolation, "a carried player follows the hands without a physics step of lag");
+            carrier.Combat.Drop();
+            yield return null;
+            Assert.IsFalse(victim.IsHeld);
+            Assert.AreEqual(free, victim.Body.interpolation, "a player put down is interpolated again");
         }
 
         [UnityTest]
