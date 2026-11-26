@@ -56,10 +56,10 @@ namespace Wreckabulary.Rules.Tests
             var tuning = Shipped;
             Assert.AreEqual(LetterDropTuning.DefaultShare, tuning.Share);
             Assert.AreEqual(LetterDropTuning.DefaultFewest, tuning.Fewest);
-            CollectionAssert.AreEqual(new[] { HouseModes.Tutorial, HouseModes.ShoppingList }, tuning.WholeIn.ToArray());
+            CollectionAssert.AreEqual(new[] { HouseModes.Tutorial }, tuning.WholeIn.ToArray());
             CollectionAssert.IsEmpty(tuning.Validate());
-            foreach (string mode in PlayedModes.Where(m => m != HouseModes.ShoppingList)) Assert.IsTrue(tuning.Partial(mode), mode + " drops part of a word");
-            foreach (string mode in new[] { HouseModes.Tutorial, HouseModes.ShoppingList, "Hub", "Default", "TimeRun", "Freestyle", "TeamRace", "BrawlRace", "", null })
+            foreach (string mode in PlayedModes) Assert.IsTrue(tuning.Partial(mode), mode + " drops part of a word");
+            foreach (string mode in new[] { HouseModes.Tutorial, "Hub", "Default", "TimeRun", "Freestyle", "TeamRace", "BrawlRace", "", null })
                 Assert.IsFalse(tuning.Partial(mode), (mode ?? "null") + " keeps every letter");
             Assert.IsFalse(HouseTuning.FromJson("{}").Drops.Partial(HouseModes.Tutorial), "without House tuning the Tutorial still drops in full");
         }

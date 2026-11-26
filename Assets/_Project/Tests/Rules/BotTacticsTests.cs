@@ -19,6 +19,24 @@ namespace Wreckabulary.Rules.Tests
         static ItemDefinition Item(string id) => Items.Get(id);
 
         [Test]
+        public void BotsStepInUntilASwingReallyReachesFurniture()
+        {
+            const float fist = 1.1f;
+            float lowProp = (float)System.Math.Sqrt(1.26 * 1.26 + BotTactics.ChestHeight * BotTactics.ChestHeight);
+            Assert.Less(1.26f, BotTactics.FistRange, "a bot already stops this far from a small prop");
+            Assert.Greater(lowProp, fist, "but a punch from the chest does not reach it there");
+            Assert.IsFalse(BotTactics.ReachesFurniture(lowProp, null, fist), "so the bot keeps stepping in");
+            Assert.IsTrue(BotTactics.ReachesFurniture(fist * BotTactics.FurnitureReachShare, null, fist));
+            Assert.IsFalse(BotTactics.ReachesFurniture(fist, null, fist), "the edge of the reach is not trusted");
+            Assert.AreEqual(Item("SPEAR").Melee.Reach, BotTactics.SwingReach(Item("SPEAR"), fist), 1e-4f);
+            Assert.AreEqual(fist, BotTactics.SwingReach(Item("APPLE"), fist), "what is not swung punches");
+            Assert.IsTrue(BotTactics.ReachesFurniture(lowProp, Item("SPEAR"), fist), "a long weapon reaches from further");
+            Assert.IsFalse(BotTactics.GivesUpOnFurniture(BotTactics.FurniturePatience));
+            Assert.IsTrue(BotTactics.GivesUpOnFurniture(BotTactics.FurniturePatience + .1f));
+            Assert.Greater(BotTactics.FurnitureRest, BotTactics.FurniturePatience);
+        }
+
+        [Test]
         public void BotsStrikeFromTheReachOfWhatTheyHold()
         {
             Assert.AreEqual(BotTactics.FistRange, BotTactics.StrikeRange(null));

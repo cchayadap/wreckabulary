@@ -26,6 +26,7 @@ namespace Wreckabulary.Rules
         public const float FlatLift = .3f, LobLift = 4f, LaunchHeight = 1.1f, LowestHit = .25f, HighestHit = 1.6f;
         public const float HelperReach = 2f, HelperPatience = 4f, HelperRest = 6f, HelperDodgeLead = .1f, TrapMargin = .45f, TrapProbe = .85f;
         public const float ObstacleNormal = .6f;
+        public const float ChestHeight = .8f, FurnitureReachShare = .9f, FurniturePatience = 10f, FurnitureRest = 30f;
 
         public static bool Throws(ItemDefinition held) => held != null && held.Use == null && held.Thrown != null;
 
@@ -35,6 +36,13 @@ namespace Wreckabulary.Rules
             held != null && held.Use == null && held.Thrown == null && held.Deploy == null && held.Shield == null && held.Melee != null;
 
         public static float StrikeRange(ItemDefinition held) => Swings(held) ? Math.Max(FistRange, held.Melee.Reach + ReachSlack) : FistRange;
+
+        public static float SwingReach(ItemDefinition held, float fistReach) => Swings(held) ? held.Melee.Reach : fistReach;
+
+        public static bool ReachesFurniture(float chestToSurface, ItemDefinition held, float fistReach) =>
+            chestToSurface <= SwingReach(held, fistReach) * FurnitureReachShare;
+
+        public static bool GivesUpOnFurniture(float seconds) => seconds > FurniturePatience;
 
         public static float AimDegrees(ItemDefinition held, float fistArc) =>
             Throws(held) || Shoots(held) ? ThrowAimDegrees : Math.Max(MinAimDegrees, (Swings(held) ? held.Melee.ArcDegrees : fistArc) * .5f);
